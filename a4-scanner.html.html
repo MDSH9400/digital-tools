@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Document Scanner & A4 Perspective Crop</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- jsPDF for A4 PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .checkered-bg {
+      background-color: #0f172a;
+      background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+                        linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+                        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    /* Custom Range Slider styling */
+    input[type=range] {
+      accent-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i class="ph-bold ph-scan text-xl text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
+            DocWarp <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">A4 Pro</span>
+          </h1>
+          <p class="text-xs text-slate-400">4-Corner Perspective Crop & Scanner / चार कोनों से क्रॉप करें</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label for="imageInput" class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm transition-all shadow-md shadow-blue-600/25 active:scale-95">
+          <i class="ph-bold ph-upload-simple"></i>
+          <span class="hidden sm:inline">New Document</span>
+          <span class="sm:hidden">Upload</span>
+        </label>
+        <input type="file" id="imageInput" accept="image/*" class="hidden">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 sm:p-6 flex flex-col gap-5">
+
+    <!-- Upload Empty State (Full width when no file) -->
+    <div id="dropZone" class="flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-2xl bg-slate-900/50 hover:bg-slate-900/80 transition-all cursor-pointer min-h-[500px] text-center group">
+      <div class="w-20 h-20 rounded-2xl bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner border border-slate-700">
+        <i class="ph-duotone ph-file-arrow-up text-4xl text-blue-400"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-200 mb-1">Upload Document or Photo</h3>
+      <p class="text-sm text-slate-400 max-w-md mb-2">Drag and drop any skewed bill, document, receipt, or photo here, or click to browse (JPG, PNG, WebP).</p>
+      <p class="text-xs text-slate-500">यहाँ दस्तावेज़ अपलोड करें — दोनों तरफ (Side-by-Side) ओरिजिनल और A4 प्रीव्यू दिखेगा।</p>
+    </div>
+
+    <!-- Dual-Pane Workspace (Hidden initially until upload) -->
+    <div id="workspaceContainer" class="hidden grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+      
+      <!-- LEFT PANE: Original Document & 4 Corner Editor -->
+      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+            <h2 class="font-bold text-sm sm:text-base text-slate-200 flex items-center gap-2">
+              <i class="ph-bold ph-crop text-blue-400"></i> Step 1: Adjust 4 Corners
+            </h2>
+          </div>
+          
+          <!-- Source image rotation & reset toolbar -->
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <button id="rotateSrcLeftBtn" title="Rotate Original Left 90°" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition flex items-center gap-1 font-medium border border-slate-700">
+              <i class="ph-bold ph-arrow-counter-clockwise"></i> 90°
+            </button>
+            <button id="rotateSrcRightBtn" title="Rotate Original Right 90°" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition flex items-center gap-1 font-medium border border-slate-700">
+              <i class="ph-bold ph-arrow-clockwise"></i> 90°
+            </button>
+            <button id="resetCornersBtn" title="Reset handles to margin" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 font-medium border border-slate-700">
+              <i class="ph ph-corners-out"></i> Reset
+            </button>
+            <button id="detectCornersBtn" title="Fit to full border" class="px-2.5 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 transition flex items-center gap-1.5 font-medium">
+              <i class="ph ph-sparkle"></i> Auto Snap
+            </button>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+          <i class="ph-fill ph-info text-blue-400"></i> Drag the 4 corner pins with precision magnifier loupe.
+        </p>
+
+        <!-- Canvas Container with Interactive Overlay -->
+        <div class="relative w-full rounded-xl overflow-hidden checkered-bg border border-slate-800 shadow-inner flex items-center justify-center p-2 min-h-[440px] max-h-[68vh]">
+          <canvas id="interactiveCanvas" class="max-w-full max-h-[64vh] object-contain rounded-lg cursor-crosshair touch-none shadow-lg"></canvas>
+
+          <!-- Magnifier / Loupe -->
+          <div id="loupe" class="hidden absolute pointer-events-none w-32 h-32 rounded-full border-2 border-blue-400 shadow-2xl overflow-hidden bg-slate-900 z-30 ring-4 ring-black/40">
+            <canvas id="loupeCanvas" width="128" height="128" class="w-full h-full block"></canvas>
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-3 h-3 border border-red-500 rounded-full bg-red-500/20"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANE: Scanned Output Preview & Control Panel -->
+      <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col gap-4">
+        
+        <!-- Header & Output Rotation Tools -->
+        <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <h2 class="font-bold text-sm sm:text-base text-slate-200 flex items-center gap-2">
+              <i class="ph-bold ph-eye text-emerald-400"></i> Step 2: A4 Rectified Preview
+            </h2>
+          </div>
+          
+          <div class="flex items-center gap-1.5 text-xs">
+            <button id="rotateOutLeftBtn" title="Rotate Result Left 90°" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition flex items-center gap-1 font-medium border border-slate-700">
+              <i class="ph-bold ph-arrow-counter-clockwise"></i> 90°
+            </button>
+            <button id="rotateOutRightBtn" title="Rotate Result Right 90°" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition flex items-center gap-1 font-medium border border-slate-700">
+              <i class="ph-bold ph-arrow-clockwise"></i> 90°
+            </button>
+            <button id="toggleOrientationBtn" title="Toggle Portrait / Landscape" class="px-2.5 py-1 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 transition flex items-center gap-1 font-medium">
+              <i class="ph-bold ph-frame-corners"></i> <span id="orientationText">Portrait</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Canvas Preview Box -->
+        <div class="w-full flex items-center justify-center p-2 rounded-xl border border-slate-800 bg-slate-950/80 min-h-[380px] max-h-[50vh] overflow-hidden relative" id="previewContainer">
+          <canvas id="outputCanvas" class="max-w-full max-h-[46vh] object-contain rounded shadow-2xl bg-white transition-opacity duration-150"></canvas>
+          <div id="previewPlaceholder" class="text-xs text-slate-600 text-center px-4">
+            Upload an image and adjust the 4 corners to view high-resolution scan.
+          </div>
+          <!-- Realtime rendering spinner/badge -->
+          <div id="processingBadge" class="hidden absolute top-3 right-3 bg-slate-900/85 backdrop-blur border border-blue-500/40 text-blue-400 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-20">
+            <svg class="animate-spin h-3.5 w-3.5 text-blue-400" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span id="processingText">Processing...</span>
+          </div>
+        </div>
+
+        <!-- Filters & Adjustment Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+          <!-- Filters -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Enhancement Filter</label>
+            <div class="grid grid-cols-2 gap-2" id="filterPresetGroup">
+              <button data-filter="original" class="filter-btn active px-3 py-2 rounded-xl text-xs font-medium border border-blue-500 bg-blue-600/20 text-blue-300 flex items-center justify-center gap-1.5 transition">
+                <i class="ph ph-image"></i> Original
+              </button>
+              <button data-filter="bw" class="filter-btn px-3 py-2 rounded-xl text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 flex items-center justify-center gap-1.5 transition">
+                <i class="ph ph-file-text"></i> Document B&W
+              </button>
+              <button data-filter="color" class="filter-btn px-3 py-2 rounded-xl text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 flex items-center justify-center gap-1.5 transition">
+                <i class="ph ph-magic-wand"></i> Magic Color
+              </button>
+              <button data-filter="grayscale" class="filter-btn px-3 py-2 rounded-xl text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 flex items-center justify-center gap-1.5 transition">
+                <i class="ph ph-drop-half"></i> Grayscale
+              </button>
+            </div>
+          </div>
+
+          <!-- Brightness, Contrast & Resolution -->
+          <div class="space-y-2.5">
+            <div>
+              <div class="flex justify-between text-xs text-slate-400 mb-1">
+                <span>Brightness</span>
+                <span id="brightnessVal" class="font-mono text-slate-200">0</span>
+              </div>
+              <input type="range" id="brightnessInput" min="-100" max="100" value="0" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs text-slate-400 mb-1">
+                <span>Contrast</span>
+                <span id="contrastVal" class="font-mono text-slate-200">0</span>
+              </div>
+              <input type="range" id="contrastInput" min="-100" max="100" value="0" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs text-slate-400 mb-1">
+                <span>Resolution</span>
+                <span id="previewResolutionText" class="text-[10px] text-blue-400 font-mono">2480 × 3508</span>
+              </div>
+              <select id="resolutionSelect" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="2480x3508" selected>Ultra HD (A4 300 DPI - 2480 × 3508 px)</option>
+                <option value="1754x2480">High Definition (A4 212 DPI - 1754 × 2480 px)</option>
+                <option value="1240x1754">Standard Web (A4 150 DPI - 1240 × 1754 px)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Download Buttons -->
+        <div class="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button id="downloadPdfBtn" disabled class="sm:col-span-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/20 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            <i class="ph-bold ph-file-pdf text-base"></i> Download A4 PDF
+          </button>
+          
+          <button id="downloadJpgBtn" disabled class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            <i class="ph-bold ph-image text-base"></i> High-Res JPG
+          </button>
+
+          <button id="downloadPngBtn" disabled class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            <i class="ph-bold ph-file-png text-base"></i> High-Res PNG
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Notification Banner -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-slate-700 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-sm">
+    <i class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>
+    <span id="toastMsg">Document updated</span>
+  </div>
+
+  <script>
+    // --- Application State ---
+    const state = {
+      image: null,
+      sourceRotation: 0,
+      outputRotation: 0,
+      corners: [], // [{x, y}, {x, y}, {x, y}, {x, y}] -> TL, TR, BR, BL
+      activeCornerIndex: -1,
+      isDragging: false,
+      filter: 'original',
+      brightness: 0,
+      contrast: 0,
+      targetWidth: 2480,
+      targetHeight: 3508
+    };
+
+    // Internal downsampled fast-rendering cache for fluid drag operations
+    let fastSrcCanvas = null;
+    let fastSrcCtx = null;
+    let fastSrcData = null;
+    let fastScale = 1;
+    let isWarpPending = false;
+    let debounceTimer = null;
+
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const workspaceContainer = document.getElementById('workspaceContainer');
+    const interactiveCanvas = document.getElementById('interactiveCanvas');
+    const ctx = interactiveCanvas.getContext('2d');
+    const outputCanvas = document.getElementById('outputCanvas');
+    const outCtx = outputCanvas.getContext('2d', { willReadFrequently: true });
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
+    const previewContainer = document.getElementById('previewContainer');
+    const processingBadge = document.getElementById('processingBadge');
+    const processingText = document.getElementById('processingText');
+
+    const loupe = document.getElementById('loupe');
+    const loupeCanvas = document.getElementById('loupeCanvas');
+    const loupeCtx = loupeCanvas.getContext('2d');
+
+    const resetCornersBtn = document.getElementById('resetCornersBtn');
+    const detectCornersBtn = document.getElementById('detectCornersBtn');
+    const rotateSrcLeftBtn = document.getElementById('rotateSrcLeftBtn');
+    const rotateSrcRightBtn = document.getElementById('rotateSrcRightBtn');
+    const rotateOutLeftBtn = document.getElementById('rotateOutLeftBtn');
+    const rotateOutRightBtn = document.getElementById('rotateOutRightBtn');
+    const toggleOrientationBtn = document.getElementById('toggleOrientationBtn');
+    const orientationText = document.getElementById('orientationText');
+
+    const resolutionSelect = document.getElementById('resolutionSelect');
+    const brightnessInput = document.getElementById('brightnessInput');
+    const contrastInput = document.getElementById('contrastInput');
+    const brightnessVal = document.getElementById('brightnessVal');
+    const contrastVal = document.getElementById('contrastVal');
+    const previewResolutionText = document.getElementById('previewResolutionText');
+
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const downloadJpgBtn = document.getElementById('downloadJpgBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
+
+    // Filter Buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('active', 'border-blue-500', 'bg-blue-600/20', 'text-blue-300');
+          b.classList.add('border-slate-800', 'bg-slate-800/60', 'text-slate-300');
+        });
+        btn.classList.add('active', 'border-blue-500', 'bg-blue-600/20', 'text-blue-300');
+        btn.classList.remove('border-slate-800', 'bg-slate-800/60', 'text-slate-300');
+        
+        state.filter = btn.dataset.filter;
+        scheduleRender(false);
+      });
+    });
+
+    // --- File Upload & Initialization ---
+    dropZone.addEventListener('click', () => imageInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-blue-500', 'bg-slate-900/90');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-blue-500', 'bg-slate-900/90');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-blue-500', 'bg-slate-900/90');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        loadFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        loadFile(e.target.files[0]);
+      }
+    });
+
+    function loadFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please upload a valid image file (PNG/JPG)');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          state.image = img;
+          state.outputRotation = 0;
+          buildFastSourceCache();
+          updateOrientationUI();
+          initializeEditor();
+          showToast('Image loaded! Instant drag enabled');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Build downsampled buffer for ultra-fast (60fps) real-time projective warping during drag
+    function buildFastSourceCache() {
+      if (!state.image) return;
+      const maxDim = 1200; // Optimal speed vs clarity balance for interactive editing
+      const w = state.image.naturalWidth;
+      const h = state.image.naturalHeight;
+      fastScale = Math.min(1, maxDim / Math.max(w, h));
+
+      fastSrcCanvas = document.createElement('canvas');
+      fastSrcCanvas.width = Math.round(w * fastScale);
+      fastSrcCanvas.height = Math.round(h * fastScale);
+      fastSrcCtx = fastSrcCanvas.getContext('2d');
+      fastSrcCtx.drawImage(state.image, 0, 0, fastSrcCanvas.width, fastSrcCanvas.height);
+      fastSrcData = fastSrcCtx.getImageData(0, 0, fastSrcCanvas.width, fastSrcCanvas.height);
+    }
+
+    function rotateSourceImage(degrees) {
+      if (!state.image) return;
+      const rad = (degrees * Math.PI) / 180;
+      const is90or270 = Math.abs(degrees % 180) === 90;
+      const newWidth = is90or270 ? state.image.naturalHeight : state.image.naturalWidth;
+      const newHeight = is90or270 ? state.image.naturalWidth : state.image.naturalHeight;
+
+      const rotCanvas = document.createElement('canvas');
+      rotCanvas.width = newWidth;
+      rotCanvas.height = newHeight;
+      const rCtx = rotCanvas.getContext('2d');
+
+      rCtx.translate(newWidth / 2, newHeight / 2);
+      rCtx.rotate(rad);
+      rCtx.drawImage(state.image, -state.image.naturalWidth / 2, -state.image.naturalHeight / 2);
+
+      const rotatedImg = new Image();
+      rotatedImg.onload = () => {
+        state.image = rotatedImg;
+        buildFastSourceCache();
+        initializeEditor();
+        showToast(`Original rotated by ${degrees > 0 ? '90° CW' : '90° CCW'}`);
+      };
+      rotatedImg.src = rotCanvas.toDataURL('image/png');
+    }
+
+    rotateSrcLeftBtn.addEventListener('click', () => rotateSourceImage(-90));
+    rotateSrcRightBtn.addEventListener('click', () => rotateSourceImage(90));
+
+    rotateOutLeftBtn.addEventListener('click', () => {
+      state.outputRotation = (state.outputRotation - 90 + 360) % 360;
+      updateOrientationUI();
+      scheduleRender(false);
+    });
+
+    rotateOutRightBtn.addEventListener('click', () => {
+      state.outputRotation = (state.outputRotation + 90) % 360;
+      updateOrientationUI();
+      scheduleRender(false);
+    });
+
+    toggleOrientationBtn.addEventListener('click', () => {
+      state.outputRotation = (state.outputRotation + 90) % 360;
+      updateOrientationUI();
+      scheduleRender(false);
+    });
+
+    function updateOrientationUI() {
+      const isLandscape = (state.outputRotation === 90 || state.outputRotation === 270);
+      orientationText.innerText = isLandscape ? 'Landscape' : 'Portrait';
+      if (isLandscape) {
+        previewContainer.classList.remove('aspect-[1/1.414]');
+        previewContainer.classList.add('aspect-[1.414/1]');
+      } else {
+        previewContainer.classList.remove('aspect-[1.414/1]');
+        previewContainer.classList.add('aspect-[1/1.414]');
+      }
+    }
+
+    function initializeEditor() {
+      dropZone.classList.add('hidden');
+      workspaceContainer.classList.remove('hidden');
+
+      const w = state.image.naturalWidth;
+      const h = state.image.naturalHeight;
+      const padX = w * 0.08;
+      const padY = h * 0.08;
+
+      state.corners = [
+        { x: padX, y: padY },
+        { x: w - padX, y: padY },
+        { x: w - padX, y: h - padY },
+        { x: padX, y: h - padY }
+      ];
+
+      resizeInteractiveCanvas();
+      drawInteractiveCanvas();
+      scheduleRender(false);
+      enableDownloadButtons();
+    }
+
+    function resizeInteractiveCanvas() {
+      if (!state.image) return;
+      const containerWidth = interactiveCanvas.parentElement.clientWidth - 16;
+      const aspect = state.image.naturalWidth / state.image.naturalHeight;
+      let displayWidth = containerWidth;
+      let displayHeight = displayWidth / aspect;
+
+      const maxHeight = window.innerHeight * 0.62;
+      if (displayHeight > maxHeight) {
+        displayHeight = maxHeight;
+        displayWidth = displayHeight * aspect;
+      }
+
+      interactiveCanvas.width = displayWidth;
+      interactiveCanvas.height = displayHeight;
+    }
+
+    window.addEventListener('resize', () => {
+      if (state.image) {
+        resizeInteractiveCanvas();
+        drawInteractiveCanvas();
+      }
+    });
+
+    function imgToCanvas(pt) {
+      const scaleX = interactiveCanvas.width / state.image.naturalWidth;
+      const scaleY = interactiveCanvas.height / state.image.naturalHeight;
+      return { x: pt.x * scaleX, y: pt.y * scaleY };
+    }
+
+    function canvasToImg(pt) {
+      const scaleX = state.image.naturalWidth / interactiveCanvas.width;
+      const scaleY = state.image.naturalHeight / interactiveCanvas.height;
+      return { x: pt.x * scaleX, y: pt.y * scaleY };
+    }
+
+    function drawInteractiveCanvas() {
+      if (!state.image) return;
+
+      ctx.clearRect(0, 0, interactiveCanvas.width, interactiveCanvas.height);
+      ctx.drawImage(state.image, 0, 0, interactiveCanvas.width, interactiveCanvas.height);
+
+      const pts = state.corners.map(imgToCanvas);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      ctx.lineTo(pts[1].x, pts[1].y);
+      ctx.lineTo(pts[2].x, pts[2].y);
+      ctx.lineTo(pts[3].x, pts[3].y);
+      ctx.closePath();
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+      ctx.fill();
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 4]);
+      ctx.stroke();
+      ctx.restore();
+
+      const labels = ['TL', 'TR', 'BR', 'BL'];
+      const colors = ['#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6'];
+
+      pts.forEach((pt, idx) => {
+        const isHovered = (state.activeCornerIndex === idx);
+        const radius = isHovered ? 13 : 10;
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, radius + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#0f172a';
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = colors[idx];
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fill();
+
+        ctx.font = '600 10px Plus Jakarta Sans, sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(labels[idx], pt.x + 14, pt.y + 4);
+      });
+    }
+
+    function getEventPos(e) {
+      const rect = interactiveCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+        clientX,
+        clientY
+      };
+    }
+
+    function findClosestCorner(pos) {
+      const pts = state.corners.map(imgToCanvas);
+      const hitRadius = 36;
+      let minIdx = -1;
+      let minDis = Infinity;
+
+      pts.forEach((pt, idx) => {
+        const dis = Math.hypot(pt.x - pos.x, pt.y - pos.y);
+        if (dis < hitRadius && dis < minDis) {
+          minDis = dis;
+          minIdx = idx;
+        }
+      });
+      return minIdx;
+    }
+
+    function onPointerDown(e) {
+      if (!state.image) return;
+      const pos = getEventPos(e);
+      const idx = findClosestCorner(pos);
+      if (idx !== -1) {
+        state.activeCornerIndex = idx;
+        state.isDragging = true;
+        updateLoupe(pos);
+        drawInteractiveCanvas();
+      }
+    }
+
+    function onPointerMove(e) {
+      if (!state.image) return;
+      const pos = getEventPos(e);
+
+      if (state.isDragging && state.activeCornerIndex !== -1) {
+        const imgPos = canvasToImg(pos);
+        const clampedX = Math.max(0, Math.min(state.image.naturalWidth, imgPos.x));
+        const clampedY = Math.max(0, Math.min(state.image.naturalHeight, imgPos.y));
+
+        state.corners[state.activeCornerIndex] = { x: clampedX, y: clampedY };
+        updateLoupe(pos);
+        drawInteractiveCanvas();
+
+        // Render fast lightweight preview using requestAnimationFrame without blocking drag
+        scheduleRender(true);
+      } else {
+        const hoverIdx = findClosestCorner(pos);
+        interactiveCanvas.style.cursor = (hoverIdx !== -1) ? 'grab' : 'crosshair';
+      }
+    }
+
+    function onPointerUp() {
+      if (state.isDragging) {
+        state.isDragging = false;
+        state.activeCornerIndex = -1;
+        loupe.classList.add('hidden');
+        drawInteractiveCanvas();
+        // Immediately render clear preview once pin dropped
+        scheduleRender(false);
+      }
+    }
+
+    function updateLoupe(pos) {
+      loupe.classList.remove('hidden');
+      const containerRect = interactiveCanvas.parentElement.getBoundingClientRect();
+      const canvasRect = interactiveCanvas.getBoundingClientRect();
+
+      const offsetX = 30;
+      let loupeLeft = (canvasRect.left - containerRect.left) + pos.x + offsetX;
+      let loupeTop = (canvasRect.top - containerRect.top) + pos.y - 110;
+
+      if (loupeTop < 10) loupeTop = (canvasRect.top - containerRect.top) + pos.y + 40;
+      if (loupeLeft + 130 > containerRect.width) loupeLeft -= 160;
+
+      loupe.style.left = `${loupeLeft}px`;
+      loupe.style.top = `${loupeTop}px`;
+
+      const zoom = 2.5;
+      const lW = loupeCanvas.width;
+      const lH = loupeCanvas.height;
+      const imgPt = state.corners[state.activeCornerIndex];
+
+      loupeCtx.clearRect(0, 0, lW, lH);
+      loupeCtx.drawImage(
+        state.image,
+        imgPt.x - (lW / 2) / zoom,
+        imgPt.y - (lH / 2) / zoom,
+        lW / zoom,
+        lH / zoom,
+        0, 0, lW, lH
+      );
+
+      loupeCtx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+      loupeCtx.lineWidth = 1.5;
+      loupeCtx.beginPath();
+      loupeCtx.moveTo(lW / 2 - 12, lH / 2);
+      loupeCtx.lineTo(lW / 2 + 12, lH / 2);
+      loupeCtx.moveTo(lW / 2, lH / 2 - 12);
+      loupeCtx.lineTo(lW / 2, lH / 2 + 12);
+      loupeCtx.stroke();
+    }
+
+    interactiveCanvas.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    interactiveCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      onPointerDown(e);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (state.isDragging) {
+        e.preventDefault();
+        onPointerMove(e);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', onPointerUp);
+
+    // --- Mathematics: Homography Matrix Solver ---
+    function getPerspectiveTransform(src, dst) {
+      const a = [];
+      for (let i = 0; i < 4; i++) {
+        const sx = src[i].x, sy = src[i].y;
+        const dx = dst[i].x, dy = dst[i].y;
+        a.push([sx, sy, 1, 0, 0, 0, -dx * sx, -dx * sy, dx]);
+        a.push([0, 0, 0, sx, sy, 1, -dy * sx, -dy * sy, dy]);
+      }
+
+      for (let i = 0; i < 8; i++) {
+        let maxRow = i;
+        for (let j = i + 1; j < 8; j++) {
+          if (Math.abs(a[j][i]) > Math.abs(a[maxRow][i])) maxRow = j;
+        }
+        const temp = a[i]; a[i] = a[maxRow]; a[maxRow] = temp;
+
+        for (let j = i + 1; j < 8; j++) {
+          const factor = a[j][i] / a[i][i];
+          for (let k = i; k <= 8; k++) {
+            a[j][k] -= factor * a[i][k];
+          }
+        }
+      }
+
+      const h = new Float64Array(9);
+      h[8] = 1;
+      for (let i = 7; i >= 0; i--) {
+        let sum = a[i][8];
+        for (let j = i + 1; j < 8; j++) {
+          sum -= a[i][j] * h[j];
+        }
+        h[i] = sum / a[i][i];
+      }
+      return h;
+    }
+
+    // --- High Performance Scheduling (RAF & Fast Path) ---
+    function scheduleRender(isFastDraft) {
+      if (isFastDraft) {
+        if (!isWarpPending) {
+          isWarpPending = true;
+          requestAnimationFrame(() => {
+            renderWarp(true);
+            isWarpPending = false;
+          });
+        }
+      } else {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          renderWarp(false);
+        }, 16);
+      }
+    }
+
+    // Core Projective Warp Engine (Optimized with typed arrays and dual-resolution support)
+    function renderWarp(isDraft = false) {
+      if (!state.image || !fastSrcData) return;
+
+      // Use smaller resolution for drag draft (e.g. 500x707) and clear resolution for steady preview
+      const draftW = 480;
+      const draftH = 680;
+      const previewW = 760;
+      const previewH = 1075;
+
+      const targetW = isDraft ? draftW : previewW;
+      const targetH = isDraft ? draftH : previewH;
+
+      const srcSourceData = fastSrcData.data;
+      const sW = fastSrcCanvas.width;
+      const sH = fastSrcCanvas.height;
+
+      // Scale corner points to match downsampled source canvas
+      const srcPts = state.corners.map(c => ({
+        x: c.x * fastScale,
+        y: c.y * fastScale
+      }));
+
+      const dstPts = [
+        { x: 0, y: 0 },
+        { x: targetW, y: 0 },
+        { x: targetW, y: targetH },
+        { x: 0, y: targetH }
+      ];
+
+      const H_inv = getPerspectiveTransform(dstPts, srcPts);
+      if (!H_inv) return;
+
+      const interCanvas = document.createElement('canvas');
+      interCanvas.width = targetW;
+      interCanvas.height = targetH;
+      const interCtx = interCanvas.getContext('2d');
+      const dstImgData = interCtx.createImageData(targetW, targetH);
+      
+      // Fast 32-bit integer array view for pixel buffer
+      const dstData32 = new Uint32Array(dstImgData.data.buffer);
+      const srcData32 = new Uint32Array(srcSourceData.buffer);
+
+      const m0 = H_inv[0], m1 = H_inv[1], m2 = H_inv[2];
+      const m3 = H_inv[3], m4 = H_inv[4], m5 = H_inv[5];
+      const m6 = H_inv[6], m7 = H_inv[7], m8 = H_inv[8];
+
+      let pixelIdx = 0;
+      for (let y = 0; y < targetH; y++) {
+        const m1y_m2 = m1 * y + m2;
+        const m4y_m5 = m4 * y + m5;
+        const m7y_m8 = m7 * y + m8;
+
+        for (let x = 0; x < targetW; x++) {
+          const w = m6 * x + m7y_m8;
+          const invW = 1.0 / w;
+          const u = (m0 * x + m1y_m2) * invW;
+          const v = (m3 * x + m4y_m5) * invW;
+
+          if (u >= 0 && u < sW - 1 && v >= 0 && v < sH - 1) {
+            const x0 = u | 0;
+            const y0 = v | 0;
+            dstData32[pixelIdx++] = srcData32[y0 * sW + x0];
+          } else {
+            dstData32[pixelIdx++] = 0xffffffff; // Pure white background
+          }
+        }
+      }
+
+      // Fast in-place enhancement filter
+      applyEnhancementFilter(dstImgData);
+      interCtx.putImageData(dstImgData, 0, 0);
+
+      // Render orientation to output canvas
+      const isLandscape = (state.outputRotation === 90 || state.outputRotation === 270);
+      const finalW = isLandscape ? targetH : targetW;
+      const finalH = isLandscape ? targetW : targetH;
+
+      outputCanvas.width = finalW;
+      outputCanvas.height = finalH;
+
+      outCtx.clearRect(0, 0, finalW, finalH);
+      outCtx.save();
+      outCtx.translate(finalW / 2, finalH / 2);
+      outCtx.rotate((state.outputRotation * Math.PI) / 180);
+      outCtx.drawImage(interCanvas, -targetW / 2, -targetH / 2);
+      outCtx.restore();
+
+      previewPlaceholder.classList.add('hidden');
+    }
+
+    // --- Fast Pixel Enhancement Filter ---
+    function applyEnhancementFilter(imgData) {
+      const d = imgData.data;
+      const len = d.length;
+      const filter = state.filter;
+      const bright = parseInt(state.brightness, 10);
+      const contrast = parseInt(state.contrast, 10);
+      const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+      // Fast path if original with no alterations
+      if (filter === 'original' && bright === 0 && contrast === 0) return;
+
+      for (let i = 0; i < len; i += 4) {
+        let r = d[i];
+        let g = d[i + 1];
+        let b = d[i + 2];
+
+        if (filter === 'grayscale') {
+          const gray = (r * 77 + g * 150 + b * 29) >> 8;
+          r = g = b = gray;
+        } else if (filter === 'bw') {
+          const gray = (r * 77 + g * 150 + b * 29) >> 8;
+          const val = gray > 140 ? 255 : (gray * 0.45);
+          r = g = b = val;
+        } else if (filter === 'color') {
+          const gray = (r * 77 + g * 150 + b * 29) >> 8;
+          if (gray > 165) {
+            r = Math.min(255, r * 1.15);
+            g = Math.min(255, g * 1.15);
+            b = Math.min(255, b * 1.15);
+          } else {
+            r = Math.max(0, r * 0.95);
+            g = Math.max(0, r * 0.95);
+            b = Math.max(0, b * 0.95);
+          }
+        }
+
+        if (bright !== 0) {
+          r += bright;
+          g += bright;
+          b += bright;
+        }
+
+        if (contrast !== 0) {
+          r = factor * (r - 128) + 128;
+          g = factor * (g - 128) + 128;
+          b = factor * (b - 128) + 128;
+        }
+
+        d[i] = r < 0 ? 0 : (r > 255 ? 255 : r);
+        d[i + 1] = g < 0 ? 0 : (g > 255 ? 255 : g);
+        d[i + 2] = b < 0 ? 0 : (b > 255 ? 255 : b);
+      }
+    }
+
+    // --- On-Demand Full High-Resolution (300 DPI) Rendering for Downloads ---
+    async function generateHighResCanvas() {
+      showProcessing(true, 'Rendering High-Res A4...');
+      await new Promise(r => setTimeout(r, 40));
+
+      const [baseW, baseH] = resolutionSelect.value.split('x').map(Number);
+      const isLandscape = (state.outputRotation === 90 || state.outputRotation === 270);
+      const resW = baseW;
+      const resH = baseH;
+
+      const srcPts = state.corners;
+      const dstPts = [
+        { x: 0, y: 0 },
+        { x: resW, y: 0 },
+        { x: resW, y: resH },
+        { x: 0, y: resH }
+      ];
+
+      const H_inv = getPerspectiveTransform(dstPts, srcPts);
+
+      const fullSrcCanvas = document.createElement('canvas');
+      fullSrcCanvas.width = state.image.naturalWidth;
+      fullSrcCanvas.height = state.image.naturalHeight;
+      const fullSrcCtx = fullSrcCanvas.getContext('2d');
+      fullSrcCtx.drawImage(state.image, 0, 0);
+
+      const srcImgData = fullSrcCtx.getImageData(0, 0, fullSrcCanvas.width, fullSrcCanvas.height);
+      const srcData = srcImgData.data;
+      const sW = fullSrcCanvas.width;
+      const sH = fullSrcCanvas.height;
+
+      const interCanvas = document.createElement('canvas');
+      interCanvas.width = resW;
+      interCanvas.height = resH;
+      const interCtx = interCanvas.getContext('2d');
+      const dstImgData = interCtx.createImageData(resW, resH);
+      const dstData = dstImgData.data;
+
+      const m0 = H_inv[0], m1 = H_inv[1], m2 = H_inv[2];
+      const m3 = H_inv[3], m4 = H_inv[4], m5 = H_inv[5];
+      const m6 = H_inv[6], m7 = H_inv[7], m8 = H_inv[8];
+
+      let dstIdx = 0;
+      for (let y = 0; y < resH; y++) {
+        const m1y_m2 = m1 * y + m2;
+        const m4y_m5 = m4 * y + m5;
+        const m7y_m8 = m7 * y + m8;
+
+        for (let x = 0; x < resW; x++) {
+          const w = m6 * x + m7y_m8;
+          const invW = 1.0 / w;
+          const u = (m0 * x + m1y_m2) * invW;
+          const v = (m3 * x + m4y_m5) * invW;
+
+          if (u >= 0 && u < sW - 1 && v >= 0 && v < sH - 1) {
+            const x0 = u | 0;
+            const y0 = v | 0;
+            const x1 = x0 + 1;
+            const y1 = y0 + 1;
+            const fx = u - x0;
+            const fy = v - y0;
+
+            const i00 = (y0 * sW + x0) * 4;
+            const i10 = (y0 * sW + x1) * 4;
+            const i01 = (y1 * sW + x0) * 4;
+            const i11 = (y1 * sW + x1) * 4;
+
+            for (let c = 0; c < 3; c++) {
+              const top = srcData[i00 + c] * (1 - fx) + srcData[i10 + c] * fx;
+              const btm = srcData[i01 + c] * (1 - fx) + srcData[i11 + c] * fx;
+              dstData[dstIdx + c] = (top * (1 - fy) + btm * fy) | 0;
+            }
+            dstData[dstIdx + 3] = 255;
+          } else {
+            dstData[dstIdx] = 255;
+            dstData[dstIdx + 1] = 255;
+            dstData[dstIdx + 2] = 255;
+            dstData[dstIdx + 3] = 255;
+          }
+          dstIdx += 4;
+        }
+      }
+
+      applyEnhancementFilter(dstImgData);
+      interCtx.putImageData(dstImgData, 0, 0);
+
+      const finalCanvas = document.createElement('canvas');
+      const finalW = isLandscape ? resH : resW;
+      const finalH = isLandscape ? resW : resH;
+      finalCanvas.width = finalW;
+      finalCanvas.height = finalH;
+
+      const fCtx = finalCanvas.getContext('2d');
+      fCtx.save();
+      fCtx.translate(finalW / 2, finalH / 2);
+      fCtx.rotate((state.outputRotation * Math.PI) / 180);
+      fCtx.drawImage(interCanvas, -resW / 2, -resH / 2);
+      fCtx.restore();
+
+      showProcessing(false);
+      return finalCanvas;
+    }
+
+    function showProcessing(show, text = 'Processing...') {
+      if (show) {
+        processingText.innerText = text;
+        processingBadge.classList.remove('hidden');
+      } else {
+        processingBadge.classList.add('hidden');
+      }
+    }
+
+    // --- Slider & Option Handlers ---
+    brightnessInput.addEventListener('input', (e) => {
+      state.brightness = e.target.value;
+      brightnessVal.innerText = e.target.value;
+      scheduleRender(false);
+    });
+
+    contrastInput.addEventListener('input', (e) => {
+      state.contrast = e.target.value;
+      contrastVal.innerText = e.target.value;
+      scheduleRender(false);
+    });
+
+    resolutionSelect.addEventListener('change', () => {
+      const [w, h] = resolutionSelect.value.split('x');
+      const isLandscape = (state.outputRotation === 90 || state.outputRotation === 270);
+      previewResolutionText.innerText = isLandscape ? `${h} × ${w}` : `${w} × ${h}`;
+      showToast('Export resolution updated');
+    });
+
+    resetCornersBtn.addEventListener('click', () => {
+      initializeEditor();
+      showToast('Corners reset to default margins');
+    });
+
+    detectCornersBtn.addEventListener('click', () => {
+      if (!state.image) return;
+      const w = state.image.naturalWidth;
+      const h = state.image.naturalHeight;
+      state.corners = [
+        { x: w * 0.04, y: h * 0.04 },
+        { x: w * 0.96, y: h * 0.04 },
+        { x: w * 0.96, y: h * 0.96 },
+        { x: w * 0.04, y: h * 0.96 }
+      ];
+      drawInteractiveCanvas();
+      scheduleRender(false);
+      showToast('Corners aligned to document edges');
+    });
+
+    // --- High Quality Download Actions ---
+    function enableDownloadButtons() {
+      downloadPdfBtn.disabled = false;
+      downloadJpgBtn.disabled = false;
+      downloadPngBtn.disabled = false;
+    }
+
+    downloadJpgBtn.addEventListener('click', async () => {
+      const hiResCanvas = await generateHighResCanvas();
+      const link = document.createElement('a');
+      link.download = `Scanned_Document_A4_${Date.now()}.jpg`;
+      link.href = hiResCanvas.toDataURL('image/jpeg', 0.95);
+      link.click();
+      showToast('Downloaded High-Res JPG!');
+    });
+
+    downloadPngBtn.addEventListener('click', async () => {
+      const hiResCanvas = await generateHighResCanvas();
+      const link = document.createElement('a');
+      link.download = `Scanned_Document_A4_${Date.now()}.png`;
+      link.href = hiResCanvas.toDataURL('image/png');
+      link.click();
+      showToast('Downloaded High-Res PNG!');
+    });
+
+    downloadPdfBtn.addEventListener('click', async () => {
+      try {
+        const hiResCanvas = await generateHighResCanvas();
+        const { jsPDF } = window.jspdf;
+        const isLandscape = (state.outputRotation === 90 || state.outputRotation === 270);
+        
+        const pdf = new jsPDF({
+          orientation: isLandscape ? 'landscape' : 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true
+        });
+
+        const imgData = hiResCanvas.toDataURL('image/jpeg', 0.92);
+        const pdfW = isLandscape ? 297 : 210;
+        const pdfH = isLandscape ? 210 : 297;
+        
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+        pdf.save(`Scanned_Doc_A4_${Date.now()}.pdf`);
+        showToast('A4 PDF generated & downloaded!');
+      } catch (err) {
+        console.error(err);
+        showToast('Error generating PDF file.');
+      }
+    });
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = message;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-20');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    }
+  </script>
+</body>
+</html>

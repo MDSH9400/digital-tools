@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live PDF Studio Pro - Advanced PDF Editor</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: 10+ Diverse Fonts for Instant Preview and Matching -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto+Mono:wght@400;600&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 Free CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- QRCode.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+    
+    /* Font Option Styles in Dropdown */
+    .f-times { font-family: 'Times New Roman', Times, serif; }
+    .f-arial { font-family: Arial, Helvetica, sans-serif; }
+    .f-roboto { font-family: 'Roboto', sans-serif; }
+    .f-garamond { font-family: 'EB Garamond', Garamond, serif; }
+    .f-courier { font-family: 'Courier New', Courier, monospace; }
+    .f-georgia { font-family: Georgia, serif; }
+    .f-poppins { font-family: 'Poppins', sans-serif; }
+    .f-opensans { font-family: 'Open Sans', sans-serif; }
+    .f-bengali { font-family: 'Noto Sans Bengali', sans-serif; }
+    .f-montserrat { font-family: 'Montserrat', sans-serif; }
+    .f-mono { font-family: 'Roboto Mono', monospace; }
+
+    /* PDF Canvas Container and Paper Drop Shadow */
+    .a4-paper-shadow {
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.22), 0 8px 12px -6px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Scrollbar Style */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #e2e8f0; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    /* In-place Editable Text Box */
+    .extracted-text-wrapper {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      box-sizing: border-box;
+      z-index: 20;
+      background: transparent !important;
+      transform-origin: left top;
+    }
+
+    .extracted-text-item {
+      white-space: pre;
+      cursor: text;
+      user-select: text;
+      outline: none !important;
+      border: 1px dashed transparent !important;
+      box-shadow: none !important;
+      background-color: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      line-height: 1.15 !important;
+      -webkit-user-modify: read-write-plaintext-only;
+      box-sizing: border-box;
+      caret-color: #2563eb;
+    }
+
+    .extracted-text-wrapper:hover {
+      outline: 1px dashed #6366f1;
+      border-radius: 2px;
+    }
+
+    .extracted-text-wrapper.is-active {
+      z-index: 50;
+      outline: 1.5px solid #4f46e5 !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-radius: 2px;
+    }
+
+    .text-drag-handle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      background-color: #4f46e5;
+      color: #ffffff;
+      border-radius: 4px;
+      font-size: 9px;
+      cursor: grab;
+      user-select: none;
+      z-index: 55;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .extracted-text-wrapper.is-active .text-drag-handle,
+    .extracted-text-wrapper:hover .text-drag-handle {
+      display: flex;
+    }
+
+    /* Media Overlay (Image, Signature, QR Code) */
+    .media-overlay-item {
+      position: absolute;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      border: 1.5px dashed transparent;
+      box-sizing: border-box;
+      z-index: 35;
+      background: transparent !important;
+    }
+
+    .media-overlay-item:active { cursor: grabbing; }
+
+    .media-overlay-item.selected {
+      border-color: #4f46e5 !important;
+      background: rgba(79, 70, 229, 0.03) !important;
+    }
+
+    .media-overlay-item img,
+    .media-overlay-item canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+    }
+
+    .media-resize-handle {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      width: 14px;
+      height: 14px;
+      background-color: #4f46e5;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      cursor: se-resize;
+      display: none;
+      z-index: 60;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .media-overlay-item.selected .media-resize-handle { display: block; }
+
+    .media-delete-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 22px;
+      height: 22px;
+      background-color: #ef4444;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      z-index: 65;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .media-overlay-item.selected .media-delete-btn { display: flex; }
+
+    /* Print Specific Rules */
+    @page { size: A4 portrait; margin: 0; }
+    @media print {
+      body * { visibility: hidden !important; }
+      #print-area, #print-area * { visibility: visible !important; }
+      #print-area {
+        position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+        margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: white;
+      }
+      #print-image { max-width: 100%; max-height: 100%; object-fit: contain; }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 flex flex-col h-screen overflow-hidden">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-800 border-b border-slate-700 z-40 px-3 sm:px-6 py-2.5 flex-shrink-0 shadow-md">
+    <div class="max-w-[1850px] mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-file-signature text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold text-white tracking-wide">Live PDF Studio Pro</h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">300 DPI Ultra HQ</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden md:block">
+            Automatic Font Matching • Color-Safe In-Place Text • Transparent Signatures • QR Generator
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center flex-wrap gap-2">
+        <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden">
+        <input type="file" id="imageFileInput" accept="image/*" class="hidden">
+        <input type="file" id="signatureFileInput" accept="image/*" class="hidden">
+
+        <button id="uploadTriggerBtn" class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all rounded-lg border border-slate-600 shadow-sm">
+          <i class="fa-solid fa-cloud-arrow-up text-sky-400"></i>
+          <span>Upload PDF</span>
+        </button>
+
+        <button id="cancelResetBtn" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 transition-all rounded-lg border border-rose-500/30">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Reset / Change PDF</span>
+        </button>
+
+        <div class="h-6 w-[1px] bg-slate-700 mx-1 hidden sm:block"></div>
+
+        <button id="downloadA4Btn" class="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-lg shadow-md shadow-indigo-600/30">
+          <i class="fa-solid fa-file-arrow-down"></i>
+          <span>Download A4 (PDF)</span>
+        </button>
+
+        <button id="printBtn" class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 transition-all rounded-lg border border-emerald-500/30">
+          <i class="fa-solid fa-print"></i>
+          <span>Print A4</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- SECONDARY TOOLBAR: RICH CONTROLS & FORMATTING -->
+  <nav class="bg-slate-800/95 border-b border-slate-700 px-3 sm:px-6 py-2 z-30 flex-shrink-0 backdrop-blur-md">
+    <div class="max-w-[1850px] mx-auto flex flex-wrap items-center justify-between gap-y-2 gap-x-3">
+      
+      <!-- Primary Tool Actions -->
+      <div class="flex items-center flex-wrap gap-1">
+        <button id="toolEditText" title="Click any text in the PDF to edit immediately" class="px-2.5 py-1.5 text-xs rounded-md flex items-center gap-1.5 font-medium border bg-indigo-600/20 text-indigo-300 border-indigo-500/40">
+          <i class="fa-solid fa-arrow-pointer text-indigo-400"></i>
+          <span>Edit & Move Text</span>
+        </button>
+
+        <button id="toolAddText" title="Click canvas to create custom new text" class="px-2.5 py-1.5 text-xs rounded-md flex items-center gap-1.5 font-medium text-slate-300 hover:bg-slate-700 border border-transparent">
+          <i class="fa-solid fa-font text-sky-400"></i>
+          <span>Add Text</span>
+        </button>
+
+        <button id="uploadPhotoBtn" title="Upload and insert any photo" class="px-2.5 py-1.5 text-xs rounded-md flex items-center gap-1.5 font-medium text-slate-300 hover:bg-slate-700 border border-transparent">
+          <i class="fa-regular fa-image text-emerald-400"></i>
+          <span>Photo</span>
+        </button>
+
+        <button id="uploadSignBtn" title="Upload signature (auto-removes white background)" class="px-2.5 py-1.5 text-xs rounded-md flex items-center gap-1.5 font-medium text-slate-300 hover:bg-slate-700 border border-transparent">
+          <i class="fa-solid fa-signature text-purple-400"></i>
+          <span>Signature</span>
+        </button>
+
+        <button id="openQrModalBtn" title="Generate and paste custom QR code" class="px-2.5 py-1.5 text-xs rounded-md flex items-center gap-1.5 font-medium text-slate-300 hover:bg-slate-700 border border-transparent">
+          <i class="fa-solid fa-qrcode text-amber-400"></i>
+          <span>QR Code</span>
+        </button>
+
+        <div class="h-5 w-[1px] bg-slate-700 mx-1 hidden sm:block"></div>
+
+        <!-- History: Undo/Redo & Delete -->
+        <button id="undoBtn" title="Undo (Ctrl+Z)" class="p-1.5 text-xs font-semibold rounded-md text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button id="redoBtn" title="Redo (Ctrl+Y)" class="p-1.5 text-xs font-semibold rounded-md text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button id="deleteActiveItemBtn" title="Delete Selected Text or Photo (Delete Key)" class="p-1.5 text-xs rounded-md text-rose-400 hover:bg-rose-500/20 border border-rose-500/30">
+          <i class="fa-regular fa-trash-can"></i>
+        </button>
+      </div>
+
+      <!-- TYPOGRAPHY MATCH & CUSTOMIZATION BAR -->
+      <div id="textControlsContainer" class="flex items-center flex-wrap gap-1.5 bg-slate-900/80 border border-slate-700 rounded-lg px-2.5 py-1 transition-colors">
+        
+        <!-- Detected Font Pill -->
+        <div class="flex items-center gap-1.5 pr-1 border-r border-slate-700">
+          <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400">Matched:</span>
+          <span id="detectedFontPill" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 truncate max-w-[120px]">
+            Auto Detect
+          </span>
+        </div>
+
+        <!-- 10+ Diverse Fonts Dropdown with Custom Font Styling Inside -->
+        <select id="fmtFontFamily" title="Font Family" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 font-semibold text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 cursor-pointer max-w-[150px] outline-none">
+          <option value="'Times New Roman', 'Tinos', Times, serif" class="f-times">Times New Roman</option>
+          <option value="Arial, Helvetica, sans-serif" class="f-arial">Arial (Sans)</option>
+          <option value="'Roboto', sans-serif" class="f-roboto">Roboto</option>
+          <option value="'EB Garamond', Garamond, serif" class="f-garamond">EB Garamond</option>
+          <option value="'Courier New', Courier, monospace" class="f-courier">Courier New</option>
+          <option value="Georgia, serif" class="f-georgia">Georgia</option>
+          <option value="'Poppins', sans-serif" class="f-poppins">Poppins</option>
+          <option value="'Open Sans', sans-serif" class="f-opensans">Open Sans</option>
+          <option value="'Montserrat', sans-serif" class="f-montserrat">Montserrat</option>
+          <option value="'Noto Sans Bengali', sans-serif" class="f-bengali">Noto Bengali</option>
+          <option value="'Roboto Mono', monospace" class="f-mono">Roboto Mono</option>
+        </select>
+
+        <!-- Font Size Controls -->
+        <div class="flex items-center bg-slate-800 rounded border border-slate-700 overflow-hidden">
+          <button id="fmtSizeDown" title="Decrease Font Size" class="px-2 py-0.5 hover:bg-slate-700 text-slate-300 font-bold text-xs">-</button>
+          <input type="number" step="0.5" min="4" max="150" id="fmtFontSize" class="w-12 text-center bg-transparent text-slate-200 text-xs py-0.5 border-x border-slate-700 outline-none font-semibold" value="12">
+          <button id="fmtSizeUp" title="Increase Font Size" class="px-2 py-0.5 hover:bg-slate-700 text-slate-300 font-bold text-xs">+</button>
+        </div>
+
+        <!-- Styles: Bold, Italic, Underline, Strikethrough -->
+        <div class="flex items-center bg-slate-800 rounded border border-slate-700 p-0.5 gap-0.5">
+          <button id="fmtBoldBtn" title="Bold (Ctrl+B)" class="w-6 h-6 rounded flex items-center justify-center font-bold text-slate-300 hover:bg-slate-700 text-xs transition">B</button>
+          <button id="fmtItalicBtn" title="Italic (Ctrl+I)" class="w-6 h-6 rounded flex items-center justify-center italic text-slate-300 hover:bg-slate-700 text-xs transition">I</button>
+          <button id="fmtUnderlineBtn" title="Underline (Ctrl+U)" class="w-6 h-6 rounded flex items-center justify-center underline text-slate-300 hover:bg-slate-700 text-xs transition">U</button>
+          <button id="fmtStrikeBtn" title="Strikethrough / Cancel Text" class="w-6 h-6 rounded flex items-center justify-center line-through text-slate-300 hover:bg-slate-700 text-xs transition">S</button>
+        </div>
+
+        <!-- Text Alignment -->
+        <div class="flex items-center bg-slate-800 rounded border border-slate-700 p-0.5 gap-0.5">
+          <button id="alignLeftBtn" title="Align Left" class="w-6 h-6 rounded flex items-center justify-center text-slate-300 hover:bg-slate-700 text-xs"><i class="fa-solid fa-align-left"></i></button>
+          <button id="alignCenterBtn" title="Align Center" class="w-6 h-6 rounded flex items-center justify-center text-slate-300 hover:bg-slate-700 text-xs"><i class="fa-solid fa-align-center"></i></button>
+          <button id="alignRightBtn" title="Align Right" class="w-6 h-6 rounded flex items-center justify-center text-slate-300 hover:bg-slate-700 text-xs"><i class="fa-solid fa-align-right"></i></button>
+          <button id="alignJustifyBtn" title="Justify" class="w-6 h-6 rounded flex items-center justify-center text-slate-300 hover:bg-slate-700 text-xs"><i class="fa-solid fa-align-justify"></i></button>
+        </div>
+
+        <!-- Color Picker -->
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 gap-1" title="Text Color">
+          <i class="fa-solid fa-palette text-[10px] text-slate-400"></i>
+          <input type="color" id="fmtColor" value="#000000" class="w-5 h-5 rounded border-0 cursor-pointer p-0 bg-transparent">
+        </div>
+
+        <!-- Layering & Micro Nudge Controls -->
+        <div class="flex items-center bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 gap-1">
+          <button id="layerBringForward" title="Bring to Front" class="px-1 text-[11px] text-slate-300 hover:text-indigo-400"><i class="fa-solid fa-bring-forward"></i></button>
+          <button id="layerSendBackward" title="Send Backward" class="px-1 text-[11px] text-slate-300 hover:text-indigo-400"><i class="fa-solid fa-send-backward"></i></button>
+          <span class="text-[9px] text-slate-500 font-bold ml-1">Nudge:</span>
+          <button id="nudgeUp" title="Nudge Up" class="px-1 text-[10px] hover:text-sky-400"><i class="fa-solid fa-arrow-up"></i></button>
+          <button id="nudgeDown" title="Nudge Down" class="px-1 text-[10px] hover:text-sky-400"><i class="fa-solid fa-arrow-down"></i></button>
+          <button id="nudgeLeft" title="Nudge Left" class="px-1 text-[10px] hover:text-sky-400"><i class="fa-solid fa-arrow-left"></i></button>
+          <button id="nudgeRight" title="Nudge Right" class="px-1 text-[10px] hover:text-sky-400"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- PAGE NAV & ZOOM -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5">
+          <button id="prevPageBtn" title="Previous Page" class="px-2 py-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded text-xs disabled:opacity-30 disabled:pointer-events-none">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="px-2 text-xs font-semibold text-slate-300 min-w-[65px] text-center">
+            <span id="pageNum">1</span> / <span id="pageCount">1</span>
+          </span>
+          <button id="nextPageBtn" title="Next Page" class="px-2 py-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded text-xs disabled:opacity-30 disabled:pointer-events-none">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5">
+          <button id="zoomOutBtn" title="Zoom Out" class="px-2 py-1 text-slate-300 hover:bg-slate-800 rounded text-xs font-bold"><i class="fa-solid fa-minus"></i></button>
+          <button id="zoomResetBtn" title="Reset Zoom" class="px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 rounded"><span id="zoomLabel">100%</span></button>
+          <button id="zoomInBtn" title="Zoom In" class="px-2 py-1 text-slate-300 hover:bg-slate-800 rounded text-xs font-bold"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- WORKSPACE WRAPPER (CENTERED & SCROLLABLE) -->
+  <main class="flex-1 w-full overflow-auto p-4 sm:p-8 flex flex-col items-center justify-start bg-slate-950" id="workspaceContainer">
+    
+    <!-- UPLOAD DROPZONE -->
+    <div id="dropzoneBox" class="w-full max-w-xl mx-auto my-auto p-10 border-2 border-dashed border-slate-700 bg-slate-900/60 rounded-3xl text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-500/5 transition-all flex flex-col items-center justify-center space-y-4 shadow-2xl backdrop-blur-sm">
+      <div class="w-20 h-20 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-4xl shadow-inner">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+      </div>
+      <div>
+        <h3 class="text-lg sm:text-xl font-bold text-white">
+          Upload PDF File to Start Editing
+        </h3>
+        <p class="text-xs text-slate-400 mt-1.5 max-w-sm">
+          Edits text directly on the page, auto-matches original PDF fonts, and preserves document background colors and design.
+        </p>
+      </div>
+      <button type="button" class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold pointer-events-none shadow-lg shadow-indigo-600/30">
+        <i class="fa-solid fa-folder-open"></i> Choose PDF Document
+      </button>
+    </div>
+
+    <!-- ACTIVE EDITING STAGE -->
+    <div id="editorStage" class="relative flex flex-col items-center hidden my-auto">
+      
+      <!-- Status Notice Bar -->
+      <div class="w-full flex items-center justify-between mb-3 px-1 text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Background-Safe Transparent Ink Active (No Bleed or White Patches)</span>
+        </div>
+        <span class="hidden sm:inline text-slate-500">Tip: Click any word to edit, or drag from handle to move.</span>
+      </div>
+
+      <!-- CANVAS WORKSPACE (Strict Bounds, High-DPI Rendering) -->
+      <div id="canvasWrapper" class="relative a4-paper-shadow bg-white rounded-sm select-none">
+        <!-- Base PDF Canvas Layer -->
+        <canvas id="pdfCanvas" class="block"></canvas>
+
+        <!-- Hidden Canvas to Sample Background Colors Seamlessly -->
+        <canvas id="colorSamplingCanvas" class="hidden"></canvas>
+
+        <!-- Interactive Text Overlay Layer -->
+        <div id="textOverlayContainer" class="absolute top-0 left-0 w-full h-full pointer-events-auto"></div>
+
+        <!-- Interactive Media (Photos, Signatures, QR Codes) Layer -->
+        <div id="mediaOverlayContainer" class="absolute top-0 left-0 w-full h-full pointer-events-auto"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- QR CODE MODAL -->
+  <div id="qrModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-qrcode text-amber-400"></i> Insert QR Code
+        </h3>
+        <button id="closeQrModalBtn" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Enter URL or Plain Text</label>
+        <textarea id="qrTextInput" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:border-indigo-500" placeholder="https://example.com or any text"></textarea>
+      </div>
+      <div class="flex justify-center p-3 bg-white rounded-xl" id="qrPreviewWrapper">
+        <div id="qrCodeTarget"></div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancelQrBtn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600">Cancel</button>
+        <button id="addQrToCanvasBtn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-500">Insert on PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastMessage" class="fixed bottom-6 right-6 bg-slate-800 text-white text-xs px-4 py-3 rounded-xl shadow-2xl border border-slate-700 transition-all duration-300 flex items-center gap-2.5 z-50 opacity-0 pointer-events-none translate-y-2">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toastText" class="font-medium">Notification</span>
+  </div>
+
+  <!-- PRINT HIDDEN CONTAINER -->
+  <div id="print-area"><img id="print-image" alt="Print Preview"></div>
+
+  <!-- APPLICATION LOGIC SCRIPT -->
+  <script>
+    // Configure PDF.js Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Application Global State
+    const state = {
+      pdfDoc: null,
+      rawPdfData: null,
+      currentPage: 1,
+      pageCount: 1,
+      zoom: 1.0,
+      renderScale: 2.2, // Crisp 300+ DPI equivalent viewport
+      activeTool: 'editText',
+      selectedTextItem: null,
+      selectedMediaItem: null,
+      pageEdits: {},
+      history: [],
+      historyIndex: -1
+    };
+
+    // DOM Elements
+    const dropzoneBox = document.getElementById('dropzoneBox');
+    const editorStage = document.getElementById('editorStage');
+    const cancelResetBtn = document.getElementById('cancelResetBtn');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const pdfFileInput = document.getElementById('pdfFileInput');
+    const imageFileInput = document.getElementById('imageFileInput');
+    const signatureFileInput = document.getElementById('signatureFileInput');
+    const uploadTriggerBtn = document.getElementById('uploadTriggerBtn');
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+    const uploadSignBtn = document.getElementById('uploadSignBtn');
+    const openQrModalBtn = document.getElementById('openQrModalBtn');
+
+    const pdfCanvas = document.getElementById('pdfCanvas');
+    const pdfCtx = pdfCanvas.getContext('2d', { willReadFrequently: true });
+    const colorSamplingCanvas = document.getElementById('colorSamplingCanvas');
+    const sampleCtx = colorSamplingCanvas.getContext('2d', { willReadFrequently: true });
+
+    const textOverlayContainer = document.getElementById('textOverlayContainer');
+    const mediaOverlayContainer = document.getElementById('mediaOverlayContainer');
+
+    // Controls
+    const detectedFontPill = document.getElementById('detectedFontPill');
+    const fmtFontFamily = document.getElementById('fmtFontFamily');
+    const fmtFontSize = document.getElementById('fmtFontSize');
+    const fmtSizeUp = document.getElementById('fmtSizeUp');
+    const fmtSizeDown = document.getElementById('fmtSizeDown');
+    const fmtBoldBtn = document.getElementById('fmtBoldBtn');
+    const fmtItalicBtn = document.getElementById('fmtItalicBtn');
+    const fmtUnderlineBtn = document.getElementById('fmtUnderlineBtn');
+    const fmtStrikeBtn = document.getElementById('fmtStrikeBtn');
+    const alignLeftBtn = document.getElementById('alignLeftBtn');
+    const alignCenterBtn = document.getElementById('alignCenterBtn');
+    const alignRightBtn = document.getElementById('alignRightBtn');
+    const alignJustifyBtn = document.getElementById('alignJustifyBtn');
+    const fmtColor = document.getElementById('fmtColor');
+    const layerBringForward = document.getElementById('layerBringForward');
+    const layerSendBackward = document.getElementById('layerSendBackward');
+    const textControlsContainer = document.getElementById('textControlsContainer');
+    const deleteActiveItemBtn = document.getElementById('deleteActiveItemBtn');
+
+    // Navigation and Tools
+    const pageNumSpan = document.getElementById('pageNum');
+    const pageCountSpan = document.getElementById('pageCount');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+    const zoomLabel = document.getElementById('zoomLabel');
+    const toolEditText = document.getElementById('toolEditText');
+    const toolAddText = document.getElementById('toolAddText');
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+
+    const downloadA4Btn = document.getElementById('downloadA4Btn');
+    const printBtn = document.getElementById('printBtn');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastText = document.getElementById('toastText');
+
+    // QR Modal Elements
+    const qrModal = document.getElementById('qrModal');
+    const closeQrModalBtn = document.getElementById('closeQrModalBtn');
+    const cancelQrBtn = document.getElementById('cancelQrBtn');
+    const addQrToCanvasBtn = document.getElementById('addQrToCanvasBtn');
+    const qrTextInput = document.getElementById('qrTextInput');
+    const qrCodeTarget = document.getElementById('qrCodeTarget');
+
+    // Micro Nudge Buttons
+    const nudgeUp = document.getElementById('nudgeUp');
+    const nudgeDown = document.getElementById('nudgeDown');
+    const nudgeLeft = document.getElementById('nudgeLeft');
+    const nudgeRight = document.getElementById('nudgeRight');
+
+    // UI Toast Notification helper
+    function showToast(message, isError = false) {
+      toastText.innerText = message;
+      const toastIcon = document.getElementById('toastIcon');
+      if (isError) {
+        toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+      } else {
+        toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+      }
+      toastMessage.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+      setTimeout(() => {
+        toastMessage.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+      }, 2500);
+    }
+
+    // Helper: Access page state storage
+    function getPageStorage(pageNum) {
+      if (!state.pageEdits[pageNum]) {
+        state.pageEdits[pageNum] = {
+          editedTexts: {},
+          media: []
+        };
+      }
+      return state.pageEdits[pageNum];
+    }
+
+    // History Snapshot Management (Undo / Redo)
+    function saveHistorySnapshot() {
+      if (state.historyIndex < state.history.length - 1) {
+        state.history = state.history.slice(0, state.historyIndex + 1);
+      }
+      const snapshot = JSON.stringify(state.pageEdits);
+      state.history.push(snapshot);
+      if (state.history.length > 40) state.history.shift();
+      state.historyIndex = state.history.length - 1;
+    }
+
+    function applyHistory(direction) {
+      if (direction === 'undo') {
+        if (state.historyIndex > 0) {
+          state.historyIndex--;
+          state.pageEdits = JSON.parse(state.history[state.historyIndex]);
+          renderOverlays();
+          renderMediaOverlays();
+          showToast('Action Undone');
+        } else {
+          showToast('Nothing to Undo', true);
+        }
+      } else if (direction === 'redo') {
+        if (state.historyIndex < state.history.length - 1) {
+          state.historyIndex++;
+          state.pageEdits = JSON.parse(state.history[state.historyIndex]);
+          renderOverlays();
+          renderMediaOverlays();
+          showToast('Action Redone');
+        } else {
+          showToast('Nothing to Redo', true);
+        }
+      }
+    }
+
+    undoBtn.addEventListener('click', () => applyHistory('undo'));
+    redoBtn.addEventListener('click', () => applyHistory('redo'));
+
+    // Reset and Upload another PDF
+    function resetAndCancelUpload() {
+      state.pdfDoc = null;
+      state.rawPdfData = null;
+      state.currentPage = 1;
+      state.pageCount = 1;
+      state.pageEdits = {};
+      state.history = [];
+      state.historyIndex = -1;
+      state.selectedTextItem = null;
+      state.selectedMediaItem = null;
+
+      pdfFileInput.value = '';
+      imageFileInput.value = '';
+      signatureFileInput.value = '';
+
+      editorStage.classList.add('hidden');
+      cancelResetBtn.classList.add('hidden');
+      dropzoneBox.classList.remove('hidden');
+
+      pdfCtx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+      textOverlayContainer.innerHTML = '';
+      mediaOverlayContainer.innerHTML = '';
+
+      showToast('Ready for new PDF upload');
+    }
+
+    cancelResetBtn.addEventListener('click', resetAndCancelUpload);
+
+    // Font Recognition / Auto-Matching Engine
+    function resolveTruePdfFont(fontName) {
+      const fn = (fontName || '').toLowerCase();
+      let detectedName = "Times New Roman";
+      let family = "'Times New Roman', 'Tinos', Times, serif";
+      let isBold = false;
+      let isItalic = false;
+
+      if (fn.includes('bold') || fn.includes('700') || fn.includes('black') || fn.includes('heavy')) isBold = true;
+      if (fn.includes('italic') || fn.includes('oblique')) isItalic = true;
+
+      if (fn.includes('roboto') && fn.includes('mono')) {
+        detectedName = "Roboto Mono";
+        family = "'Roboto Mono', monospace";
+      } else if (fn.includes('arial') || fn.includes('helvetica') || fn.includes('sans') || fn.includes('calibri')) {
+        detectedName = "Arial";
+        family = "Arial, Helvetica, sans-serif";
+      } else if (fn.includes('roboto')) {
+        detectedName = "Roboto";
+        family = "'Roboto', sans-serif";
+      } else if (fn.includes('garamond')) {
+        detectedName = "EB Garamond";
+        family = "'EB Garamond', Garamond, serif";
+      } else if (fn.includes('courier') || fn.includes('mono')) {
+        detectedName = "Courier New";
+        family = "'Courier New', Courier, monospace";
+      } else if (fn.includes('georgia')) {
+        detectedName = "Georgia";
+        family = "Georgia, serif";
+      } else if (fn.includes('poppins')) {
+        detectedName = "Poppins";
+        family = "'Poppins', sans-serif";
+      } else if (fn.includes('open') || fn.includes('opensans')) {
+        detectedName = "Open Sans";
+        family = "'Open Sans', sans-serif";
+      } else if (fn.includes('montserrat')) {
+        detectedName = "Montserrat";
+        family = "'Montserrat', sans-serif";
+      } else if (fn.includes('bengali') || fn.includes('noto')) {
+        detectedName = "Noto Bengali";
+        family = "'Noto Sans Bengali', sans-serif";
+      }
+
+      return { detectedName, family, isBold, isItalic };
+    }
+
+    // Load PDF Document
+    async function loadPDF(data) {
+      try {
+        state.rawPdfData = data;
+        state.pdfDoc = await pdfjsLib.getDocument({ data }).promise;
+        state.pageCount = state.pdfDoc.numPages;
+        state.currentPage = 1;
+        state.pageEdits = {};
+        state.history = [];
+        state.historyIndex = -1;
+
+        dropzoneBox.classList.add('hidden');
+        editorStage.classList.remove('hidden');
+        cancelResetBtn.classList.remove('hidden');
+
+        pageCountSpan.innerText = state.pageCount;
+        await renderPage(state.currentPage);
+        saveHistorySnapshot();
+        showToast(`Loaded ${state.pageCount} page PDF successfully`);
+      } catch (err) {
+        console.error(err);
+        showToast('Error loading PDF file', true);
+      }
+    }
+
+    // Render Specified Page
+    async function renderPage(pageNum) {
+      if (!state.pdfDoc) return;
+      const page = await state.pdfDoc.getPage(pageNum);
+      const baseViewport = page.getViewport({ scale: 1.0 });
+      const effectiveScale = state.renderScale * state.zoom;
+      const renderViewport = page.getViewport({ scale: effectiveScale });
+
+      // Canvas dimensions
+      pdfCanvas.width = renderViewport.width;
+      pdfCanvas.height = renderViewport.height;
+      pdfCanvas.style.width = (baseViewport.width * state.zoom) + 'px';
+      pdfCanvas.style.height = (baseViewport.height * state.zoom) + 'px';
+
+      // Sampler Canvas for Background-Safe sampling
+      colorSamplingCanvas.width = renderViewport.width;
+      colorSamplingCanvas.height = renderViewport.height;
+
+      // Container overlay dimensions
+      textOverlayContainer.style.width = pdfCanvas.style.width;
+      textOverlayContainer.style.height = pdfCanvas.style.height;
+      mediaOverlayContainer.style.width = pdfCanvas.style.width;
+      mediaOverlayContainer.style.height = pdfCanvas.style.height;
+
+      // Render base PDF
+      await page.render({ canvasContext: pdfCtx, viewport: renderViewport }).promise;
+      // Copy to background sampler canvas to allow seamless local background sampling
+      sampleCtx.drawImage(pdfCanvas, 0, 0);
+
+      // Extract text content if first time loading page
+      const storage = getPageStorage(pageNum);
+      if (Object.keys(storage.editedTexts).length === 0) {
+        const textContent = await page.getTextContent();
+        textContent.items.forEach((item, index) => {
+          if (!item.str || !item.str.trim()) return;
+
+          const tx = pdfjsLib.Util.transform(baseViewport.transform, item.transform);
+          const fontScaleY = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]);
+          const calculatedFontSize = Math.max(8, fontScaleY || 12);
+
+          const x = tx[4];
+          const y = tx[5] - (calculatedFontSize * 0.85);
+          const w = item.width > 0 ? item.width : (item.str.length * calculatedFontSize * 0.55);
+          const h = calculatedFontSize * 1.15;
+
+          const fontInfo = resolveTruePdfFont(item.fontName);
+
+          const itemId = `text-${pageNum}-${index}`;
+          storage.editedTexts[itemId] = {
+            id: itemId,
+            x: x,
+            y: y,
+            originalX: x,
+            originalY: y,
+            width: w,
+            height: h,
+            originalText: item.str,
+            newText: item.str,
+            fontSize: calculatedFontSize,
+            fontFamily: fontInfo.family,
+            fontNameTag: fontInfo.detectedName,
+            color: '#111827',
+            isBold: fontInfo.isBold,
+            isItalic: fontInfo.isItalic,
+            isUnderline: false,
+            isStrike: false,
+            textAlign: 'left',
+            zIndex: 20,
+            isCustom: false,
+            isModified: false
+          };
+        });
+      }
+
+      pageNumSpan.innerText = pageNum;
+      prevPageBtn.disabled = pageNum <= 1;
+      nextPageBtn.disabled = pageNum >= state.pageCount;
+
+      renderOverlays();
+      renderMediaOverlays();
+    }
+
+    // Clear underlying old text without leaving white marks on colored / textured pages
+    function sampleAndConcealBackground(item, effectiveScale) {
+      const origX = (item.originalX !== undefined ? item.originalX : item.x) * effectiveScale;
+      const origY = (item.originalY !== undefined ? item.originalY : item.y) * effectiveScale;
+      const w = Math.ceil(item.width * effectiveScale) + 6;
+      const h = Math.ceil(item.height * effectiveScale) + 6;
+
+      // Sample border pixel around text to determine background tone
+      const sampleX = Math.max(0, Math.min(origX - 2, sampleCtx.canvas.width - 1));
+      const sampleY = Math.max(0, Math.min(origY - 2, sampleCtx.canvas.height - 1));
+      const pixel = sampleCtx.getImageData(sampleX, sampleY, 1, 1).data;
+      const bgColor = `rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${pixel[3] / 255})`;
+
+      pdfCtx.save();
+      pdfCtx.fillStyle = bgColor;
+      pdfCtx.fillRect(origX - 2, origY - 2, w, h);
+      pdfCtx.restore();
+    }
+
+    // Text Drag State
+    let activeTextDragState = null;
+
+    // Render Editable Text Elements
+    function renderOverlays() {
+      textOverlayContainer.innerHTML = '';
+      const storage = getPageStorage(state.currentPage);
+      const effectiveScale = state.renderScale * state.zoom;
+
+      Object.values(storage.editedTexts).forEach(item => {
+        const isMoved = (item.x !== item.originalX || item.y !== item.originalY);
+        const isModified = item.isModified || (item.newText !== item.originalText) || isMoved;
+        const isActive = (state.selectedTextItem && state.selectedTextItem.id === item.id);
+
+        if (isModified || item.isCustom || isActive) {
+          sampleAndConcealBackground(item, effectiveScale);
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'extracted-text-wrapper' + (isActive ? ' is-active' : '');
+        wrapper.id = 'wrap-' + item.id;
+        wrapper.style.left = (item.x * state.zoom) + 'px';
+        wrapper.style.top = (item.y * state.zoom) + 'px';
+        wrapper.style.zIndex = item.zIndex || 20;
+
+        // Drag Handle
+        const handle = document.createElement('div');
+        handle.className = 'text-drag-handle';
+        handle.innerHTML = '<i class="fa-solid fa-arrows-up-down-left-right"></i>';
+        handle.title = 'Drag to reposition anywhere';
+        wrapper.appendChild(handle);
+
+        // Editable Input Element
+        const el = document.createElement('div');
+        el.className = 'extracted-text-item';
+        el.id = item.id;
+
+        const currentFontSize = item.fontSize * state.zoom;
+        el.style.fontSize = currentFontSize + 'px';
+        el.style.fontFamily = item.fontFamily;
+        el.style.fontWeight = item.isBold ? '700' : '400';
+        el.style.fontStyle = item.isItalic ? 'italic' : 'normal';
+        el.style.textAlign = item.textAlign || 'left';
+
+        let decors = [];
+        if (item.isUnderline) decors.push('underline');
+        if (item.isStrike) decors.push('line-through');
+        el.style.textDecoration = decors.length ? decors.join(' ') : 'none';
+
+        // 100% Transparent Background (Preserves original page artwork)
+        el.style.backgroundColor = 'transparent';
+        if (isModified || item.isCustom || isActive) {
+          el.style.color = item.color;
+        } else {
+          el.style.color = 'transparent'; // Blends over original text
+        }
+
+        el.contentEditable = "true";
+        el.spellcheck = false;
+        el.innerText = item.newText;
+
+        const activate = (e) => {
+          e.stopPropagation();
+          state.selectedTextItem = item;
+          state.selectedMediaItem = null;
+          renderMediaOverlays();
+          item.isModified = true;
+
+          document.querySelectorAll('.extracted-text-wrapper.is-active').forEach(n => n.classList.remove('is-active'));
+          wrapper.classList.add('is-active');
+          el.style.color = item.color;
+
+          sampleAndConcealBackground(item, effectiveScale);
+          syncTopToolbar(item);
+        };
+
+        el.addEventListener('click', activate);
+        el.addEventListener('focus', activate);
+
+        let typingDebounce;
+        el.addEventListener('input', () => {
+          item.newText = el.innerText;
+          item.isModified = true;
+          if (el.scrollWidth > item.width * state.zoom) {
+            item.width = el.scrollWidth / state.zoom;
+          }
+          clearTimeout(typingDebounce);
+          typingDebounce = setTimeout(() => saveHistorySnapshot(), 600);
+        });
+
+        handle.addEventListener('pointerdown', (ev) => {
+          ev.stopPropagation();
+          state.selectedTextItem = item;
+          wrapper.classList.add('is-active');
+          activeTextDragState = {
+            item: item,
+            wrapper: wrapper,
+            startX: ev.clientX,
+            startY: ev.clientY,
+            origX: item.x,
+            origY: item.y
+          };
+        });
+
+        wrapper.appendChild(el);
+        textOverlayContainer.appendChild(wrapper);
+      });
+    }
+
+    // Global Pointer for Text Movement Dragging
+    window.addEventListener('pointermove', (ev) => {
+      if (!activeTextDragState) return;
+      const { item, wrapper, startX, startY, origX, origY } = activeTextDragState;
+      const dx = (ev.clientX - startX) / state.zoom;
+      const dy = (ev.clientY - startY) / state.zoom;
+
+      item.x = Math.max(0, origX + dx);
+      item.y = Math.max(0, origY + dy);
+      item.isModified = true;
+
+      if (wrapper) {
+        wrapper.style.left = (item.x * state.zoom) + 'px';
+        wrapper.style.top = (item.y * state.zoom) + 'px';
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (activeTextDragState) {
+        activeTextDragState = null;
+        saveHistorySnapshot();
+      }
+    });
+
+    // Synchronize Top Toolbar with Active Selection
+    function syncTopToolbar(item) {
+      if (!item) return;
+      textControlsContainer.classList.add('border-indigo-500/60', 'bg-slate-800');
+      detectedFontPill.innerText = item.fontNameTag || 'Custom Font';
+      fmtFontFamily.value = item.fontFamily;
+      fmtFontSize.value = (Math.round(item.fontSize * 10) / 10);
+      fmtColor.value = item.color;
+
+      // Update button toggle states
+      fmtBoldBtn.className = item.isBold 
+        ? "w-6 h-6 rounded flex items-center justify-center font-bold bg-indigo-600 text-white text-xs transition"
+        : "w-6 h-6 rounded flex items-center justify-center font-bold text-slate-300 hover:bg-slate-700 text-xs transition";
+
+      fmtItalicBtn.className = item.isItalic 
+        ? "w-6 h-6 rounded flex items-center justify-center italic bg-indigo-600 text-white text-xs transition"
+        : "w-6 h-6 rounded flex items-center justify-center italic text-slate-300 hover:bg-slate-700 text-xs transition";
+
+      fmtUnderlineBtn.className = item.isUnderline 
+        ? "w-6 h-6 rounded flex items-center justify-center underline bg-indigo-600 text-white text-xs transition"
+        : "w-6 h-6 rounded flex items-center justify-center underline text-slate-300 hover:bg-slate-700 text-xs transition";
+
+      fmtStrikeBtn.className = item.isStrike 
+        ? "w-6 h-6 rounded flex items-center justify-center line-through bg-indigo-600 text-white text-xs transition"
+        : "w-6 h-6 rounded flex items-center justify-center line-through text-slate-300 hover:bg-slate-700 text-xs transition";
+
+      [alignLeftBtn, alignCenterBtn, alignRightBtn, alignJustifyBtn].forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-slate-300');
+      });
+      if (item.textAlign === 'center') alignCenterBtn.classList.add('bg-indigo-600', 'text-white');
+      else if (item.textAlign === 'right') alignRightBtn.classList.add('bg-indigo-600', 'text-white');
+      else if (item.textAlign === 'justify') alignJustifyBtn.classList.add('bg-indigo-600', 'text-white');
+      else alignLeftBtn.classList.add('bg-indigo-600', 'text-white');
+    }
+
+    // Toggle Styles
+    function toggleTextStyle(prop) {
+      if (!state.selectedTextItem) return;
+      state.selectedTextItem[prop] = !state.selectedTextItem[prop];
+      state.selectedTextItem.isModified = true;
+
+      const el = document.getElementById(state.selectedTextItem.id);
+      if (el) {
+        if (prop === 'isBold') el.style.fontWeight = state.selectedTextItem.isBold ? '700' : '400';
+        if (prop === 'isItalic') el.style.fontStyle = state.selectedTextItem.isItalic ? 'italic' : 'normal';
+        if (prop === 'isUnderline' || prop === 'isStrike') {
+          let dec = [];
+          if (state.selectedTextItem.isUnderline) dec.push('underline');
+          if (state.selectedTextItem.isStrike) dec.push('line-through');
+          el.style.textDecoration = dec.length ? dec.join(' ') : 'none';
+        }
+        el.focus();
+      }
+      syncTopToolbar(state.selectedTextItem);
+      saveHistorySnapshot();
+    }
+
+    fmtBoldBtn.addEventListener('click', () => toggleTextStyle('isBold'));
+    fmtItalicBtn.addEventListener('click', () => toggleTextStyle('isItalic'));
+    fmtUnderlineBtn.addEventListener('click', () => toggleTextStyle('isUnderline'));
+    fmtStrikeBtn.addEventListener('click', () => toggleTextStyle('isStrike'));
+
+    // Alignments
+    function setAlignment(val) {
+      if (!state.selectedTextItem) return;
+      state.selectedTextItem.textAlign = val;
+      state.selectedTextItem.isModified = true;
+      const el = document.getElementById(state.selectedTextItem.id);
+      if (el) el.style.textAlign = val;
+      syncTopToolbar(state.selectedTextItem);
+      saveHistorySnapshot();
+    }
+
+    alignLeftBtn.addEventListener('click', () => setAlignment('left'));
+    alignCenterBtn.addEventListener('click', () => setAlignment('center'));
+    alignRightBtn.addEventListener('click', () => setAlignment('right'));
+    alignJustifyBtn.addEventListener('click', () => setAlignment('justify'));
+
+    // Formatting Property Apply
+    function applyFormat(prop, val) {
+      if (!state.selectedTextItem) return;
+      state.selectedTextItem[prop] = val;
+      state.selectedTextItem.isModified = true;
+
+      const el = document.getElementById(state.selectedTextItem.id);
+      if (el) {
+        if (prop === 'fontFamily') el.style.fontFamily = val;
+        if (prop === 'fontSize') el.style.fontSize = (val * state.zoom) + 'px';
+        if (prop === 'color') el.style.color = val;
+      }
+      saveHistorySnapshot();
+    }
+
+    fmtFontFamily.addEventListener('change', (e) => applyFormat('fontFamily', e.target.value));
+    fmtFontSize.addEventListener('input', (e) => applyFormat('fontSize', parseFloat(e.target.value) || 12));
+    fmtSizeUp.addEventListener('click', () => {
+      if (!state.selectedTextItem) return;
+      const v = Math.round((state.selectedTextItem.fontSize + 0.5) * 10) / 10;
+      fmtFontSize.value = v;
+      applyFormat('fontSize', v);
+    });
+    fmtSizeDown.addEventListener('click', () => {
+      if (!state.selectedTextItem || state.selectedTextItem.fontSize <= 4) return;
+      const v = Math.round((state.selectedTextItem.fontSize - 0.5) * 10) / 10;
+      fmtFontSize.value = v;
+      applyFormat('fontSize', v);
+    });
+    fmtColor.addEventListener('input', (e) => applyFormat('color', e.target.value));
+
+    // Layering Z-Index
+    layerBringForward.addEventListener('click', () => {
+      if (state.selectedTextItem) {
+        state.selectedTextItem.zIndex = (state.selectedTextItem.zIndex || 20) + 5;
+        const wrap = document.getElementById('wrap-' + state.selectedTextItem.id);
+        if (wrap) wrap.style.zIndex = state.selectedTextItem.zIndex;
+        saveHistorySnapshot();
+        showToast('Moved Forward');
+      } else if (state.selectedMediaItem) {
+        state.selectedMediaItem.zIndex = (state.selectedMediaItem.zIndex || 35) + 5;
+        const el = document.getElementById(state.selectedMediaItem.id);
+        if (el) el.style.zIndex = state.selectedMediaItem.zIndex;
+        saveHistorySnapshot();
+        showToast('Moved Forward');
+      }
+    });
+
+    layerSendBackward.addEventListener('click', () => {
+      if (state.selectedTextItem) {
+        state.selectedTextItem.zIndex = Math.max(1, (state.selectedTextItem.zIndex || 20) - 5);
+        const wrap = document.getElementById('wrap-' + state.selectedTextItem.id);
+        if (wrap) wrap.style.zIndex = state.selectedTextItem.zIndex;
+        saveHistorySnapshot();
+        showToast('Sent Backward');
+      } else if (state.selectedMediaItem) {
+        state.selectedMediaItem.zIndex = Math.max(1, (state.selectedMediaItem.zIndex || 35) - 5);
+        const el = document.getElementById(state.selectedMediaItem.id);
+        if (el) el.style.zIndex = state.selectedMediaItem.zIndex;
+        saveHistorySnapshot();
+        showToast('Sent Backward');
+      }
+    });
+
+    // Micro Nudge Functions
+    function nudgePosition(dx, dy) {
+      if (state.selectedTextItem) {
+        state.selectedTextItem.x += dx;
+        state.selectedTextItem.y += dy;
+        state.selectedTextItem.isModified = true;
+        const wrap = document.getElementById('wrap-' + state.selectedTextItem.id);
+        if (wrap) {
+          wrap.style.left = (state.selectedTextItem.x * state.zoom) + 'px';
+          wrap.style.top = (state.selectedTextItem.y * state.zoom) + 'px';
+        }
+        saveHistorySnapshot();
+      } else if (state.selectedMediaItem) {
+        state.selectedMediaItem.x += dx;
+        state.selectedMediaItem.y += dy;
+        const wrap = document.getElementById(state.selectedMediaItem.id);
+        if (wrap) {
+          wrap.style.left = (state.selectedMediaItem.x * state.zoom) + 'px';
+          wrap.style.top = (state.selectedMediaItem.y * state.zoom) + 'px';
+        }
+        saveHistorySnapshot();
+      }
+    }
+
+    nudgeUp.addEventListener('click', () => nudgePosition(0, -1));
+    nudgeDown.addEventListener('click', () => nudgePosition(0, 1));
+    nudgeLeft.addEventListener('click', () => nudgePosition(-1, 0));
+    nudgeRight.addEventListener('click', () => nudgePosition(1, 0));
+
+    // Delete Active Item (Text, Photo, QR, Signature)
+    function deleteActiveItem() {
+      const storage = getPageStorage(state.currentPage);
+      if (state.selectedMediaItem) {
+        storage.media = storage.media.filter(m => m.id !== state.selectedMediaItem.id);
+        state.selectedMediaItem = null;
+        renderMediaOverlays();
+        saveHistorySnapshot();
+        showToast('Item deleted');
+      } else if (state.selectedTextItem) {
+        if (state.selectedTextItem.isCustom) {
+          delete storage.editedTexts[state.selectedTextItem.id];
+        } else {
+          state.selectedTextItem.newText = '';
+          state.selectedTextItem.isModified = true;
+        }
+        state.selectedTextItem = null;
+        renderOverlays();
+        saveHistorySnapshot();
+        showToast('Text deleted');
+      }
+    }
+
+    deleteActiveItemBtn.addEventListener('click', deleteActiveItem);
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        applyHistory('undo');
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        applyHistory('redo');
+      } else if (e.key === 'Delete' && !document.activeElement.classList.contains('extracted-text-item')) {
+        deleteActiveItem();
+      } else if (state.selectedTextItem) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          toggleTextStyle('isBold');
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+          e.preventDefault();
+          toggleTextStyle('isItalic');
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
+          e.preventDefault();
+          toggleTextStyle('isUnderline');
+        }
+      }
+    });
+
+    // MEDIA OVERLAY RENDERING (Photos, Signatures, QR Codes)
+    let activeMediaDragState = null;
+
+    function renderMediaOverlays() {
+      mediaOverlayContainer.innerHTML = '';
+      const storage = getPageStorage(state.currentPage);
+
+      storage.media.forEach(item => {
+        const wrap = document.createElement('div');
+        wrap.className = 'media-overlay-item' + (state.selectedMediaItem === item ? ' selected' : '');
+        wrap.id = item.id;
+        wrap.style.left = (item.x * state.zoom) + 'px';
+        wrap.style.top = (item.y * state.zoom) + 'px';
+        wrap.style.width = (item.w * state.zoom) + 'px';
+        wrap.style.height = (item.h * state.zoom) + 'px';
+        wrap.style.zIndex = item.zIndex || 35;
+
+        const img = document.createElement('img');
+        img.src = item.dataUrl;
+        wrap.appendChild(img);
+
+        // Delete button on top corner
+        const delBtn = document.createElement('div');
+        delBtn.className = 'media-delete-btn';
+        delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        delBtn.title = 'Remove Item';
+
+        delBtn.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+        delBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          storage.media = storage.media.filter(m => m.id !== item.id);
+          state.selectedMediaItem = null;
+          renderMediaOverlays();
+          saveHistorySnapshot();
+          showToast('Item Removed');
+        });
+        wrap.appendChild(delBtn);
+
+        // Resize handle on bottom-right corner
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'media-resize-handle';
+        resizeHandle.title = 'Drag to Resize';
+        wrap.appendChild(resizeHandle);
+
+        wrap.addEventListener('pointerdown', (ev) => {
+          if (ev.target === delBtn || ev.target.closest('.media-delete-btn')) return;
+          ev.stopPropagation();
+          state.selectedMediaItem = item;
+          state.selectedTextItem = null;
+          document.querySelectorAll('.extracted-text-wrapper.is-active').forEach(n => n.classList.remove('is-active'));
+          renderMediaOverlays();
+
+          const isResize = (ev.target === resizeHandle);
+          activeMediaDragState = {
+            item,
+            element: document.getElementById(item.id),
+            isResize,
+            startX: ev.clientX,
+            startY: ev.clientY,
+            origX: item.x,
+            origY: item.y,
+            origW: item.w,
+            origH: item.h
+          };
+        });
+
+        mediaOverlayContainer.appendChild(wrap);
+      });
+    }
+
+    // Media Drag & Resize Movement
+    window.addEventListener('pointermove', (ev) => {
+      if (!activeMediaDragState) return;
+      const { item, element, isResize, startX, startY, origX, origY, origW, origH } = activeMediaDragState;
+      const dx = (ev.clientX - startX) / state.zoom;
+      const dy = (ev.clientY - startY) / state.zoom;
+
+      if (isResize) {
+        item.w = Math.max(25, origW + dx);
+        item.h = Math.max(25, origH + dy);
+        if (element) {
+          element.style.width = (item.w * state.zoom) + 'px';
+          element.style.height = (item.h * state.zoom) + 'px';
+        }
+      } else {
+        item.x = Math.max(0, origX + dx);
+        item.y = Math.max(0, origY + dy);
+        if (element) {
+          element.style.left = (item.x * state.zoom) + 'px';
+          element.style.top = (item.y * state.zoom) + 'px';
+        }
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (activeMediaDragState) {
+        activeMediaDragState = null;
+        saveHistorySnapshot();
+      }
+    });
+
+    // Deselect upon clicking outside
+    canvasWrapper.addEventListener('click', (e) => {
+      if (!e.target.closest('.media-overlay-item') && !e.target.closest('.extracted-text-wrapper')) {
+        state.selectedMediaItem = null;
+        state.selectedTextItem = null;
+        document.querySelectorAll('.extracted-text-wrapper.is-active').forEach(n => n.classList.remove('is-active'));
+        textControlsContainer.classList.remove('border-indigo-500/60', 'bg-slate-800');
+        renderMediaOverlays();
+      }
+    });
+
+    // Photo Upload Handler
+    uploadPhotoBtn.addEventListener('click', () => imageFileInput.click());
+    imageFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const storage = getPageStorage(state.currentPage);
+        storage.media.push({
+          id: 'photo-' + Date.now(),
+          dataUrl: evt.target.result,
+          x: 60,
+          y: 60,
+          w: 130,
+          h: 130,
+          zIndex: 35
+        });
+        renderMediaOverlays();
+        saveHistorySnapshot();
+        showToast('Photo added! Click & drag to position.');
+      };
+      reader.readAsDataURL(file);
+      imageFileInput.value = '';
+    });
+
+    // Signature Upload Handler (With White Background Removal)
+    uploadSignBtn.addEventListener('click', () => signatureFileInput.click());
+    signatureFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => {
+          // Transparent signature extraction
+          const c = document.createElement('canvas');
+          c.width = img.width;
+          c.height = img.height;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+
+          const imgData = ctx.getImageData(0, 0, c.width, c.height);
+          const d = imgData.data;
+          for (let i = 0; i < d.length; i += 4) {
+            // If near white, make completely transparent
+            if (d[i] > 190 && d[i+1] > 190 && d[i+2] > 190) {
+              d[i+3] = 0;
+            }
+          }
+          ctx.putImageData(imgData, 0, 0);
+
+          const storage = getPageStorage(state.currentPage);
+          storage.media.push({
+            id: 'sign-' + Date.now(),
+            dataUrl: c.toDataURL('image/png'),
+            x: 80,
+            y: 120,
+            w: 150,
+            h: 65,
+            zIndex: 40
+          });
+          renderMediaOverlays();
+          saveHistorySnapshot();
+          showToast('Transparent signature placed!');
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+      signatureFileInput.value = '';
+    });
+
+    // QR Code Generator Logic
+    let currentQrCodeInstance = null;
+
+    openQrModalBtn.addEventListener('click', () => {
+      qrModal.classList.remove('hidden');
+      if (!qrTextInput.value) qrTextInput.value = 'https://';
+      updateQrPreview();
+    });
+
+    function updateQrPreview() {
+      const text = qrTextInput.value.trim() || 'https://example.com';
+      qrCodeTarget.innerHTML = '';
+      currentQrCodeInstance = new QRCode(qrCodeTarget, {
+        text: text,
+        width: 140,
+        height: 140,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    qrTextInput.addEventListener('input', updateQrPreview);
+    closeQrModalBtn.addEventListener('click', () => qrModal.classList.add('hidden'));
+    cancelQrBtn.addEventListener('click', () => qrModal.classList.add('hidden'));
+
+    addQrToCanvasBtn.addEventListener('click', () => {
+      const qrCanvas = qrCodeTarget.querySelector('canvas');
+      if (!qrCanvas) return;
+      const dataUrl = qrCanvas.toDataURL('image/png');
+      const storage = getPageStorage(state.currentPage);
+      storage.media.push({
+        id: 'qr-' + Date.now(),
+        dataUrl: dataUrl,
+        x: 80,
+        y: 80,
+        w: 100,
+        h: 100,
+        zIndex: 40
+      });
+      renderMediaOverlays();
+      saveHistorySnapshot();
+      qrModal.classList.add('hidden');
+      showToast('QR Code added to page!');
+    });
+
+    // Tool switching (Edit vs Add Text)
+    function setActiveTool(t) {
+      state.activeTool = t;
+      [toolEditText, toolAddText].forEach(b => {
+        b.classList.remove('bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/40');
+        b.classList.add('text-slate-300', 'border-transparent');
+      });
+      const btn = t === 'addText' ? toolAddText : toolEditText;
+      btn.classList.add('bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/40');
+      canvasWrapper.style.cursor = (t === 'addText' ? 'crosshair' : 'default');
+    }
+
+    toolEditText.addEventListener('click', () => setActiveTool('editText'));
+    toolAddText.addEventListener('click', () => setActiveTool('addText'));
+
+    // Canvas click to insert new text if 'addText' tool is chosen
+    canvasWrapper.addEventListener('click', (e) => {
+      if (state.activeTool !== 'addText') return;
+      const rect = canvasWrapper.getBoundingClientRect();
+      const coords = {
+        x: (e.clientX - rect.left) / state.zoom,
+        y: (e.clientY - rect.top) / state.zoom
+      };
+
+      const storage = getPageStorage(state.currentPage);
+      const newId = 'custom-' + Date.now();
+      storage.editedTexts[newId] = {
+        id: newId,
+        x: coords.x,
+        y: coords.y,
+        originalX: coords.x,
+        originalY: coords.y,
+        width: 140,
+        height: 22,
+        originalText: '',
+        newText: 'New text here',
+        fontSize: parseFloat(fmtFontSize.value) || 14,
+        fontFamily: fmtFontFamily.value,
+        fontNameTag: fmtFontFamily.options[fmtFontFamily.selectedIndex].text,
+        color: fmtColor.value,
+        isBold: false,
+        isItalic: false,
+        isUnderline: false,
+        isStrike: false,
+        textAlign: 'left',
+        zIndex: 30,
+        isCustom: true,
+        isModified: true
+      };
+
+      renderOverlays();
+      saveHistorySnapshot();
+      setActiveTool('editText');
+      showToast('New text box created');
+    });
+
+    // Pagination
+    prevPageBtn.addEventListener('click', () => {
+      if (state.currentPage > 1) {
+        state.currentPage--;
+        renderPage(state.currentPage);
+      }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+      if (state.currentPage < state.pageCount) {
+        state.currentPage++;
+        renderPage(state.currentPage);
+      }
+    });
+
+    // Zoom Controls
+    zoomInBtn.addEventListener('click', () => {
+      if (state.zoom < 2.5) {
+        state.zoom += 0.15;
+        zoomLabel.innerText = Math.round(state.zoom * 100) + '%';
+        renderPage(state.currentPage);
+      }
+    });
+
+    zoomOutBtn.addEventListener('click', () => {
+      if (state.zoom > 0.5) {
+        state.zoom -= 0.15;
+        zoomLabel.innerText = Math.round(state.zoom * 100) + '%';
+        renderPage(state.currentPage);
+      }
+    });
+
+    zoomResetBtn.addEventListener('click', () => {
+      state.zoom = 1.0;
+      zoomLabel.innerText = '100%';
+      renderPage(state.currentPage);
+    });
+
+    // PDF File Input Triggers
+    uploadTriggerBtn.addEventListener('click', () => pdfFileInput.click());
+    dropzoneBox.addEventListener('click', () => pdfFileInput.click());
+
+    pdfFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = (evt) => loadPDF(new Uint8Array(evt.target.result));
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Drag and drop onto upload box
+    dropzoneBox.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzoneBox.classList.add('border-indigo-500', 'bg-indigo-500/10');
+    });
+
+    dropzoneBox.addEventListener('dragleave', () => {
+      dropzoneBox.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+    });
+
+    dropzoneBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzoneBox.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        const file = e.dataTransfer.files[0];
+        if (file.type === 'application/pdf') {
+          const reader = new FileReader();
+          reader.onload = (evt) => loadPDF(new Uint8Array(evt.target.result));
+          reader.readAsArrayBuffer(file);
+        }
+      }
+    });
+
+    // High Resolution 300 DPI Canvas Generation for Export & Print
+    async function generateHighResCanvas() {
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = pdfCanvas.width;
+      exportCanvas.height = pdfCanvas.height;
+      const expCtx = exportCanvas.getContext('2d');
+
+      // Base canvas draw
+      expCtx.drawImage(pdfCanvas, 0, 0);
+
+      const storage = getPageStorage(state.currentPage);
+      const effectiveScale = state.renderScale * state.zoom;
+
+      // Render edited texts
+      Object.values(storage.editedTexts).forEach(item => {
+        const isMoved = (item.x !== item.originalX || item.y !== item.originalY);
+        const isModified = item.isModified || (item.newText !== item.originalText) || isMoved;
+
+        if ((isModified || item.isCustom) && item.newText) {
+          expCtx.save();
+          expCtx.fillStyle = item.color || '#111827';
+          const expFontSize = item.fontSize * effectiveScale;
+          const family = item.fontFamily.split(',')[0].replace(/['"]/g, '');
+
+          let stylePrefix = '';
+          if (item.isItalic) stylePrefix += 'italic ';
+          if (item.isBold) stylePrefix += 'bold ';
+
+          expCtx.font = `${stylePrefix}${expFontSize}px ${family}, serif`;
+          expCtx.textBaseline = 'top';
+
+          const textX = item.x * effectiveScale;
+          const textY = item.y * effectiveScale;
+
+          expCtx.fillText(item.newText, textX, textY);
+
+          // Underline & Strikethrough export drawing
+          if (item.isUnderline || item.isStrike) {
+            const metrics = expCtx.measureText(item.newText);
+            const textWidth = metrics.width;
+            expCtx.lineWidth = Math.max(1, expFontSize * 0.07);
+            expCtx.strokeStyle = item.color || '#111827';
+
+            if (item.isUnderline) {
+              const lineY = textY + (expFontSize * 1.05);
+              expCtx.beginPath();
+              expCtx.moveTo(textX, lineY);
+              expCtx.lineTo(textX + textWidth, lineY);
+              expCtx.stroke();
+            }
+
+            if (item.isStrike) {
+              const lineY = textY + (expFontSize * 0.55);
+              expCtx.beginPath();
+              expCtx.moveTo(textX, lineY);
+              expCtx.lineTo(textX + textWidth, lineY);
+              expCtx.stroke();
+            }
+          }
+
+          expCtx.restore();
+        }
+      });
+
+      // Render media images (photos, signatures, QR codes)
+      for (const m of storage.media) {
+        await new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => {
+            expCtx.drawImage(img, m.x * effectiveScale, m.y * effectiveScale, m.w * effectiveScale, m.h * effectiveScale);
+            resolve();
+          };
+          img.src = m.dataUrl;
+        });
+      }
+
+      return exportCanvas;
+    }
+
+    // Download High Quality A4 PDF via jsPDF
+    downloadA4Btn.addEventListener('click', async () => {
+      if (!state.pdfDoc) {
+        showToast('Please upload a PDF first', true);
+        return;
+      }
+      showToast('Generating 300 DPI A4 PDF...');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
+      const hCanvas = await generateHighResCanvas();
+      const imgData = hCanvas.toDataURL('image/jpeg', 0.98);
+
+      // Fit to standard A4 (210 x 297 mm)
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'SLOW');
+      pdf.save(`LivePDF_Studio_Page_${state.currentPage}.pdf`);
+      showToast('A4 PDF Export Complete!');
+    });
+
+    // Print A4 Preview
+    printBtn.addEventListener('click', async () => {
+      if (!state.pdfDoc) {
+        showToast('Please upload a PDF first', true);
+        return;
+      }
+      showToast('Preparing A4 Print Preview...');
+      const hCanvas = await generateHighResCanvas();
+      const printImg = document.getElementById('print-image');
+      printImg.src = hCanvas.toDataURL('image/png');
+      setTimeout(() => {
+        window.print();
+      }, 350);
+    });
+  </script>
+</body>
+</html>

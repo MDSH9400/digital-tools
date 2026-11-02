@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Seva Kendra - Complete Integrated Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for High Resolution Prints & Captures -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --success: #27ae60;
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --border-glow: rgba(99, 102, 241, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: #f3f4f6;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* ---------------- Header / Navigation ---------------- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 6%;
+            background: rgba(11, 15, 25, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .brand-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: #6366f1;
+        }
+
+        .sub-logo {
+            font-size: 11px;
+            font-weight: 600;
+            color: #9ca3af;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 24px;
+            align-items: center;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #9ca3af;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.25s ease;
+        }
+
+        nav ul li a:hover {
+            color: #6366f1;
+        }
+
+        .btn-primary-nav {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 9px 22px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary-nav:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(99, 102, 241, 0.45);
+        }
+
+        /* ---------------- Hero Section ---------------- */
+        .hero {
+            padding: 130px 6% 30px 6%;
+            text-align: center;
+            background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 60%);
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #ffffff, #c7d2fe, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: #9ca3af;
+            font-size: 15px;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        /* ---------------- Section Headings & Services ---------------- */
+        .section-heading {
+            padding: 30px 6% 12px 6%;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-heading i {
+            color: #6366f1;
+        }
+
+        .services {
+            padding: 18px 6% 45px 6%;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            padding: 24px 20px;
+            border-radius: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent, rgba(99, 102, 241, 0.25), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .service-card:hover {
+            border-color: #6366f1;
+            transform: translateY(-5px);
+            background: rgba(22, 30, 48, 0.95);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.22);
+        }
+
+        .service-card i {
+            font-size: 34px;
+            color: #6366f1;
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover i {
+            transform: scale(1.1);
+        }
+
+        .service-card h3 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .service-card p {
+            color: #9ca3af;
+            font-size: 12.5px;
+            line-height: 1.45;
+        }
+
+        .badge-special {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 9.5px;
+            background: #2563eb;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ---------------- Universal Modal System ---------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 7, 14, 0.86);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            position: relative;
+            color: #fff;
+        }
+
+        .modal-box-large {
+            background: #ffffff;
+            color: #333;
+            padding: 24px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 92vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-box-fullscreen {
+            background: #0f172a;
+            color: #f1f5f9;
+            padding: 20px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 1300px;
+            max-height: 95vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 20;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: #ffffff;
+        }
+
+        .modal-box-large .close-btn {
+            color: #4b5563;
+        }
+
+        .modal-box-large .close-btn:hover {
+            color: #000;
+        }
+
+        .modal-box h3 {
+            font-size: 20px;
+            margin-bottom: 18px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-box h3 i {
+            color: #6366f1;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0b0f19;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14.5px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: #6366f1;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            margin-top: 6px;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-action:hover {
+            opacity: 0.95;
+        }
+
+        .result-box {
+            margin-top: 16px;
+            padding: 14px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-box h4 {
+            color: #a5b4fc;
+            font-size: 15px;
+            word-break: break-word;
+        }
+
+        /* ---------------- Tool 1: QR Generator Styles ---------------- */
+        .qr-tool-box {
+            text-align: center;
+        }
+
+        .qr-image-wrapper {
+            background: #ffffff;
+            padding: 12px;
+            display: inline-block;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .qr-image-wrapper img {
+            width: 160px;
+            height: 160px;
+            display: block;
+        }
+
+        .btn-download-qr {
+            background: #6366f1;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: block;
+            width: 100%;
+            transition: background 0.2s ease;
+        }
+
+        .btn-download-qr:hover {
+            background: #4f46e5;
+        }
+
+        /* ---------------- Tool 2: BioData Maker Styles ---------------- */
+        .form-container-bio {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 18px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+        }
+
+        .full { grid-column: 1 / -1; }
+
+        .modal-box-large h3.bio-heading {
+            border-bottom: 2px solid var(--accent);
+            color: var(--primary);
+            margin: 14px 0 10px 0;
+            padding-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .modal-box-large input, .modal-box-large select, .modal-box-large textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #000;
+            background: #fff;
+        }
+
+        .lang-btn {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 3px 3px 0 0;
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #334155;
+            user-select: none;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        #biodata-paper {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 8mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.18);
+            display: flex;
+            flex-direction: column;
+            color: #000;
+            margin: 15px auto;
+            box-sizing: border-box;
+        }
+
+        .page-border {
+            border: 3.5px solid var(--primary);
+            height: 100%;
+            width: 100%;
+            padding: 8mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .page-border::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid var(--primary);
+            pointer-events: none;
+        }
+
+        .cv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .cv-header h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 24px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .photo-frame {
+            width: 95px;
+            height: 115px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #p-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #ffffff;
+            display: none;
+        }
+
+        .sec-title {
+            background: var(--primary) !important;
+            color: white !important;
+            padding: 4px 10px;
+            font-weight: bold;
+            margin: 12px 0 6px 0;
+            text-transform: uppercase;
+            font-size: 12.5px;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .info-row {
+            display: flex;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .label {
+            width: 125px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .val {
+            flex: 1;
+            color: #000;
+        }
+
+        table.bio-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 6px 0;
+            font-size: 12px;
+        }
+
+        table.bio-table th, table.bio-table td {
+            border: 1px solid #94a3b8;
+            padding: 5px;
+            text-align: center;
+            color: #000;
+        }
+
+        table.bio-table th {
+            background: #f1f5f9 !important;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .footer-bio {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-top: 15px;
+            font-size: 12px;
+            color: #000;
+        }
+
+        .sign-area {
+            text-align: center;
+            width: 140px;
+        }
+
+        .sign-space {
+            border-bottom: 1px solid #000;
+            height: 40px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #p-sign-img {
+            max-height: 100%;
+            max-width: 100%;
+            display: none;
+        }
+
+        .btn-bio-print {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            font-size: 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 20px auto 10px auto;
+            font-weight: bold;
+            display: block;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.35);
+        }
+
+        /* ---------------- Tool 3: A4 Document Joiner Styles ---------------- */
+        .joiner-wrapper { text-align: center; }
+        .upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            cursor: pointer;
+            background: #f8fafc;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s ease;
+        }
+        .upload-box:hover { border-color: #6366f1; background: #f1f5f9; }
+        .upload-box input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; }
+        .preview-img { max-width: 100%; max-height: 100px; display: none; margin-top: 8px; border-radius: 4px; }
+        .btn-joiner {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 6px;
+        }
+        .btn-preview-j { background-color: #1a73e8; color: white; width: 100%; }
+        .btn-preview-j:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+        .btn-download-j { background-color: #34a853; color: white; display: none; }
+        #result-section-j { margin-top: 20px; display: none; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+        canvas#a4Canvas { max-width: 100%; height: auto; border: 1px solid #cbd5e1; background: white; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        /* ---------------- Tool 4: PAN Studio Styles ---------------- */
+        .pan-studio { text-align: center; }
+        .pan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .pan-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8fafc;
+            text-align: center;
+            position: relative;
+            min-height: 190px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .pan-box input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; z-index: 5; }
+        .pan-preview { max-width: 100%; max-height: 90px; display: none; margin-top: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn-pan-dl { background-color: #34a853; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: none; margin-top: 10px; z-index: 10; position: relative; }
+
+        /* ---------------- Tool 5: Indian Note Counter ---------------- */
+        .note-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1f2937;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .note-label { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #e5e7eb; font-size: 14.5px; }
+        .note-label i { color: #10b981; font-size: 16px; }
+        .note-row input {
+            width: 90px;
+            padding: 6px 10px;
+            font-size: 14.5px;
+            text-align: center;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            background: #111827;
+            color: #fff;
+            outline: none;
+        }
+        .note-total-val { font-weight: 600; color: #818cf8; width: 90px; text-align: right; font-size: 14.5px; }
+        .grand-total-box {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1.5px solid #10b981;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .grand-total-box h3 { margin: 0; color: #34d399; font-size: 20px; }
+
+        /* ---------------- Tool 6: EPFO UAN Card Smart Studio Styles ---------------- */
+        .uan-workspace {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .uan-panel {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 82vh;
+            overflow-y: auto;
+        }
+
+        .uan-panel h4 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #93c5fd;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .uan-preview-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .uan-preview-toolbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            font-size: 13px;
+        }
+
+        .card-wrapper-uan {
+            transform-origin: top center;
+            transition: transform 0.2s ease;
+        }
+
+        .uan-canvas {
+            width: 1122px;
+            height: 420px;
+            position: relative;
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border-radius: 6px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* EPFO Exact Typography Elements */
+        .t-uan-red {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ff0000;
+            letter-spacing: 0.5px;
+        }
+        .t-field-value {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #000000;
+            text-transform: uppercase;
+        }
+        .t-field-label-en {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 13px;
+            color: #000000;
+        }
+        .t-field-label-hi {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .t-head-hi-1 {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #000;
+        }
+        .t-head-hi-2 {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .t-head-en-1 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #000;
+        }
+        .t-head-en-2 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5px;
+            color: #000;
+        }
+        .t-notice-hi, .t-notice-en {
+            font-size: 10.5px;
+            color: #222;
+            line-height: 1.4;
+        }
+        .t-print-date {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5px;
+            font-style: italic;
+            color: #444;
+        }
+
+        [contenteditable="true"] {
+            outline: none;
+            padding: 1px 3px;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+        [contenteditable="true"]:hover {
+            background-color: rgba(59, 130, 246, 0.15);
+            cursor: text;
+        }
+        [contenteditable="true"]:focus {
+            background-color: #fef08a;
+            box-shadow: 0 0 0 1.5px #2563eb;
+            color: #000;
+        }
+
+        .btn-ctrl {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s ease;
+        }
+        .btn-ctrl:hover { background: #475569; }
+        .btn-ctrl-primary { background: #2563eb; }
+        .btn-ctrl-primary:hover { background: #1d4ed8; }
+        .btn-ctrl-success { background: #16a34a; }
+        .btn-ctrl-success:hover { background: #15803d; }
+
+        /* ---------------- Footer ---------------- */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #05070c;
+            color: #6b7280;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13.5px;
+        }
+
+        /* ---------------- Print Styles ---------------- */
+        @media print {
+            body * { visibility: hidden !important; }
+            #biodata-paper, #biodata-paper * {
+                visibility: visible !important;
+            }
+            #biodata-paper {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 210mm !important;
+                height: 296mm !important;
+                margin: 0 !important;
+                padding: 6mm !important;
+                box-shadow: none !important;
+                page-break-inside: avoid !important;
+                page-break-after: avoid !important;
+            }
+            #printableUanCard, #printableUanCard * {
+                visibility: visible !important;
+            }
+            #printableUanCard {
+                position: absolute;
+                left: 0;
+                top: 0;
+                box-shadow: none;
+                margin: 0;
+            }
+            @page { size: A4 portrait; margin: 0; }
+        }
+
+        @media (max-width: 1024px) {
+            .uan-workspace { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            nav { display: none; }
+            .hero h1 { font-size: 27px; }
+            .upload-row, .pan-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="brand-container">
+            <div class="logo">Digital <span>Seva Kendra</span></div>
+            <div class="sub-logo">PRO PORTAL - ALL-IN-ONE UTILITIES</div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#tracking">Tracking Portals</a></li>
+            </ul>
+        </nav>
+        <a href="#services" class="btn-primary-nav"><i class="fa-solid fa-layer-group"></i> Explore 10+ Tools</a>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1>Digital Seva Kendra & Smart Tools Portal</h1>
+        <p>A unified suite featuring official government tracking links, live EPFO UAN Card generation, dynamic QR utilities, document joiners, and smart retail counters.</p>
+    </section>
+
+    <!-- 1. UTILITY & DOCUMENT SERVICES -->
+    <div class="section-heading" id="services">
+        <i class="fa-solid fa-toolbox"></i> Integrated Document Tools & Utilities
+    </div>
+    <section class="services">
+        <div class="services-grid">
+
+            <!-- FEATURED: EPFO UAN Card Smart Studio -->
+            <div class="service-card" onclick="openModal('uanModal')" style="border-color: #3b82f6; background: rgba(30, 58, 138, 0.2);">
+                <span class="badge-special">Featured Live Tool</span>
+                <i class="fa-solid fa-id-card" style="color: #60a5fa;"></i>
+                <h3>EPFO UAN Card Smart Studio</h3>
+                <p>Interactive Front & Back card editor, HD QR sync, photo zoom & high-res print/download.</p>
+            </div>
+
+            <!-- FEATURED: Instant QR Code Generator -->
+            <div class="service-card" onclick="openModal('qrModal')" style="border-color: #8b5cf6;">
+                <span class="badge-special" style="background:#7c3aed;">Live Generator</span>
+                <i class="fa-solid fa-qrcode" style="color: #a78bfa;"></i>
+                <h3>Instant QR Code Generator</h3>
+                <p>Generate clean, scannable QR codes for any UPI, text, phone number or web URL.</p>
+            </div>
+
+            <!-- Bio-Data Maker -->
+            <div class="service-card" onclick="openModal('biodataModal')">
+                <i class="fa-solid fa-user-tie"></i>
+                <h3>Bio-Data Maker</h3>
+                <p>Build and format professional job or marriage bio-data with instant print preview.</p>
+            </div>
+
+            <!-- A4 Document Joiner -->
+            <div class="service-card" onclick="openModal('joinerModal')">
+                <i class="fa-solid fa-file-image"></i>
+                <h3>A4 Document Joiner</h3>
+                <p>Combine front & back ID photos side-by-side for clean, waste-free A4 sheet printing.</p>
+            </div>
+
+            <!-- PAN Photo & Sign Studio -->
+            <div class="service-card" onclick="openModal('panStudioModal')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <h3>PAN Photo & Sign Studio</h3>
+                <p>Auto resize: Photo (213x213px @ 300DPI) and Signature (400x200px @ 600DPI).</p>
+            </div>
+
+            <!-- Indian Note Counter -->
+            <div class="service-card" onclick="openModal('noteCounterModal')">
+                <i class="fa-solid fa-money-bill-wave" style="color: #10b981;"></i>
+                <h3>Indian Note Counter</h3>
+                <p>Automatic denomination counter for ₹500, ₹200, ₹100, ₹50, ₹20, ₹10, and ₹5 notes.</p>
+            </div>
+
+            <!-- Age Calculator -->
+            <div class="service-card" onclick="openModal('ageModal')">
+                <i class="fa-solid fa-cake-candles"></i>
+                <h3>Age Calculator</h3>
+                <p>Calculate exact age in years, months, and days from any date of birth.</p>
+            </div>
+
+            <!-- Percentage Calculator -->
+            <div class="service-card" onclick="openModal('percentModal')">
+                <i class="fa-solid fa-percent"></i>
+                <h3>Percentage Calculator</h3>
+                <p>Quickly calculate GST, commissions, or percentages for any total amount.</p>
+            </div>
+
+            <!-- Amount to Words Converter -->
+            <div class="service-card" onclick="openModal('wordsModal')">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <h3>Amount to Words</h3>
+                <p>Convert numeric currency into official written English words for receipts & cheques.</p>
+            </div>
+
+            <!-- Cash Refund Calculator -->
+            <div class="service-card" onclick="openModal('refundModal')">
+                <i class="fa-solid fa-cash-register"></i>
+                <h3>Cash Refund / Return</h3>
+                <p>Calculate exact change to return to customer from bill amounts and given cash.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 2. APPLICATION STATUS & TRACKING SECTION -->
+    <div class="section-heading" id="tracking">
+        <i class="fa-solid fa-shield-halved"></i> Official Application Status & Portals
+    </div>
+    <section class="services">
+        <div class="services-grid">
+            <a href="https://myaadhaar.uidai.gov.in/CheckAadhaarStatus/en" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-fingerprint"></i>
+                <h3>Aadhaar Card Status</h3>
+                <p>Check UIDAI Aadhaar update and enrollment tracking status directly.</p>
+            </a>
+            <a href="https://myaadhaar.uidai.gov.in/check-aadhaar-validity/en" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <h3>Aadhaar Mobile No. Check</h3>
+                <p>Verify linked mobile number and validity status on UIDAI portal.</p>
+            </a>
+            <a href="https://www.trackpan.utiitsl.com/PANONLINE/forms/TrackPan/trackApp" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-address-card"></i>
+                <h3>UTI PAN Card Status</h3>
+                <p>Track UTIITSL PAN card application and courier delivery progress.</p>
+            </a>
+            <a href="https://tin.tin.proteantech.in/pantan/StatusTrack.html" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-id-badge"></i>
+                <h3>NSDL (Protean) PAN Status</h3>
+                <p>Track NSDL/Protean PAN or TAN application status online.</p>
+            </a>
+            <a href="https://nspwb.wbmdfc.org/main/track_appli1" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h3>Scholarship Tracking</h3>
+                <p>Track West Bengal WBMDFC / National Scholarship portal status.</p>
+            </a>
+            <a href="https://www.indiapost.gov.in/" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-truck-fast"></i>
+                <h3>India Post Tracking</h3>
+                <p>Track speed post, registered parcels, and article delivery real-time.</p>
+            </a>
+            <a href="https://voters.eci.gov.in/login" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-check-to-slot"></i>
+                <h3>Voter Card Status</h3>
+                <p>Check Election Commission ECI voter ID application & EPIC status.</p>
+            </a>
+            <a href="https://wbpds.wb.gov.in/rcmsnew/Citizen/CheckApplicationStatus" target="_blank" rel="noopener noreferrer" class="service-card">
+                <i class="fa-solid fa-basket-shopping"></i>
+                <h3>Ration Card Status</h3>
+                <p>Check digital ration card application and member transfer status.</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- ================= MODALS CONTAINER ================= -->
+
+    <!-- MODAL 1: EPFO UAN Card Smart Studio -->
+    <div class="modal-overlay" id="uanModal">
+        <div class="modal-box-fullscreen">
+            <button class="close-btn" onclick="closeModal('uanModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #334155; padding-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; border-radius:8px; background:#2563eb; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px;">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size:18px; font-weight:700; color:#fff; margin:0;">EPFO UAN Card Live Smart Studio</h2>
+                        <p style="font-size:12px; color:#94a3b8; margin:0;">Direct inline edit on card or customize from panel with auto HD QR sync</p>
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-ctrl" onclick="resetUanData()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                    <button class="btn-ctrl btn-ctrl-primary" id="btnDlUan"><i class="fa-solid fa-download"></i> Download HD</button>
+                    <button class="btn-ctrl btn-ctrl-success" onclick="printUanCard()"><i class="fa-solid fa-print"></i> Print Card</button>
+                </div>
+            </div>
+
+            <div class="uan-workspace">
+                <!-- Control Panel -->
+                <aside class="uan-panel">
+                    <h4><i class="fa-solid fa-sliders"></i> Member Details <span style="font-size:10px; background:#334155; padding:2px 6px; border-radius:4px;">Two-Way Sync</span></h4>
+
+                    <!-- Emblem & Photo Section -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <!-- Logo -->
+                        <div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155;">
+                            <label style="display:block; font-size:11px; color:#cbd5e1; margin-bottom:6px;">EPFO Emblem</label>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <img id="uanFormLogoPreview" style="width:36px; height:36px; object-fit:contain; background:#fff; border-radius:4px; padding:2px;">
+                                <input type="file" id="uanLogoInput" accept="image/*" style="display:none;">
+                                <button type="button" class="btn-ctrl" style="padding:4px 8px; font-size:11px;" onclick="document.getElementById('uanLogoInput').click()">Upload</button>
+                            </div>
+                        </div>
+
+                        <!-- Photo -->
+                        <div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155;">
+                            <label style="display:block; font-size:11px; color:#cbd5e1; margin-bottom:6px;">Member Photo</label>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <img id="uanFormPhotoPreview" style="width:36px; height:42px; object-fit:contain; background:#fff; border-radius:4px;">
+                                <input type="file" id="uanPhotoInput" accept="image/*" style="display:none;">
+                                <button type="button" class="btn-ctrl" style="padding:4px 8px; font-size:11px;" onclick="document.getElementById('uanPhotoInput').click()">Upload</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Photo Fit & Zoom -->
+                    <div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155; font-size:11px; display:flex; flex-direction:column; gap:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:#cbd5e1;">Photo Fit Mode:</span>
+                            <div>
+                                <button type="button" id="btnFitContain" class="btn-ctrl btn-ctrl-primary" style="padding:2px 8px; font-size:10px;">Fit Full</button>
+                                <button type="button" id="btnFitCover" class="btn-ctrl" style="padding:2px 8px; font-size:10px;">Fill Frame</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#cbd5e1;">Zoom:</span>
+                            <input type="range" id="photoZoom" min="50" max="200" value="100" style="flex:1;">
+                            <span id="photoZoomLabel" style="width:34px; text-align:right; font-family:monospace; color:#93c5fd;">100%</span>
+                        </div>
+                    </div>
+
+                    <!-- Form Inputs -->
+                    <div class="input-group">
+                        <label>Universal Account Number (UAN):</label>
+                        <input type="text" id="uanInputUan" maxlength="12" placeholder="101724003375">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Member Name (नाम):</label>
+                        <input type="text" id="uanInputName" placeholder="MEMBER NAME">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Father's / Husband's Name (पिता / पति):</label>
+                        <input type="text" id="uanInputFather" placeholder="FATHER'S NAME">
+                    </div>
+
+                    <div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <label style="font-size:12px; color:#cbd5e1; margin:0;">Include Date of Birth</label>
+                            <input type="checkbox" id="uanToggleDob" checked style="width:16px; height:16px; cursor:pointer;">
+                        </div>
+                        <input type="text" id="uanInputDob" placeholder="01/01/1990">
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="input-group">
+                            <label>KYC Status:</label>
+                            <select id="uanInputKyc">
+                                <option value="Yes">Yes (हाँ)</option>
+                                <option value="No">No (नहीं)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Print Date:</label>
+                            <input type="text" id="uanInputDate" placeholder="23.10.2026">
+                        </div>
+                    </div>
+
+                    <!-- Dynamic QR Payload -->
+                    <div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <label style="font-size:11px; color:#cbd5e1; margin:0;"><i class="fa-solid fa-qrcode"></i> Back Card QR Data</label>
+                            <label style="font-size:10px; color:#94a3b8; cursor:pointer;"><input type="checkbox" id="uanAutoQr" checked> Auto Sync</label>
+                        </div>
+                        <textarea id="uanQrText" rows="2" style="font-size:11px; font-family:monospace; resize:none;"></textarea>
+                    </div>
+                </aside>
+
+                <!-- Preview Area -->
+                <div class="uan-preview-area">
+                    <div class="uan-preview-toolbar">
+                        <span style="font-weight:600;"><i class="fa-solid fa-circle" style="color:#10b981; font-size:10px;"></i> Front & Back Official Layout (1122x420)</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>Zoom:</span>
+                            <button class="btn-ctrl" style="padding:2px 8px;" onclick="zoomUan(-0.08)">-</button>
+                            <span id="uanZoomDisplay" style="font-family:monospace; width:40px; text-align:center;">75%</span>
+                            <button class="btn-ctrl" style="padding:2px 8px;" onclick="zoomUan(0.08)">+</button>
+                        </div>
+                    </div>
+
+                    <div style="width:100%; overflow-x:auto; background:#020617; padding:20px; border-radius:12px; display:flex; justify-content:center;">
+                        <div class="card-wrapper-uan" id="uanScaler">
+                            <div class="uan-canvas" id="printableUanCard">
+
+                                <!-- ================= FRONT CARD (LEFT) ================= -->
+                                <svg class="pointer-events-none" style="position:absolute; z-index:10; left:12px; top:25px;" width="523" height="363" viewBox="0 0 523 363">
+                                    <rect x="0.5" y="0.5" width="521" height="361" rx="14" fill="none" stroke="#000000" stroke-width="0.8"/>
+                                </svg>
+
+                                <div style="position:absolute; z-index:20; left:90px; top:39px; width:438px; height:67px; background-color:#d1d5db;"></div>
+
+                                <!-- Logo Emblem -->
+                                <div style="position:absolute; z-index:25; left:24px; top:40px; width:65px; height:65px; cursor:pointer;" onclick="document.getElementById('uanLogoInput').click()" title="Click to upload logo">
+                                    <img id="uanCardLogo" style="width:100%; height:100%; object-fit:contain;" src="" alt="EPFO">
+                                </div>
+
+                                <!-- Headers -->
+                                <div class="t-head-hi-1" style="position:absolute; z-index:30; left:97px; top:45px;">कर्मचारी भविष्य निधि संगठन , भारत</div>
+                                <div class="t-head-hi-2" style="position:absolute; z-index:30; left:97px; top:61px;">श्रम एवं रोजगार मंत्रालय, भारत सरकार</div>
+                                <div class="t-head-en-1" style="position:absolute; z-index:30; left:97px; top:77px;">Employees' Provident Fund Organisation, India</div>
+                                <div class="t-head-en-2" style="position:absolute; z-index:30; left:97px; top:94px;">Ministry of Labour & Employment, Government of India</div>
+
+                                <!-- Fields -->
+                                <div class="t-field-label-hi" style="position:absolute; z-index:30; left:31px; top:146px;">यूिनवर्सल खाता संख्या</div>
+                                <div class="t-field-label-en" style="position:absolute; z-index:30; left:31px; top:168px;">Universal Account Number</div>
+                                <div class="t-uan-red" id="uanCardUanFront" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:240px; top:157px;">101724003375</div>
+
+                                <div class="t-field-label-hi" style="position:absolute; z-index:30; left:30px; top:225px;">नाम</div>
+                                <div class="t-field-label-en" style="position:absolute; z-index:30; left:31px; top:249px;">Name</div>
+                                <div class="t-field-value" id="uanCardName" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:240px; top:236px;">RASUL ANSARI</div>
+
+                                <div class="t-field-label-hi" style="position:absolute; z-index:30; left:31px; top:284px;">पिता / पति का नाम</div>
+                                <div class="t-field-label-en" style="position:absolute; z-index:30; left:31px; top:305px;">Father's / Husband's Name</div>
+                                <div class="t-field-value" id="uanCardFather" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:240px; top:293px;">JAN MAHAMMAD MOMIN</div>
+
+                                <div id="uanCardDobSection">
+                                    <div class="t-field-label-hi" style="position:absolute; z-index:30; left:31px; top:324px; font-size:12px;">जन्म तिथि / Date of Birth</div>
+                                    <div class="t-field-value" id="uanCardDob" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:240px; top:324px;">01/01/1990</div>
+                                </div>
+
+                                <div class="t-field-label-hi" id="uanCardKycHi" style="position:absolute; z-index:30; left:31px; top:346px;">के. वाई.सी.</div>
+                                <div class="t-field-label-en" id="uanCardKycEn" style="position:absolute; z-index:30; left:31px; top:364px;">K.Y.C.</div>
+                                <div class="t-field-value" id="uanCardKyc" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:240px; top:355px;">Yes</div>
+
+                                <!-- Photo Frame -->
+                                <div style="position:absolute; z-index:28; left:410px; top:104px; width:116px; height:122px; border:1.4px solid #000; background:#fff; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('uanPhotoInput').click()" title="Click to upload photo">
+                                    <img id="uanCardPhoto" src="" style="width:100%; height:100%; object-fit:contain;" alt="Member Photo">
+                                </div>
+
+                                <!-- ================= BACK CARD (RIGHT) ================= -->
+                                <svg class="pointer-events-none" style="position:absolute; z-index:10; left:562px; top:25px;" width="523" height="363" viewBox="0 0 523 363">
+                                    <rect x="0.5" y="0.5" width="521" height="361" rx="14" fill="none" stroke="#000000" stroke-width="0.8"/>
+                                </svg>
+
+                                <div style="position:absolute; z-index:30; left:768px; top:31px; font-size:9.5px; font-weight:700; color:#000;">
+                                    www.epfindia.gov.in
+                                </div>
+
+                                <div style="position:absolute; border:1px solid rgba(0,0,0,0.3); z-index:20; left:568px; top:44px; width:509px; height:62px; background-color:#cccccc;"></div>
+
+                                <div class="t-field-label-hi" style="position:absolute; z-index:30; left:580px; top:54px;">यूिनवर्सल खाता संख्या</div>
+                                <div style="position:absolute; font-weight:bold; font-size:13.5px; color:#000; z-index:30; left:580px; top:80px;">Universal Account Number</div>
+                                <div class="t-uan-red" id="uanCardUanBack" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:887px; top:67px;">101724003375</div>
+
+                                <!-- Dynamic QR Render Box -->
+                                <div style="position:absolute; background:#fff; display:flex; align-items:center; justify-content:center; border:1px solid #94a3b8; z-index:25; left:976px; top:113px; width:68px; height:68px; padding:1px;">
+                                    <div id="uanCardQrTarget" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
+                                </div>
+
+                                <div class="t-notice-hi" style="position:absolute; z-index:30; left:569px; top:202px; width:500px;">
+                                    प्रत्याख्यान : इस कार्ड पर दर्शाया गया डेटा ईपीएफओ मे उपलब्ध डेटाबेस के अनुसार है । विसंगति के मामले में ,आप उसमे सुधार के लिए अपने क्षेत्रीय कार्यालय से संपर्क कर सकते हैं ।
+                                </div>
+
+                                <div class="t-notice-en" style="position:absolute; z-index:30; left:569px; top:255px; width:500px;">
+                                    Disclaimer: Data appearing on the card is as per the database available in EPFO. In case of any discrepancy you may contact your concerned EPFO office for its rectification.
+                                </div>
+
+                                <div class="t-print-date" id="uanCardPrintDate" contenteditable="true" spellcheck="false" style="position:absolute; z-index:30; left:770px; top:348px;">
+                                    Printed from EPFO Member Portal On: 23.10.2026
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Instant QR Code Generator -->
+    <div class="modal-overlay" id="qrModal">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('qrModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="qr-tool-box">
+                <h3 style="justify-content:center;"><i class="fa-solid fa-qrcode"></i> QR Code Generator</h3>
+                <div class="input-group">
+                    <label>Enter Text, Link, UPI ID or Mobile Number:</label>
+                    <input type="text" id="quickQrInput" placeholder="e.g. https://google.com or UPI ID" oninput="liveGenerateQuickQR()">
+                </div>
+
+                <div id="quickQrResult" style="display:none; margin-top:15px; padding:15px; background:#1f2937; border-radius:10px;">
+                    <div class="qr-image-wrapper">
+                        <img id="quickQrImg" src="" alt="Generated QR">
+                    </div>
+                    <a id="quickQrDownloadBtn" href="#" target="_blank" class="btn-download-qr">Open / Save QR Code</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Age Calculator -->
+    <div class="modal-overlay" id="ageModal">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('ageModal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3><i class="fa-solid fa-cake-candles"></i> Age Calculator</h3>
+            <div class="input-group">
+                <label>Select Date of Birth:</label>
+                <input type="date" id="dob">
+            </div>
+            <button class="btn-action" onclick="calculateAge()">Calculate Age</button>
+            <div class="result-box" id="ageResultBox">
+                <h4 id="ageResultText"></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: Percentage Calculator -->
+    <div class="modal-overlay" id="percentModal">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('percentModal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3><i class="fa-solid fa-percent"></i> Percentage Calculator</h3>
+            <div class="input-group">
+                <label>Enter Total Amount:</label>
+                <input type="number" id="pTotal" placeholder="e.g. 1500">
+            </div>
+            <div class="input-group">
+                <label>Enter Percentage (%):</label>
+                <input type="number" id="pPercent" placeholder="e.g. 18">
+            </div>
+            <button class="btn-action" onclick="calculatePercentage()">Calculate</button>
+            <div class="result-box" id="percentResultBox">
+                <h4 id="percentResultText"></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: Amount to Words -->
+    <div class="modal-overlay" id="wordsModal">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('wordsModal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3><i class="fa-solid fa-file-invoice-dollar"></i> Amount to Words</h3>
+            <div class="input-group">
+                <label>Enter Amount in Digits:</label>
+                <input type="number" id="numInput" placeholder="e.g. 52400">
+            </div>
+            <button class="btn-action" onclick="convertToWords()">Convert</button>
+            <div class="result-box" id="wordsResultBox">
+                <h4 id="wordsResultText"></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6: Cash Refund Calculator -->
+    <div class="modal-overlay" id="refundModal">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('refundModal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3><i class="fa-solid fa-cash-register"></i> Cash Refund Calculator</h3>
+            <div class="input-group">
+                <label>Total Bill Amount (₹):</label>
+                <input type="number" id="totalAmount" placeholder="e.g. 480">
+            </div>
+            <div class="input-group">
+                <label>Amount Received / Cash Given (₹):</label>
+                <input type="number" id="givenAmount" placeholder="e.g. 1000">
+            </div>
+            <button class="btn-action" onclick="calculateRefund()">Calculate Return</button>
+            <div class="result-box" id="refundResultBox">
+                <h4 id="refundResultText"></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7: Bio-Data Maker -->
+    <div class="modal-overlay" id="biodataModal">
+        <div class="modal-box-large">
+            <button class="close-btn" onclick="closeModal('biodataModal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 style="text-align:center; color:var(--primary); margin:0 0 10px 0; font-size:20px;">Bio-Data Information Form</h2>
+            
+            <div class="form-container-bio">
+                <h3 class="bio-heading">1. Personal Information</h3>
+                <div class="form-grid">
+                    <input type="text" id="i-name" placeholder="Full Name" oninput="updBiodata()">
+                    <input type="text" id="i-father" placeholder="Father's Name" oninput="updBiodata()">
+                    <input type="text" id="i-mother" placeholder="Mother's Name" oninput="updBiodata()">
+                    <input type="text" id="i-dob" placeholder="DOB (DD/MM/YYYY)" oninput="updBiodata()">
+                    <select id="i-sex" onchange="updBiodata()">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <select id="i-marital" onchange="updBiodata()">
+                        <option value="">Marital Status</option>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                    </select>
+                    <select id="i-religion" onchange="updBiodata()">
+                        <option value="">Select Religion</option>
+                        <option value="Islam">Islam</option>
+                        <option value="Hinduism">Hinduism</option>
+                        <option value="Christian">Christian</option>
+                    </select>
+                    <select id="i-caste" onchange="updBiodata()">
+                        <option value="">Select Caste</option>
+                        <option value="General">General</option>
+                        <option value="OBC">OBC</option>
+                        <option value="SC">SC</option>
+                        <option value="ST">ST</option>
+                    </select>
+                    <input type="text" id="i-nation" value="Indian" readonly style="background:#f1f5f9; font-weight:bold;">
+                    <input type="text" id="i-aadhar" placeholder="Aadhaar No." maxlength="14" oninput="formatAadharBio(this); updBiodata()">
+                    <input type="text" id="i-mob" placeholder="Mobile No." maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,''); updBiodata()">
+                    <input type="text" id="i-email" placeholder="Email ID" oninput="updBiodata()">
+                    <div class="full">
+                        <p style="margin:2px 0 4px 0; font-size:12px; font-weight:bold; color:#334155;">Languages Known:</p>
+                        <span class="lang-btn" onclick="toggleBioLang('Bengali', this)">Bengali</span>
+                        <span class="lang-btn" onclick="toggleBioLang('Hindi', this)">Hindi</span>
+                        <span class="lang-btn" onclick="toggleBioLang('English', this)">English</span>
+                    </div>
+                    <input type="text" id="i-addr" placeholder="Full Address" class="full" oninput="updBiodata()">
+                </div>
+
+                <h3 class="bio-heading">2. Educational Qualifications</h3>
+                <div class="form-grid">
+                    <div class="full" style="background:#f1f5f9; padding:4px; font-size:12px; font-weight:bold;">10th Standard:</div>
+                    <input type="text" id="b10" placeholder="Board" oninput="updBiodata()">
+                    <input type="number" id="y10" placeholder="Year" oninput="updBiodata()">
+                    <input type="number" id="t10" placeholder="Total Marks" oninput="updBiodata()">
+                    <input type="number" id="o10" placeholder="Obtained Marks" oninput="updBiodata()">
+
+                    <div class="full" style="background:#f1f5f9; padding:4px; font-size:12px; font-weight:bold;">12th (Higher Secondary):</div>
+                    <input type="text" id="b12" placeholder="Board" oninput="updBiodata()">
+                    <input type="number" id="y12" placeholder="Year" oninput="updBiodata()">
+                    <input type="number" id="t12" placeholder="Total Marks" oninput="updBiodata()">
+                    <input type="number" id="o12" placeholder="Obtained Marks" oninput="updBiodata()">
+
+                    <div class="full" style="background:#f1f5f9; padding:4px; font-size:12px; font-weight:bold;">Graduation:</div>
+                    <input type="text" id="i-gc" placeholder="Course Degree" oninput="updBiodata()">
+                    <input type="text" id="bg" placeholder="University" oninput="updBiodata()">
+                    <input type="text" id="yg" placeholder="Year" oninput="updBiodata()">
+                    <input type="number" id="tg" placeholder="Total Marks" oninput="updBiodata()">
+                    <input type="number" id="og" placeholder="Obtained Marks" oninput="updBiodata()">
+                </div>
+
+                <h3 class="bio-heading">3. Additional Details</h3>
+                <textarea id="i-exp" placeholder="Work Experience" rows="2" style="margin-bottom:8px;" oninput="updBiodata()"></textarea>
+                <textarea id="i-skills" placeholder="Skills" rows="2" style="margin-bottom:8px;" oninput="updBiodata()"></textarea>
+                
+                <div class="form-grid">
+                    <input type="text" id="i-date" placeholder="Current Date" oninput="updBiodata()">
+                    <input type="text" id="i-place" placeholder="Current Place" oninput="updBiodata()">
+                    <div>Upload Photo: <input type="file" accept="image/*" onchange="previewBioImg(this, 'p-img')"></div>
+                    <div>Upload Sign: <input type="file" accept="image/*" onchange="previewBioImg(this, 'p-sign-img')"></div>
+                </div>
+            </div>
+
+            <!-- BioData A4 Print Paper Preview -->
+            <div id="biodata-paper">
+                <div class="page-border">
+                    <div class="cv-header">
+                        <div>
+                            <h1 id="p-name">FULL NAME</h1>
+                            <p style="letter-spacing:3px; color:var(--accent); font-weight:bold; margin:3px 0; font-size:12px;">CURRICULUM VITAE / BIO-DATA</p>
+                        </div>
+                        <div class="photo-frame">
+                            <img id="p-img" src="" alt="Photo">
+                            <small id="p-txt" style="color:#777; font-size:11px;">PHOTO</small>
+                        </div>
+                    </div>
+
+                    <div class="sec-title">Personal Profile</div>
+                    <div class="info-grid">
+                        <div class="info-row"><div class="label">Father's Name</div><div class="val" id="p-father">: -</div></div>
+                        <div class="info-row"><div class="label">Mother's Name</div><div class="val" id="p-mother">: -</div></div>
+                        <div class="info-row"><div class="label">Date of Birth</div><div class="val" id="p-dob">: -</div></div>
+                        <div class="info-row"><div class="label">Gender</div><div class="val" id="p-sex">: -</div></div>
+                        <div class="info-row"><div class="label">Marital Status</div><div class="val" id="p-marital">: -</div></div>
+                        <div class="info-row"><div class="label">Religion</div><div class="val" id="p-religion">: -</div></div>
+                        <div class="info-row"><div class="label">Caste</div><div class="val" id="p-caste">: -</div></div>
+                        <div class="info-row"><div class="label">Nationality</div><div class="val" id="p-nation">: Indian</div></div>
+                        <div class="info-row"><div class="label">Aadhaar No.</div><div class="val" id="p-aadhar">: -</div></div>
+                        <div class="info-row"><div class="label">Mobile No.</div><div class="val" id="p-mob">: -</div></div>
+                        <div class="info-row"><div class="label">Languages</div><div class="val" id="p-lang">: -</div></div>
+                    </div>
+                    <div class="info-row" style="margin-top:4px;"><div class="label">Email ID</div><div class="val" id="p-email">: -</div></div>
+                    <div class="info-row"><div class="label">Address</div><div class="val" id="p-addr">: -</div></div>
+
+                    <div class="sec-title">Educational Qualification</div>
+                    <table class="bio-table">
+                        <thead>
+                            <tr><th>Exam</th><th>Board / University</th><th>Year</th><th>Obtained</th><th>%</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>10th</td><td id="p-b10">-</td><td id="p-y10">-</td><td id="p-o10">-</td><td id="p-pc10">-</td></tr>
+                            <tr><td>12th</td><td id="p-b12">-</td><td id="p-y12">-</td><td id="p-o12">-</td><td id="p-pc12">-</td></tr>
+                            <tr><td id="p-gc-name">Graduation</td><td id="p-bg">-</td><td id="p-yg">-</td><td id="p-og">-</td><td id="p-pcg">-</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="sec-title">Work Experience</div>
+                    <div id="p-exp" style="font-size:13px; line-height:1.4;">Fresher (No experience)</div>
+
+                    <div class="sec-title">Skills & Competencies</div>
+                    <div id="p-skills" style="font-size:13px; line-height:1.4;">-</div>
+
+                    <div style="margin-top:15px; font-size:11px; line-height:1.4; font-style:italic;">
+                        <strong>Declaration:</strong> I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.
+                    </div>
+
+                    <div class="footer-bio">
+                        <div>
+                            <p><strong>Date:</strong> <span id="p-date">_________</span></p>
+                            <p><strong>Place:</strong> <span id="p-place">_________</span></p>
+                        </div>
+                        <div class="sign-area">
+                            <div class="sign-space"><img id="p-sign-img" alt="Sign"></div>
+                            <strong>Signature</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:12px; margin: 20px auto 10px auto; flex-wrap:wrap;">
+                <button class="btn-bio-print" style="margin:0; background:#2563eb; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);" onclick="downloadBioDataPDF()"><i class="fa-solid fa-download"></i> Download Bio-Data (PDF)</button>
+                <button class="btn-bio-print" style="margin:0;" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Bio-Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 8: A4 Document Joiner -->
+    <div class="modal-overlay" id="joinerModal">
+        <div class="modal-box-large">
+            <button class="close-btn" onclick="closeModal('joinerModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="joiner-wrapper">
+                <h2 style="color:#1a73e8; margin-top:0;">A4 Document Joiner</h2>
+                <p style="color:#5f6368; font-size:13px;">Merge front & back ID photos side-by-side onto an A4 page ready for clean printing.</p>
+
+                <div class="upload-row">
+                    <div class="upload-box" id="box1">
+                        <span style="font-weight:600; color:#334155; font-size:13px;">1. FRONT PHOTO</span>
+                        <input type="file" id="inputFront" accept="image/*">
+                        <img id="viewFront" class="preview-img" alt="Front Preview">
+                        <span id="textFront" style="color:#64748b; font-size:12px; margin-top:6px;">Click or Drag to Upload</span>
+                    </div>
+                    <div class="upload-box" id="box2">
+                        <span style="font-weight:600; color:#334155; font-size:13px;">2. BACK PHOTO</span>
+                        <input type="file" id="inputBack" accept="image/*">
+                        <img id="viewBack" class="preview-img" alt="Back Preview">
+                        <span id="textBack" style="color:#64748b; font-size:12px; margin-top:6px;">Click or Drag to Upload</span>
+                    </div>
+                </div>
+
+                <button id="btnMakePreview" class="btn-joiner btn-preview-j" disabled>GENERATE A4 PREVIEW</button>
+
+                <div id="result-section-j">
+                    <h3 style="color:#334155; font-size:15px; margin-bottom:8px;">A4 Page Print Preview</h3>
+                    <canvas id="a4Canvas"></canvas>
+                    <br>
+                    <button id="btnDownloadJoined" class="btn-joiner btn-download-j"><i class="fa-solid fa-download"></i> Download A4 Print Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 9: PAN Photo & Signature Studio -->
+    <div class="modal-overlay" id="panStudioModal">
+        <div class="modal-box-large" style="max-width: 680px;">
+            <button class="close-btn" onclick="closeModal('panStudioModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="pan-studio">
+                <h2 style="color:#1a73e8; margin:0 0 4px 0;">PAN Photo & Signature Studio</h2>
+                <p style="color:#64748b; font-size:13px;">Auto-conform uploads to official NSDL/UTIITSL government size and resolution constraints.</p>
+
+                <div class="pan-grid">
+                    <div class="pan-box">
+                        <i class="fa-solid fa-user-tie" style="font-size:32px; color:#10b981; margin-bottom:8px;"></i>
+                        <span style="font-weight:600; font-size:13px;">1. PAN Photo</span>
+                        <span style="font-size:11px; color:#64748b; margin-bottom:8px;">213x213 px | 300 DPI | &lt;30KB</span>
+                        <input type="file" id="inputStudioPhoto" accept="image/*">
+                        <img id="previewStudioPhoto" class="pan-preview" alt="PAN Photo">
+                        <span id="textStudioPhoto" style="font-size:12px; color:#64748b;">Click to Upload Photo</span>
+                        <button id="btnDlPhoto" class="btn-pan-dl" onclick="downloadOptimizedPhoto()"><i class="fa-solid fa-download"></i> Save 213x213 Photo</button>
+                    </div>
+
+                    <div class="pan-box">
+                        <i class="fa-solid fa-signature" style="font-size:32px; color:#6366f1; margin-bottom:8px;"></i>
+                        <span style="font-weight:600; font-size:13px;">2. PAN Signature</span>
+                        <span style="font-size:11px; color:#64748b; margin-bottom:8px;">400x200 px | High Contrast B&W</span>
+                        <input type="file" id="inputStudioSign" accept="image/*">
+                        <img id="previewStudioSign" class="pan-preview" alt="PAN Sign">
+                        <span id="textStudioSign" style="font-size:12px; color:#64748b;">Click to Upload Sign</span>
+                        <button id="btnDlSign" class="btn-pan-dl" onclick="downloadOptimizedSign()"><i class="fa-solid fa-download"></i> Save 400x200 Sign</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 10: Indian Note Counter -->
+    <div class="modal-overlay" id="noteCounterModal">
+        <div class="modal-box" style="max-width: 480px;">
+            <button class="close-btn" onclick="closeModal('noteCounterModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div style="text-align:center;">
+                <h3 style="justify-content:center; margin-bottom:4px;"><i class="fa-solid fa-money-bill-wave" style="color:#10b981;"></i> Indian Cash Counter</h3>
+                <p style="color:#9ca3af; font-size:12.5px; margin-bottom:15px;">Enter note counts for instant automated ledger totals.</p>
+
+                <div id="counterRowsContainer"></div>
+
+                <div class="grand-total-box">
+                    <h3>Total Cash: ₹ <span id="grandTotalText">0</span></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Digital Seva Kendra Portal. All Government Portals are official external services. All rights reserved.</p>
+    </footer>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // Modal Trigger Handlers
+        function openModal(id) {
+            const m = document.getElementById(id);
+            if(m) {
+                m.classList.add('active');
+                if(id === 'uanModal') {
+                    autoFitUanCanvas();
+                }
+            }
+        }
+
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            if(m) m.classList.remove('active');
+        }
+
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // ---------------- 1. Quick QR Generator Logic ----------------
+        let qrTimer = null;
+        function liveGenerateQuickQR() {
+            clearTimeout(qrTimer);
+            qrTimer = setTimeout(() => {
+                const text = document.getElementById('quickQrInput').value.trim();
+                const resBox = document.getElementById('quickQrResult');
+                const img = document.getElementById('quickQrImg');
+                const btn = document.getElementById('quickQrDownloadBtn');
+
+                if(!text) {
+                    resBox.style.display = 'none';
+                    return;
+                }
+                const url = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(text);
+                img.src = url;
+                btn.href = url;
+                resBox.style.display = 'block';
+            }, 350);
+        }
+
+        // ---------------- 2. Age Calculator Logic ----------------
+        function calculateAge() {
+            const dobVal = document.getElementById('dob').value;
+            const resBox = document.getElementById('ageResultBox');
+            const resText = document.getElementById('ageResultText');
+            if(!dobVal) {
+                resBox.style.display = "block";
+                resText.style.color = "#f87171";
+                resText.innerText = "Please select a valid date of birth!";
+                return;
+            }
+            const birthDate = new Date(dobVal);
+            const today = new Date();
+            let years = today.getFullYear() - birthDate.getFullYear();
+            let months = today.getMonth() - birthDate.getMonth();
+            let days = today.getDate() - birthDate.getDate();
+
+            if (days < 0) {
+                months--;
+                const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                days += lastMonth.getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            resBox.style.display = "block";
+            resText.style.color = "#818cf8";
+            resText.innerHTML = `Calculated Age: <b>${years}</b> Years, <b>${months}</b> Months, <b>${days}</b> Days`;
+        }
+
+        // ---------------- 3. Percentage Calculator ----------------
+        function calculatePercentage() {
+            const total = parseFloat(document.getElementById('pTotal').value);
+            const percent = parseFloat(document.getElementById('pPercent').value);
+            const resBox = document.getElementById('percentResultBox');
+            const resText = document.getElementById('percentResultText');
+            if (isNaN(total) || isNaN(percent)) {
+                resBox.style.display = "block";
+                resText.style.color = "#f87171";
+                resText.innerText = "Please enter valid numerical values!";
+                return;
+            }
+            const result = (total * percent) / 100;
+            resBox.style.display = "block";
+            resText.style.color = "#818cf8";
+            resText.innerHTML = `${percent}% of ₹${total.toLocaleString('en-IN')} is: <b>₹${result.toFixed(2)}</b>`;
+        }
+
+        // ---------------- 4. Amount to Words ----------------
+        function convertToWords() {
+            const num = parseInt(document.getElementById('numInput').value);
+            const resBox = document.getElementById('wordsResultBox');
+            const resText = document.getElementById('wordsResultText');
+            if (isNaN(num) || num < 0) {
+                resBox.style.display = "block";
+                resText.style.color = "#f87171";
+                resText.innerText = "Please enter a valid non-negative number!";
+                return;
+            }
+            if(num === 0) {
+                resBox.style.display = "block";
+                resText.style.color = "#818cf8";
+                resText.innerText = "Zero Rupees Only";
+                return;
+            }
+            resBox.style.display = "block";
+            resText.style.color = "#818cf8";
+            resText.innerHTML = `${numToWords(num)} Rupees Only`;
+        }
+
+        function numToWords(num) {
+            const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+            const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            if ((num = num.toString()).length > 9) return 'Amount Exceeds Limit';
+            let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return '';
+            let str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+            return str.trim();
+        }
+
+        // ---------------- 5. Cash Refund ----------------
+        function calculateRefund() {
+            const bill = parseFloat(document.getElementById('totalAmount').value);
+            const given = parseFloat(document.getElementById('givenAmount').value);
+            const resBox = document.getElementById('refundResultBox');
+            const resText = document.getElementById('refundResultText');
+            if (isNaN(bill) || isNaN(given)) {
+                resBox.style.display = "block";
+                resText.style.color = "#f87171";
+                resText.innerText = "Please provide valid figures for bill and cash!";
+                return;
+            }
+            const diff = given - bill;
+            resBox.style.display = "block";
+            if (diff < 0) {
+                resText.style.color = "#f87171";
+                resText.innerHTML = `Short Cash: Customer owes <b>₹${Math.abs(diff).toFixed(2)}</b> more`;
+            } else {
+                resText.style.color = "#818cf8";
+                resText.innerHTML = `Total Bill: ₹${bill.toFixed(2)} | Received: ₹${given.toFixed(2)}<br><b>Return Cash to Customer: ₹${diff.toFixed(2)}</b>`;
+            }
+        }
+
+        // ---------------- 6. Bio-Data Maker Logic ----------------
+        let bioLanguages = [];
+        function formatAadharBio(input) {
+            let v = input.value.replace(/\D/g, '').substring(0, 12);
+            let match = v.match(/.{1,4}/g);
+            if (match) input.value = match.join('-');
+        }
+
+        function toggleBioLang(lang, btn) {
+            if(bioLanguages.includes(lang)) {
+                bioLanguages = bioLanguages.filter(l => l !== lang);
+                btn.classList.remove('active');
+            } else {
+                bioLanguages.push(lang);
+                btn.classList.add('active');
+            }
+            updBiodata();
+        }
+
+        function updBiodata() {
+            const setVal = (pId, iId) => {
+                const p = document.getElementById(pId);
+                const i = document.getElementById(iId);
+                if(p && i) p.innerText = ": " + (i.value || "-");
+            };
+            const calcPC = (ob, to) => {
+                let p = (parseFloat(ob) / parseFloat(to) * 100).toFixed(2);
+                return (isNaN(p) || !isFinite(p)) ? "-" : p + "%";
+            };
+
+            const pName = document.getElementById('p-name');
+            const iName = document.getElementById('i-name');
+            if(pName && iName) pName.innerText = iName.value.toUpperCase() || "FULL NAME";
+
+            setVal('p-father', 'i-father');
+            setVal('p-mother', 'i-mother');
+            setVal('p-dob', 'i-dob');
+            setVal('p-sex', 'i-sex');
+            setVal('p-marital', 'i-marital');
+            setVal('p-religion', 'i-religion');
+            setVal('p-caste', 'i-caste');
+            setVal('p-aadhar', 'i-aadhar');
+            setVal('p-mob', 'i-mob');
+            setVal('p-email', 'i-email');
+            setVal('p-addr', 'i-addr');
+
+            const pLang = document.getElementById('p-lang');
+            if(pLang) pLang.innerText = ": " + (bioLanguages.join(', ') || "-");
+
+            setVal('p-b10', 'b10');
+            setVal('p-y10', 'y10');
+            setVal('p-o10', 'o10');
+            const pc10 = document.getElementById('p-pc10');
+            if(pc10) pc10.innerText = calcPC(document.getElementById('o10').value, document.getElementById('t10').value);
+
+            setVal('p-b12', 'b12');
+            setVal('p-y12', 'y12');
+            setVal('p-o12', 'o12');
+            const pc12 = document.getElementById('p-pc12');
+            if(pc12) pc12.innerText = calcPC(document.getElementById('o12').value, document.getElementById('t12').value);
+
+            const gcName = document.getElementById('p-gc-name');
+            const iGc = document.getElementById('i-gc');
+            if(gcName && iGc) gcName.innerText = iGc.value || "Graduation";
+            setVal('p-bg', 'bg');
+            setVal('p-yg', 'yg');
+            setVal('p-og', 'og');
+            const pcg = document.getElementById('p-pcg');
+            if(pcg) pcg.innerText = calcPC(document.getElementById('og').value, document.getElementById('tg').value);
+
+            const exp = document.getElementById('p-exp');
+            if(exp) exp.innerText = document.getElementById('i-exp').value || "Fresher (No experience)";
+            
+            const skills = document.getElementById('p-skills');
+            if(skills) skills.innerText = document.getElementById('i-skills').value || "-";
+
+            const pDate = document.getElementById('p-date');
+            const iDate = document.getElementById('i-date');
+            if(pDate && iDate) pDate.innerText = iDate.value || "_________";
+
+            const pPlace = document.getElementById('p-place');
+            const iPlace = document.getElementById('i-place');
+            if(pPlace && iPlace) pPlace.innerText = iPlace.value || "_________";
+        }
+
+        function previewBioImg(input, targetId) {
+            if(input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = function(e) {
+                    const el = document.getElementById(targetId);
+                    if(el) {
+                        el.src = e.target.result;
+                        el.style.display = "block";
+                    }
+                    if(targetId === 'p-img') {
+                        const txt = document.getElementById('p-txt');
+                        if(txt) txt.style.display = "none";
+                    }
+                };
+                r.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Direct High-Quality A4 PDF Download for Bio-Data
+        function downloadBioDataPDF() {
+            const paper = document.getElementById('biodata-paper');
+            if (!paper) return;
+            const candName = (document.getElementById('i-name') ? document.getElementById('i-name').value.trim() : '') || 'BioData';
+            const cleanName = candName.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+            const opt = {
+                margin: 0,
+                filename: `BioData_${cleanName}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    scrollY: 0,
+                    logging: false 
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
+            };
+
+            html2pdf().set(opt).from(paper).save();
+        }
+
+
+        // ---------------- 7. A4 Document Joiner Logic ----------------
+        const inputFront = document.getElementById('inputFront');
+        const inputBack = document.getElementById('inputBack');
+        const btnMakePreview = document.getElementById('btnMakePreview');
+        const btnDownloadJoined = document.getElementById('btnDownloadJoined');
+        const a4Canvas = document.getElementById('a4Canvas');
+
+        let imgF = new Image();
+        let imgB = new Image();
+        let frontOk = false, backOk = false;
+
+        if(inputFront) {
+            inputFront.onchange = function(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    imgF.onload = function() {
+                        document.getElementById('viewFront').src = ev.target.result;
+                        document.getElementById('viewFront').style.display = 'block';
+                        document.getElementById('textFront').style.display = 'none';
+                        frontOk = true;
+                        if(frontOk && backOk) btnMakePreview.disabled = false;
+                    };
+                    imgF.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        if(inputBack) {
+            inputBack.onchange = function(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    imgB.onload = function() {
+                        document.getElementById('viewBack').src = ev.target.result;
+                        document.getElementById('viewBack').style.display = 'block';
+                        document.getElementById('textBack').style.display = 'none';
+                        backOk = true;
+                        if(frontOk && backOk) btnMakePreview.disabled = false;
+                    };
+                    imgB.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        if(btnMakePreview) {
+            btnMakePreview.onclick = function() {
+                const A4_W = 1240, A4_H = 1754;
+                a4Canvas.width = A4_W;
+                a4Canvas.height = A4_H;
+                const ctx = a4Canvas.getContext('2d');
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, A4_W, A4_H);
+
+                const targetW = 550;
+                const hF = (imgF.height / imgF.width) * targetW;
+                const hB = (imgB.height / imgB.width) * targetW;
+
+                const startX = (A4_W - (targetW * 2 + 60)) / 2;
+                const startY = 160;
+                const gap = 60;
+
+                ctx.drawImage(imgF, startX, startY, targetW, hF);
+                ctx.drawImage(imgB, startX + targetW + gap, startY, targetW, hB);
+
+                document.getElementById('result-section-j').style.display = 'block';
+                btnDownloadJoined.style.display = 'inline-block';
+            };
+        }
+
+        if(btnDownloadJoined) {
+            btnDownloadJoined.onclick = function() {
+                const link = document.createElement('a');
+                link.download = 'A4_Side_By_Side_Print.jpg';
+                link.href = a4Canvas.toDataURL('image/jpeg', 0.95);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+        }
+
+        // ---------------- 8. PAN Studio Logic ----------------
+        let panPhotoBlob = null;
+        let panSignBlob = null;
+
+        const inputStudioPhoto = document.getElementById('inputStudioPhoto');
+        if(inputStudioPhoto) {
+            inputStudioPhoto.onchange = function(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.src = evt.target.result;
+                    img.onload = function() {
+                        const c = document.createElement('canvas');
+                        c.width = 213; c.height = 213;
+                        const cx = c.getContext('2d');
+                        cx.drawImage(img, 0, 0, 213, 213);
+                        panPhotoBlob = c.toDataURL('image/jpeg', 0.85);
+
+                        const prev = document.getElementById('previewStudioPhoto');
+                        const txt = document.getElementById('textStudioPhoto');
+                        const btn = document.getElementById('btnDlPhoto');
+                        prev.src = panPhotoBlob;
+                        prev.style.display = 'block';
+                        txt.style.display = 'none';
+                        btn.style.display = 'inline-block';
+                    };
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        function downloadOptimizedPhoto() {
+            if(!panPhotoBlob) return;
+            const link = document.createElement('a');
+            link.href = panPhotoBlob;
+            link.download = 'PAN_Photo_213x213.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        const inputStudioSign = document.getElementById('inputStudioSign');
+        if(inputStudioSign) {
+            inputStudioSign.onchange = function(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.src = evt.target.result;
+                    img.onload = function() {
+                        const c = document.createElement('canvas');
+                        c.width = 400; c.height = 200;
+                        const cx = c.getContext('2d');
+                        cx.fillStyle = "#ffffff";
+                        cx.fillRect(0, 0, 400, 200);
+                        cx.drawImage(img, 0, 0, 400, 200);
+
+                        // Binarization for Crisp Signature Threshold
+                        const imgData = cx.getImageData(0, 0, 400, 200);
+                        const d = imgData.data;
+                        for(let i=0; i<d.length; i+=4) {
+                            let avg = (d[i] + d[i+1] + d[i+2]) / 3;
+                            let v = avg > 135 ? 255 : 0;
+                            d[i] = v; d[i+1] = v; d[i+2] = v;
+                        }
+                        cx.putImageData(imgData, 0, 0);
+                        panSignBlob = c.toDataURL('image/jpeg', 0.85);
+
+                        const prev = document.getElementById('previewStudioSign');
+                        const txt = document.getElementById('textStudioSign');
+                        const btn = document.getElementById('btnDlSign');
+                        prev.src = panSignBlob;
+                        prev.style.display = 'block';
+                        txt.style.display = 'none';
+                        btn.style.display = 'inline-block';
+                    };
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        function downloadOptimizedSign() {
+            if(!panSignBlob) return;
+            const link = document.createElement('a');
+            link.href = panSignBlob;
+            link.download = 'PAN_Signature_400x200.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ---------------- 9. Indian Note Counter Setup ----------------
+        const noteValues = [500, 200, 100, 50, 20, 10, 5];
+        const rowsBox = document.getElementById('counterRowsContainer');
+        if(rowsBox) {
+            noteValues.forEach(denom => {
+                const row = document.createElement('div');
+                row.className = 'note-row';
+                row.innerHTML = `
+                    <div class="note-label"><i class="fa-solid fa-money-bill"></i> ₹ ${denom}</div>
+                    <input type="number" min="0" placeholder="Qty" id="note_${denom}" oninput="calcCashLedger()">
+                    <div class="note-total-val" id="total_${denom}">₹ 0</div>
+                `;
+                rowsBox.appendChild(row);
+            });
+        }
+
+        function calcCashLedger() {
+            let grand = 0;
+            noteValues.forEach(denom => {
+                const inp = document.getElementById(`note_${denom}`);
+                const tot = document.getElementById(`total_${denom}`);
+                if(inp && tot) {
+                    const q = parseInt(inp.value) || 0;
+                    const sub = q * denom;
+                    grand += sub;
+                    tot.innerText = `₹ ${sub.toLocaleString('en-IN')}`;
+                }
+            });
+            document.getElementById('grandTotalText').innerText = grand.toLocaleString('en-IN');
+        }
+
+        // ---------------- 10. EPFO UAN Smart Studio Engine ----------------
+        const DEFAULT_EPFO_LOGO = "data:image/png;base64,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";
+
+        const DEFAULT_EPFO_PHOTO = "data:image/jpeg;base64,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";
+
+        const defaultUanState = {
+            uan: "101724003375",
+            name: "RASUL ANSARI",
+            father: "JAN MAHAMMAD MOMIN",
+            showDob: true,
+            dob: "01/01/1990",
+            kyc: "Yes",
+            printDate: "23.10.2026",
+            autoQr: true,
+            logoSrc: DEFAULT_EPFO_LOGO,
+            photoSrc: DEFAULT_EPFO_PHOTO
+        };
+
+        let uanQrInstance = null;
+        let uanPhotoFit = 'contain';
+        let uanPhotoScaleVal = 1.0;
+        let uanCanvasZoom = 0.75;
+
+        // Elements
+        const uanInputUan = document.getElementById('uanInputUan');
+        const uanInputName = document.getElementById('uanInputName');
+        const uanInputFather = document.getElementById('uanInputFather');
+        const uanToggleDob = document.getElementById('uanToggleDob');
+        const uanInputDob = document.getElementById('uanInputDob');
+        const uanInputKyc = document.getElementById('uanInputKyc');
+        const uanInputDate = document.getElementById('uanInputDate');
+        const uanQrText = document.getElementById('uanQrText');
+        const uanAutoQr = document.getElementById('uanAutoQr');
+
+        const uanCardUanFront = document.getElementById('uanCardUanFront');
+        const uanCardUanBack = document.getElementById('uanCardUanBack');
+        const uanCardName = document.getElementById('uanCardName');
+        const uanCardFather = document.getElementById('uanCardFather');
+        const uanCardDob = document.getElementById('uanCardDob');
+        const uanCardDobSection = document.getElementById('uanCardDobSection');
+        const uanCardKyc = document.getElementById('uanCardKyc');
+        const uanCardKycHi = document.getElementById('uanCardKycHi');
+        const uanCardKycEn = document.getElementById('uanCardKycEn');
+        const uanCardPrintDate = document.getElementById('uanCardPrintDate');
+        const uanCardLogo = document.getElementById('uanCardLogo');
+        const uanCardPhoto = document.getElementById('uanCardPhoto');
+        const uanFormLogoPreview = document.getElementById('uanFormLogoPreview');
+        const uanFormPhotoPreview = document.getElementById('uanFormPhotoPreview');
+        const uanCardQrTarget = document.getElementById('uanCardQrTarget');
+        const uanScaler = document.getElementById('uanScaler');
+        const uanZoomDisplay = document.getElementById('uanZoomDisplay');
+
+        function updateUanQr(text) {
+            if(!text || text.trim() === '') {
+                text = "EPFO-UAN:" + (uanInputUan.value || "NA");
+            }
+            uanCardQrTarget.innerHTML = '';
+            try {
+                uanQrInstance = new QRCode(uanCardQrTarget, {
+                    text: text,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                setTimeout(() => {
+                    const canvas = uanCardQrTarget.querySelector('canvas');
+                    const img = uanCardQrTarget.querySelector('img');
+                    if(canvas) { canvas.style.width = '100%'; canvas.style.height = '100%'; }
+                    if(img) { img.style.width = '100%'; img.style.height = '100%'; }
+                }, 50);
+            } catch(e) {
+                console.error("QR Error", e);
+            }
+        }
+
+        function getUanQrPayload() {
+            const u = uanInputUan.value.trim() || uanCardUanFront.innerText.trim();
+            const n = uanInputName.value.trim() || uanCardName.innerText.trim();
+            const f = uanInputFather.value.trim() || uanCardFather.innerText.trim();
+            const d = uanToggleDob.checked ? (uanInputDob.value.trim() || uanCardDob.innerText.trim()) : 'NA';
+            const k = uanInputKyc.value;
+            return `UAN:${u},Name:${n},Father:${f},DOB:${d},KYC:${k}`;
+        }
+
+        function syncUanQr() {
+            if(uanAutoQr.checked) {
+                const p = getUanQrPayload();
+                uanQrText.value = p;
+                updateUanQr(p);
+            }
+        }
+
+        function initUanStudio(data) {
+            uanInputUan.value = data.uan;
+            uanInputName.value = data.name;
+            uanInputFather.value = data.father;
+            uanToggleDob.checked = data.showDob;
+            uanInputDob.value = data.dob;
+            uanInputKyc.value = data.kyc;
+            uanInputDate.value = data.printDate;
+            uanAutoQr.checked = data.autoQr;
+
+            uanCardUanFront.innerText = data.uan;
+            uanCardUanBack.innerText = data.uan;
+            uanCardName.innerText = data.name;
+            uanCardFather.innerText = data.father;
+            uanCardDob.innerText = data.dob;
+            uanCardKyc.innerText = data.kyc;
+            uanCardPrintDate.innerText = "Printed from EPFO Member Portal On: " + data.printDate;
+
+            uanCardLogo.src = data.logoSrc;
+            uanFormLogoPreview.src = data.logoSrc;
+            uanCardPhoto.src = data.photoSrc;
+            uanFormPhotoPreview.src = data.photoSrc;
+
+            applyDobToggle(data.showDob);
+            syncUanQr();
+        }
+
+        function applyDobToggle(show) {
+            if(show) {
+                uanCardDobSection.style.display = "block";
+                uanInputDob.style.display = "block";
+                uanCardKycHi.style.top = "346px";
+                uanCardKycEn.style.top = "364px";
+                uanCardKyc.style.top = "355px";
+            } else {
+                uanCardDobSection.style.display = "none";
+                uanInputDob.style.display = "none";
+                uanCardKycHi.style.top = "328px";
+                uanCardKycEn.style.top = "348px";
+                uanCardKyc.style.top = "338px";
+            }
+            syncUanQr();
+        }
+
+        function applyPhotoTransform() {
+            uanCardPhoto.style.objectFit = uanPhotoFit;
+            uanCardPhoto.style.transform = `scale(${uanPhotoScaleVal})`;
+            if(uanFormPhotoPreview) uanFormPhotoPreview.style.objectFit = uanPhotoFit;
+        }
+
+        document.getElementById('btnFitContain').onclick = function() {
+            uanPhotoFit = 'contain';
+            this.className = "btn-ctrl btn-ctrl-primary";
+            document.getElementById('btnFitCover').className = "btn-ctrl";
+            applyPhotoTransform();
+        };
+
+        document.getElementById('btnFitCover').onclick = function() {
+            uanPhotoFit = 'cover';
+            this.className = "btn-ctrl btn-ctrl-primary";
+            document.getElementById('btnFitContain').className = "btn-ctrl";
+            applyPhotoTransform();
+        };
+
+        document.getElementById('photoZoom').oninput = function(e) {
+            uanPhotoScaleVal = parseInt(e.target.value) / 100;
+            document.getElementById('photoZoomLabel').innerText = e.target.value + '%';
+            applyPhotoTransform();
+        };
+
+        // Two-way bindings for UAN form
+        uanInputUan.oninput = (e) => {
+            const v = e.target.value.trim();
+            uanCardUanFront.innerText = v;
+            uanCardUanBack.innerText = v;
+            syncUanQr();
+        };
+        uanInputName.oninput = (e) => {
+            uanCardName.innerText = e.target.value.toUpperCase();
+            syncUanQr();
+        };
+        uanInputFather.oninput = (e) => {
+            uanCardFather.innerText = e.target.value.toUpperCase();
+            syncUanQr();
+        };
+        uanInputDob.oninput = (e) => {
+            uanCardDob.innerText = e.target.value;
+            syncUanQr();
+        };
+        uanToggleDob.onchange = (e) => {
+            applyDobToggle(e.target.checked);
+        };
+        uanInputKyc.onchange = (e) => {
+            uanCardKyc.innerText = e.target.value;
+            syncUanQr();
+        };
+        uanInputDate.oninput = (e) => {
+            uanCardPrintDate.innerText = "Printed from EPFO Member Portal On: " + e.target.value;
+        };
+        uanQrText.oninput = (e) => {
+            uanAutoQr.checked = false;
+            updateUanQr(e.target.value);
+        };
+        uanAutoQr.onchange = (e) => {
+            if(e.target.checked) syncUanQr();
+        };
+
+        // Inline Card contentEditable sync
+        uanCardUanFront.oninput = () => {
+            const v = uanCardUanFront.innerText.trim();
+            uanCardUanBack.innerText = v;
+            uanInputUan.value = v;
+            syncUanQr();
+        };
+        uanCardUanBack.oninput = () => {
+            const v = uanCardUanBack.innerText.trim();
+            uanCardUanFront.innerText = v;
+            uanInputUan.value = v;
+            syncUanQr();
+        };
+        uanCardName.oninput = () => {
+            uanInputName.value = uanCardName.innerText.trim();
+            syncUanQr();
+        };
+        uanCardFather.oninput = () => {
+            uanInputFather.value = uanCardFather.innerText.trim();
+            syncUanQr();
+        };
+        uanCardDob.oninput = () => {
+            uanInputDob.value = uanCardDob.innerText.trim();
+            syncUanQr();
+        };
+        uanCardKyc.oninput = () => {
+            const v = uanCardKyc.innerText.trim();
+            if(v.toLowerCase().includes("yes")) uanInputKyc.value = "Yes";
+            else if(v.toLowerCase().includes("no")) uanInputKyc.value = "No";
+            syncUanQr();
+        };
+
+        // Logo & Photo file uploads
+        document.getElementById('uanLogoInput').onchange = function(e) {
+            const f = e.target.files[0];
+            if(f) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    uanCardLogo.src = ev.target.result;
+                    uanFormLogoPreview.src = ev.target.result;
+                };
+                r.readAsDataURL(f);
+            }
+        };
+
+        document.getElementById('uanPhotoInput').onchange = function(e) {
+            const f = e.target.files[0];
+            if(f) {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    uanCardPhoto.src = ev.target.result;
+                    uanFormPhotoPreview.src = ev.target.result;
+                };
+                r.readAsDataURL(f);
+            }
+        };
+
+        function resetUanData() {
+            initUanStudio(defaultUanState);
+            uanPhotoFit = 'contain';
+            uanPhotoScaleVal = 1.0;
+            document.getElementById('photoZoom').value = 100;
+            document.getElementById('photoZoomLabel').innerText = '100%';
+            applyPhotoTransform();
+        }
+
+        function zoomUan(delta) {
+            uanCanvasZoom = Math.min(Math.max(uanCanvasZoom + delta, 0.4), 1.25);
+            uanScaler.style.transform = `scale(${uanCanvasZoom})`;
+            uanZoomDisplay.innerText = Math.round(uanCanvasZoom * 100) + '%';
+        }
+
+        function autoFitUanCanvas() {
+            const wrapper = document.querySelector('.uan-preview-area');
+            if(wrapper) {
+                const availW = wrapper.clientWidth - 40;
+                if(availW < 1122) {
+                    uanCanvasZoom = Math.max(availW / 1122, 0.45);
+                    uanScaler.style.transform = `scale(${uanCanvasZoom})`;
+                    uanZoomDisplay.innerText = Math.round(uanCanvasZoom * 100) + '%';
+                }
+            }
+        }
+
+        function printUanCard() {
+            window.print();
+        }
+
+        document.getElementById('btnDlUan').onclick = async function() {
+            const cardEl = document.getElementById('printableUanCard');
+            const btn = this;
+            const originalHTML = btn.innerHTML;
+            try {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Rendering...`;
+                btn.disabled = true;
+
+                const prevTransform = uanScaler.style.transform;
+                uanScaler.style.transform = 'none';
+
+                const canvas = await html2canvas(cardEl, {
+                    scale: 3,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                uanScaler.style.transform = prevTransform;
+
+                const uanVal = uanInputUan.value.trim() || 'EPFO_UAN';
+                const link = document.createElement('a');
+                link.download = `EPFO_UAN_Card_${uanVal}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch(e) {
+                console.error("HD Download Error", e);
+                window.print();
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        };
+
+        // Window Init
+        window.addEventListener('DOMContentLoaded', () => {
+            initUanStudio(defaultUanState);
+            calcCashLedger();
+            window.addEventListener('resize', autoFitUanCanvas);
+        });
+    </script>
+
+</body>
+</html>

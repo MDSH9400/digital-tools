@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Document to PVC Card Converter</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .checkered-pattern {
+      background-color: #0b0f19;
+      background-image: linear-gradient(45deg, #151e2e 25%, transparent 25%), 
+                        linear-gradient(-45deg, #151e2e 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #151e2e 75%), 
+                        linear-gradient(-45deg, transparent 75%, #151e2e 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    input[type=range] { accent-color: #2563eb; }
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea {
+        position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+        margin: 0; padding: 0; background: white;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i class="ph-bold ph-identification-card text-xl text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg leading-tight flex items-center gap-2">
+            Doc-to-PVC Converter <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Exact Ratio Lock</span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Original Aspect Ratio View &bull; Precision Zoom &bull; Auto-Convert to Standard PVC (85.6 × 54 mm)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label for="frontFileInput" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 font-medium text-xs border border-blue-500/30 transition shadow-sm active:scale-95">
+          <i class="ph-bold ph-file-arrow-up"></i>
+          <span>Front Side</span>
+        </label>
+        <input type="file" id="frontFileInput" accept="image/*" class="hidden">
+
+        <label for="backFileInput" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-medium text-xs border border-indigo-500/30 transition shadow-sm active:scale-95">
+          <i class="ph-bold ph-file-arrow-up"></i>
+          <span>Back Side</span>
+        </label>
+        <input type="file" id="backFileInput" accept="image/*" class="hidden">
+      </div>
+    </div>
+  </header>
+
+  <!-- Empty Onboarding State -->
+  <div id="emptyOnboarding" class="max-w-4xl mx-auto my-12 p-8 border-2 border-dashed border-slate-800 hover:border-blue-500/50 rounded-3xl bg-slate-900/40 text-center transition flex flex-col items-center justify-center">
+    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-3xl text-white mb-4 shadow-xl">
+      <i class="ph-bold ph-cards"></i>
+    </div>
+    <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Upload Any Document (A4, Scan, Mobile Photo)</h2>
+    <p class="text-sm text-slate-400 max-w-lg mb-6">
+      Document kisi bhi size ka ho, bina dab-pichke apne 100% original shape me dikhega. Zoom karke card ka hissa crop karein, print preview automatic standard PVC me lock ho jayega.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <button onclick="document.getElementById('frontFileInput').click()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold flex items-center gap-2 shadow-lg shadow-blue-600/25 transition">
+        <i class="ph-bold ph-upload-simple"></i> Upload Front Side
+      </button>
+      <button onclick="document.getElementById('backFileInput').click()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-semibold flex items-center gap-2 transition">
+        <i class="ph-bold ph-upload-simple"></i> Upload Back Side
+      </button>
+      <button id="loadSampleBtn" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/60 text-xs text-slate-400 font-medium transition flex items-center gap-1.5">
+        <i class="ph-bold ph-lightning"></i> Try Sample A4 Document
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Dual Workspace -->
+  <main id="mainWorkspace" class="hidden flex-1 max-w-[1750px] w-full mx-auto p-3 sm:p-5 grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+    
+    <!-- LEFT: Original Natural Viewer & Cropper -->
+    <section class="xl:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col gap-3">
+      
+      <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-3">
+        <div class="inline-flex p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-semibold">
+          <button id="tabFrontBtn" class="px-4 py-1.5 rounded-lg bg-blue-600 text-white flex items-center gap-2 transition shadow">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Front Side
+          </button>
+          <button id="tabBackBtn" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+            <span class="w-2 h-2 rounded-full bg-slate-600" id="backStatusDot"></span> Back Side
+          </button>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <button id="zoomInBtn" title="Zoom In" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700 transition flex items-center gap-1">
+            <i class="ph-bold ph-magnifying-glass-plus"></i> Zoom +
+          </button>
+          <button id="zoomOutBtn" title="Zoom Out" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700 transition flex items-center gap-1">
+            <i class="ph-bold ph-magnifying-glass-minus"></i> Zoom -
+          </button>
+          <button id="zoomResetBtn" title="Reset Zoom" class="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[11px] border border-slate-700 transition">
+            100%
+          </button>
+          <div class="h-4 w-px bg-slate-800 mx-1"></div>
+          <button id="rotateSrcLeftBtn" title="Rotate 90° CCW" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700 transition">
+            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+          </button>
+          <button id="rotateSrcRightBtn" title="Rotate 90° CW" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700 transition">
+            <i class="ph-bold ph-arrow-clockwise"></i>
+          </button>
+          <button id="resetCornersBtn" title="Reset Crop Box" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700 transition flex items-center gap-1">
+            <i class="ph-bold ph-arrows-out"></i> Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+        <span class="flex items-center gap-1.5">
+          <i class="ph-fill ph-crosshair text-emerald-400"></i>
+          Active: <strong id="activeSideLabel" class="text-blue-400 font-semibold uppercase">Front Side</strong>
+          <span class="text-slate-500 hidden sm:inline ml-2">(Scroll wheel se bhi zoom kar sakte hain)</span>
+        </span>
+        <label for="replaceActiveFileInput" class="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer">
+          Replace image
+        </label>
+        <input type="file" id="replaceActiveFileInput" accept="image/*" class="hidden">
+      </div>
+
+      <!-- Canvas Viewport: Preserves Exact Document Ratio Without Any Stretches -->
+      <div id="canvasViewport" class="relative w-full rounded-xl overflow-auto checkered-pattern border border-slate-800 shadow-inner flex items-center justify-center p-3 h-[520px] select-none">
+        <canvas id="interactiveCanvas" class="cursor-crosshair touch-none shadow-2xl block"></canvas>
+
+        <!-- Precision Loupe -->
+        <div id="loupe" class="hidden absolute pointer-events-none w-36 h-36 rounded-full border-2 border-emerald-400 shadow-2xl overflow-hidden bg-slate-900 z-30 ring-4 ring-black/70">
+          <canvas id="loupeCanvas" width="144" height="144" class="w-full h-full block"></canvas>
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="w-3.5 h-3.5 border-2 border-emerald-400 rounded-full bg-emerald-500/20"></div>
+          </div>
+        </div>
+
+        <!-- Empty side notification -->
+        <div id="sideEmptyNotice" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-sm p-6 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-400 mb-3 border border-slate-700">
+            <i class="ph-bold ph-image-square text-3xl"></i>
+          </div>
+          <p class="text-slate-300 font-semibold mb-1" id="sideEmptyTitle">Back side uploaded nahi hai</p>
+          <p class="text-xs text-slate-500 mb-4 max-w-xs">Aap single side print kar sakte hain ya back side upload karke complete set generate karein.</p>
+          <button id="uploadNoticeBtn" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+            <i class="ph-bold ph-plus"></i> Upload Back Image
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+        <div class="flex items-center gap-2">
+          <i class="ph-fill ph-check-circle text-emerald-400 text-base"></i>
+          <span>Document original aspect ratio me render ho raha hai. <strong>Crop hone ke baad automatic PVC size ban jayega.</strong></span>
+        </div>
+        <span class="text-emerald-400 font-mono text-[11px] font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Auto-PVC Morph</span>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: Converted PVC Cards Preview on A4 Sheet -->
+    <section class="xl:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col gap-4">
+      
+      <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h2 class="font-bold text-sm sm:text-base text-slate-200 flex items-center gap-2">
+            <i class="ph-bold ph-file-pdf text-emerald-400"></i> Converted PVC on A4 Sheet
+          </h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-emerald-300">85.6 × 54 mm</span>
+          <button id="directPrintBtn" title="Direct Print A4" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition flex items-center gap-1.5">
+            <i class="ph-bold ph-printer"></i> Print
+          </button>
+        </div>
+      </div>
+
+      <!-- Live A4 Canvas -->
+      <div class="relative w-full flex items-center justify-center p-3 rounded-xl border border-slate-800 bg-slate-950/80 min-h-[380px] max-h-[50vh] overflow-hidden">
+        <div class="relative shadow-2xl rounded overflow-hidden border border-slate-300/40 bg-white">
+          <canvas id="a4PreviewCanvas" class="max-w-full max-h-[46vh] object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- Settings & Enhancements -->
+      <div class="space-y-3 pt-1">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">A4 Page Position</label>
+          <div class="grid grid-cols-2 gap-2" id="layoutModeGroup">
+            <button data-layout="id-top" class="layout-btn active px-2.5 py-2 rounded-xl text-xs font-medium border border-blue-500 bg-blue-600/20 text-blue-300 flex flex-col items-center gap-1 transition">
+              <i class="ph-bold ph-arrow-fat-line-up text-base"></i>
+              <span>Top Margin (Save Paper)</span>
+            </button>
+            <button data-layout="id-center" class="layout-btn px-2.5 py-2 rounded-xl text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 flex flex-col items-center gap-1 transition">
+              <i class="ph-bold ph-arrows-in-line-vertical text-base"></i>
+              <span>Page Center</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Enhancement Filter</label>
+          <div class="grid grid-cols-4 gap-1.5" id="filterPresets">
+            <button data-filter="original" class="filter-btn active px-2 py-1.5 rounded-lg text-xs font-medium border border-blue-500 bg-blue-600/20 text-blue-300 transition">
+              Original
+            </button>
+            <button data-filter="magic" class="filter-btn px-2 py-1.5 rounded-lg text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 transition">
+              Color Boost
+            </button>
+            <button data-filter="bw" class="filter-btn px-2 py-1.5 rounded-lg text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 transition">
+              Clean B&W
+            </button>
+            <button data-filter="grayscale" class="filter-btn px-2 py-1.5 rounded-lg text-xs font-medium border border-slate-800 bg-slate-800/60 hover:bg-slate-800 text-slate-300 transition">
+              Grayscale
+            </button>
+          </div>
+        </div>
+
+        <!-- Scale & Gap adjustments -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1">
+              <span>PVC Scale</span>
+              <span id="scaleValText" class="font-mono text-slate-200">100%</span>
+            </div>
+            <input type="range" id="scaleInput" min="80" max="120" value="100" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1">
+              <span>Card Gap</span>
+              <span id="spacingValText" class="font-mono text-slate-200">15mm</span>
+            </div>
+            <input type="range" id="spacingInput" min="5" max="50" value="15" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-1">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="cardBorderCheckbox" checked class="w-3.5 h-3.5 rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0">
+            <span>PVC Cutting Line Indicator</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Download Actions -->
+      <div class="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <button id="downloadPdfBtn" class="sm:col-span-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/25 transition">
+          <i class="ph-bold ph-file-pdf text-base"></i> A4 PDF (Print Ready)
+        </button>
+
+        <button id="downloadJpgBtn" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <i class="ph-bold ph-image text-base"></i> High-Res JPG
+        </button>
+
+        <button id="downloadPngBtn" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <i class="ph-bold ph-file-png text-base"></i> High-Res PNG
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="printArea" class="hidden">
+    <img id="printImage" class="w-full h-full object-contain" alt="A4 Print Document">
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-slate-700 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-xs sm:text-sm">
+    <i class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>
+    <span id="toastMsg">Ready</span>
+  </div>
+
+  <script>
+    const app = {
+      activeSide: 'front',
+      sides: {
+        front: {
+          image: null,
+          rotation: 0,
+          corners: [],
+          cachedWarp: null
+        },
+        back: {
+          image: null,
+          rotation: 0,
+          corners: [],
+          cachedWarp: null
+        }
+      },
+      zoomLevel: 1.0,
+      layoutMode: 'id-top',
+      filter: 'original',
+      scalePercent: 100,
+      spacingMm: 15,
+      showCardBorder: true,
+      activeCornerIndex: -1,
+      isDragging: false,
+      rafPending: false
+    };
+
+    const A4_DPI300_WIDTH = 2480;
+    const A4_DPI300_HEIGHT = 3508;
+    const PVC_WIDTH_MM = 85.60;
+    const PVC_HEIGHT_MM = 53.98;
+
+    const emptyOnboarding = document.getElementById('emptyOnboarding');
+    const mainWorkspace = document.getElementById('mainWorkspace');
+    const frontFileInput = document.getElementById('frontFileInput');
+    const backFileInput = document.getElementById('backFileInput');
+    const replaceActiveFileInput = document.getElementById('replaceActiveFileInput');
+    const loadSampleBtn = document.getElementById('loadSampleBtn');
+
+    const tabFrontBtn = document.getElementById('tabFrontBtn');
+    const tabBackBtn = document.getElementById('tabBackBtn');
+    const backStatusDot = document.getElementById('backStatusDot');
+    const activeSideLabel = document.getElementById('activeSideLabel');
+    const sideEmptyNotice = document.getElementById('sideEmptyNotice');
+    const sideEmptyTitle = document.getElementById('sideEmptyTitle');
+    const uploadNoticeBtn = document.getElementById('uploadNoticeBtn');
+
+    const canvasViewport = document.getElementById('canvasViewport');
+    const interactiveCanvas = document.getElementById('interactiveCanvas');
+    const ctx = interactiveCanvas.getContext('2d');
+    const loupe = document.getElementById('loupe');
+    const loupeCanvas = document.getElementById('loupeCanvas');
+    const loupeCtx = loupeCanvas.getContext('2d');
+
+    const a4PreviewCanvas = document.getElementById('a4PreviewCanvas');
+    const a4Ctx = a4PreviewCanvas.getContext('2d');
+
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+    const rotateSrcLeftBtn = document.getElementById('rotateSrcLeftBtn');
+    const rotateSrcRightBtn = document.getElementById('rotateSrcRightBtn');
+    const resetCornersBtn = document.getElementById('resetCornersBtn');
+
+    const scaleInput = document.getElementById('scaleInput');
+    const spacingInput = document.getElementById('spacingInput');
+    const scaleValText = document.getElementById('scaleValText');
+    const spacingValText = document.getElementById('spacingValText');
+    const cardBorderCheckbox = document.getElementById('cardBorderCheckbox');
+
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const downloadJpgBtn = document.getElementById('downloadJpgBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
+    const directPrintBtn = document.getElementById('directPrintBtn');
+    const printArea = document.getElementById('printArea');
+    const printImage = document.getElementById('printImage');
+
+    frontFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) loadFile(e.target.files[0], 'front');
+    });
+
+    backFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) loadFile(e.target.files[0], 'back');
+    });
+
+    replaceActiveFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) loadFile(e.target.files[0], app.activeSide);
+    });
+
+    uploadNoticeBtn.addEventListener('click', () => backFileInput.click());
+
+    function loadFile(file, side) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please upload an image file');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          setupSideImage(side, img);
+          switchActiveSide(side);
+          emptyOnboarding.classList.add('hidden');
+          mainWorkspace.classList.remove('hidden');
+          showToast(`${side.toUpperCase()} loaded! Exact shape preview active.`);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setupSideImage(side, img) {
+      const s = app.sides[side];
+      s.image = img;
+      s.rotation = 0;
+      
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+
+      // Card crop area setup inside image (approx PVC ratio)
+      const targetRatio = PVC_WIDTH_MM / PVC_HEIGHT_MM;
+      let boxW = w * 0.70;
+      let boxH = boxW / targetRatio;
+
+      if (boxH > h * 0.70) {
+        boxH = h * 0.70;
+        boxW = boxH * targetRatio;
+      }
+
+      const startX = (w - boxW) / 2;
+      const startY = (h - boxH) / 2;
+
+      s.corners = [
+        { x: startX, y: startY },
+        { x: startX + boxW, y: startY },
+        { x: startX + boxW, y: startY + boxH },
+        { x: startX, y: startY + boxH }
+      ];
+
+      if (side === 'back') {
+        backStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+      }
+      updateSideWarp(side);
+    }
+
+    tabFrontBtn.addEventListener('click', () => switchActiveSide('front'));
+    tabBackBtn.addEventListener('click', () => switchActiveSide('back'));
+
+    function switchActiveSide(side) {
+      app.activeSide = side;
+      activeSideLabel.innerText = `${side} side`;
+      activeSideLabel.className = side === 'front' ? 'text-blue-400 font-semibold uppercase' : 'text-indigo-400 font-semibold uppercase';
+
+      if (side === 'front') {
+        tabFrontBtn.className = 'px-4 py-1.5 rounded-lg bg-blue-600 text-white flex items-center gap-2 transition shadow';
+        tabBackBtn.className = 'px-4 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition';
+      } else {
+        tabBackBtn.className = 'px-4 py-1.5 rounded-lg bg-indigo-600 text-white flex items-center gap-2 transition shadow';
+        tabFrontBtn.className = 'px-4 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 transition';
+      }
+
+      renderInteractiveEditor();
+    }
+
+    // Zoom Controls
+    zoomInBtn.addEventListener('click', () => {
+      app.zoomLevel = Math.min(4.0, app.zoomLevel + 0.25);
+      updateZoomDisplay();
+    });
+
+    zoomOutBtn.addEventListener('click', () => {
+      app.zoomLevel = Math.max(0.4, app.zoomLevel - 0.25);
+      updateZoomDisplay();
+    });
+
+    zoomResetBtn.addEventListener('click', () => {
+      app.zoomLevel = 1.0;
+      updateZoomDisplay();
+    });
+
+    function updateZoomDisplay() {
+      zoomResetBtn.innerText = `${Math.round(app.zoomLevel * 100)}%`;
+      renderInteractiveEditor();
+    }
+
+    canvasViewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        app.zoomLevel = Math.min(4.0, app.zoomLevel + 0.15);
+      } else {
+        app.zoomLevel = Math.max(0.4, app.zoomLevel - 0.15);
+      }
+      updateZoomDisplay();
+    }, { passive: false });
+
+    // FIXED: Render Exact Image Aspect Ratio without stretching or flattening
+    function renderInteractiveEditor() {
+      const s = app.sides[app.activeSide];
+      if (!s.image) {
+        sideEmptyNotice.classList.remove('hidden');
+        sideEmptyTitle.innerText = `${app.activeSide.toUpperCase()} side upload nahi hai`;
+        ctx.clearRect(0, 0, interactiveCanvas.width, interactiveCanvas.height);
+        interactiveCanvas.style.width = '0px';
+        interactiveCanvas.style.height = '0px';
+        return;
+      }
+      sideEmptyNotice.classList.add('hidden');
+
+      const viewportW = canvasViewport.clientWidth - 40;
+      const viewportH = canvasViewport.clientHeight - 40;
+
+      const imgW = s.image.naturalWidth;
+      const imgH = s.image.naturalHeight;
+      const imgAspect = imgW / imgH;
+
+      // Fit inside viewport naturally based on aspect ratio
+      let baseW, baseH;
+      if (viewportW / viewportH > imgAspect) {
+        // Height constraint
+        baseH = viewportH;
+        baseW = baseH * imgAspect;
+      } else {
+        // Width constraint
+        baseW = viewportW;
+        baseH = baseW / imgAspect;
+      }
+
+      // Apply zoom level cleanly to both width and height
+      const finalW = Math.round(baseW * app.zoomLevel);
+      const finalH = Math.round(baseH * app.zoomLevel);
+
+      interactiveCanvas.width = finalW;
+      interactiveCanvas.height = finalH;
+      interactiveCanvas.style.width = `${finalW}px`;
+      interactiveCanvas.style.height = `${finalH}px`;
+
+      drawInteractiveOverlay();
+    }
+
+    function imgToCanvas(pt, img) {
+      return {
+        x: (pt.x / img.naturalWidth) * interactiveCanvas.width,
+        y: (pt.y / img.naturalHeight) * interactiveCanvas.height
+      };
+    }
+
+    function canvasToImg(pt, img) {
+      return {
+        x: (pt.x / interactiveCanvas.width) * img.naturalWidth,
+        y: (pt.y / interactiveCanvas.height) * img.naturalHeight
+      };
+    }
+
+    function drawInteractiveOverlay() {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return;
+
+      ctx.clearRect(0, 0, interactiveCanvas.width, interactiveCanvas.height);
+      ctx.drawImage(s.image, 0, 0, interactiveCanvas.width, interactiveCanvas.height);
+
+      const pts = s.corners.map(p => imgToCanvas(p, s.image));
+
+      // Dimmed Crop Area
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      ctx.lineTo(pts[1].x, pts[1].y);
+      ctx.lineTo(pts[2].x, pts[2].y);
+      ctx.lineTo(pts[3].x, pts[3].y);
+      ctx.closePath();
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.40)';
+      ctx.fill();
+
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 4]);
+      ctx.stroke();
+      ctx.restore();
+
+      // Corner handles
+      const labels = ['TL', 'TR', 'BR', 'BL'];
+      pts.forEach((pt, idx) => {
+        const isHovered = (app.activeCornerIndex === idx);
+        const radius = isHovered ? 12 : 9;
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, radius + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#022c22';
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#34d399';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        ctx.font = 'bold 11px Plus Jakarta Sans, sans-serif';
+        ctx.fillStyle = '#6ee7b7';
+        ctx.fillText(labels[idx], pt.x + 12, pt.y + 4);
+      });
+    }
+
+    function getPointerPos(e) {
+      const rect = interactiveCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+        clientX,
+        clientY
+      };
+    }
+
+    function findClosestCorner(pos) {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return -1;
+      const pts = s.corners.map(p => imgToCanvas(p, s.image));
+      const hitRadius = 35;
+      let minIdx = -1;
+      let minDis = Infinity;
+
+      pts.forEach((pt, idx) => {
+        const dis = Math.hypot(pt.x - pos.x, pt.y - pos.y);
+        if (dis < hitRadius && dis < minDis) {
+          minDis = dis;
+          minIdx = idx;
+        }
+      });
+      return minIdx;
+    }
+
+    function onPointerDown(e) {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return;
+      const pos = getPointerPos(e);
+      const idx = findClosestCorner(pos);
+      if (idx !== -1) {
+        app.activeCornerIndex = idx;
+        app.isDragging = true;
+        updateLoupe(pos);
+        drawInteractiveOverlay();
+      }
+    }
+
+    function onPointerMove(e) {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return;
+      const pos = getPointerPos(e);
+
+      if (app.isDragging && app.activeCornerIndex !== -1) {
+        const imgPos = canvasToImg(pos, s.image);
+        s.corners[app.activeCornerIndex] = {
+          x: Math.max(0, Math.min(s.image.naturalWidth, imgPos.x)),
+          y: Math.max(0, Math.min(s.image.naturalHeight, imgPos.y))
+        };
+        updateLoupe(pos);
+        drawInteractiveOverlay();
+
+        if (!app.rafPending) {
+          app.rafPending = true;
+          requestAnimationFrame(() => {
+            updateSideWarp(app.activeSide);
+            renderA4Layout();
+            app.rafPending = false;
+          });
+        }
+      } else {
+        const hoverIdx = findClosestCorner(pos);
+        interactiveCanvas.style.cursor = (hoverIdx !== -1) ? 'grab' : 'crosshair';
+      }
+    }
+
+    function onPointerUp() {
+      if (app.isDragging) {
+        app.isDragging = false;
+        app.activeCornerIndex = -1;
+        loupe.classList.add('hidden');
+        drawInteractiveOverlay();
+        updateSideWarp(app.activeSide);
+        renderA4Layout();
+      }
+    }
+
+    function updateLoupe(pos) {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return;
+
+      loupe.classList.remove('hidden');
+      const containerRect = canvasViewport.getBoundingClientRect();
+      const canvasRect = interactiveCanvas.getBoundingClientRect();
+
+      let loupeLeft = (canvasRect.left - containerRect.left) + pos.x + 35;
+      let loupeTop = (canvasRect.top - containerRect.top) + pos.y - 120;
+
+      if (loupeTop < 10) loupeTop = (canvasRect.top - containerRect.top) + pos.y + 35;
+      if (loupeLeft + 150 > containerRect.width) loupeLeft -= 180;
+
+      loupe.style.left = `${loupeLeft}px`;
+      loupe.style.top = `${loupeTop}px`;
+
+      const zoom = 3.0;
+      const lW = loupeCanvas.width;
+      const lH = loupeCanvas.height;
+      const imgPt = s.corners[app.activeCornerIndex];
+
+      loupeCtx.clearRect(0, 0, lW, lH);
+      loupeCtx.drawImage(
+        s.image,
+        imgPt.x - (lW / 2) / zoom,
+        imgPt.y - (lH / 2) / zoom,
+        lW / zoom,
+        lH / zoom,
+        0, 0, lW, lH
+      );
+
+      loupeCtx.strokeStyle = 'rgba(16, 185, 129, 0.9)';
+      loupeCtx.lineWidth = 1.5;
+      loupeCtx.beginPath();
+      loupeCtx.moveTo(lW / 2 - 12, lH / 2);
+      loupeCtx.lineTo(lW / 2 + 12, lH / 2);
+      loupeCtx.moveTo(lW / 2, lH / 2 - 12);
+      loupeCtx.lineTo(lW / 2, lH / 2 + 12);
+      loupeCtx.stroke();
+    }
+
+    interactiveCanvas.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    interactiveCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      onPointerDown(e);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (app.isDragging) {
+        e.preventDefault();
+        onPointerMove(e);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', onPointerUp);
+
+    // Rotation & Reset
+    rotateSrcLeftBtn.addEventListener('click', () => rotateActiveSideImage(-90));
+    rotateSrcRightBtn.addEventListener('click', () => rotateActiveSideImage(90));
+
+    function rotateActiveSideImage(degrees) {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return;
+
+      const rad = (degrees * Math.PI) / 180;
+      const is90 = Math.abs(degrees % 180) === 90;
+      const newW = is90 ? s.image.naturalHeight : s.image.naturalWidth;
+      const newH = is90 ? s.image.naturalWidth : s.image.naturalHeight;
+
+      const rCanvas = document.createElement('canvas');
+      rCanvas.width = newW;
+      rCanvas.height = newH;
+      const rCtx = rCanvas.getContext('2d');
+      rCtx.translate(newW / 2, newH / 2);
+      rCtx.rotate(rad);
+      rCtx.drawImage(s.image, -s.image.naturalWidth / 2, -s.image.naturalHeight / 2);
+
+      const rotImg = new Image();
+      rotImg.onload = () => {
+        setupSideImage(app.activeSide, rotImg);
+        renderInteractiveEditor();
+        renderA4Layout();
+      };
+      rotImg.src = rCanvas.toDataURL('image/png');
+    }
+
+    resetCornersBtn.addEventListener('click', () => {
+      const s = app.sides[app.activeSide];
+      if (!s.image) return;
+      setupSideImage(app.activeSide, s.image);
+      drawInteractiveOverlay();
+      renderA4Layout();
+      showToast('Crop area reset ho gaya');
+    });
+
+    // Homography Math for Auto-PVC Output
+    function getPerspectiveTransform(src, dst) {
+      const a = [];
+      for (let i = 0; i < 4; i++) {
+        const sx = src[i].x, sy = src[i].y;
+        const dx = dst[i].x, dy = dst[i].y;
+        a.push([sx, sy, 1, 0, 0, 0, -dx * sx, -dx * sy, dx]);
+        a.push([0, 0, 0, sx, sy, 1, -dy * sx, -dy * sy, dy]);
+      }
+
+      for (let i = 0; i < 8; i++) {
+        let maxRow = i;
+        for (let j = i + 1; j < 8; j++) {
+          if (Math.abs(a[j][i]) > Math.abs(a[maxRow][i])) maxRow = j;
+        }
+        const temp = a[i]; a[i] = a[maxRow]; a[maxRow] = temp;
+
+        for (let j = i + 1; j < 8; j++) {
+          const factor = a[j][i] / a[i][i];
+          for (let k = i; k <= 8; k++) {
+            a[j][k] -= factor * a[i][k];
+          }
+        }
+      }
+
+      const h = new Array(9);
+      h[8] = 1;
+      for (let i = 7; i >= 0; i--) {
+        let sum = a[i][8];
+        for (let j = i + 1; j < 8; j++) sum -= a[i][j] * h[j];
+        h[i] = sum / a[i][i];
+      }
+      return h;
+    }
+
+    // Selected crop area is automatically warped into standard PVC resolution (1011 × 638 px)
+    function computeWarpCanvas(sideKey, targetW, targetH) {
+      const s = app.sides[sideKey];
+      if (!s.image) return null;
+
+      const outW = targetW || 1011;
+      const outH = targetH || 638;
+
+      const srcPts = s.corners;
+      const dstPts = [
+        { x: 0, y: 0 },
+        { x: outW, y: 0 },
+        { x: outW, y: outH },
+        { x: 0, y: outH }
+      ];
+
+      const H_inv = getPerspectiveTransform(dstPts, srcPts);
+      if (!H_inv) return null;
+
+      const srcCanvas = document.createElement('canvas');
+      srcCanvas.width = s.image.naturalWidth;
+      srcCanvas.height = s.image.naturalHeight;
+      const sCtx = srcCanvas.getContext('2d');
+      sCtx.drawImage(s.image, 0, 0);
+
+      const srcImgData = sCtx.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+      const srcData = srcImgData.data;
+      const sW = srcCanvas.width;
+      const sH = srcCanvas.height;
+
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = outW;
+      outCanvas.height = outH;
+      const oCtx = outCanvas.getContext('2d');
+      const outImgData = oCtx.createImageData(outW, outH);
+      const outData = outImgData.data;
+
+      const m0 = H_inv[0], m1 = H_inv[1], m2 = H_inv[2];
+      const m3 = H_inv[3], m4 = H_inv[4], m5 = H_inv[5];
+      const m6 = H_inv[6], m7 = H_inv[7], m8 = H_inv[8];
+
+      let dstIdx = 0;
+      for (let y = 0; y < outH; y++) {
+        for (let x = 0; x < outW; x++) {
+          const w = m6 * x + m7 * y + m8;
+          const u = (m0 * x + m1 * y + m2) / w;
+          const v = (m3 * x + m4 * y + m5) / w;
+
+          if (u >= 0 && u < sW - 1 && v >= 0 && v < sH - 1) {
+            const x0 = u | 0;
+            const y0 = v | 0;
+            const x1 = x0 + 1;
+            const y1 = y0 + 1;
+            const fx = u - x0;
+            const fy = v - y0;
+
+            const i00 = (y0 * sW + x0) * 4;
+            const i10 = (y0 * sW + x1) * 4;
+            const i01 = (y1 * sW + x0) * 4;
+            const i11 = (y1 * sW + x1) * 4;
+
+            for (let c = 0; c < 3; c++) {
+              const top = srcData[i00 + c] * (1 - fx) + srcData[i10 + c] * fx;
+              const btm = srcData[i01 + c] * (1 - fx) + srcData[i11 + c] * fx;
+              outData[dstIdx + c] = (top * (1 - fy) + btm * fy) | 0;
+            }
+            outData[dstIdx + 3] = 255;
+          } else {
+            outData[dstIdx] = 255;
+            outData[dstIdx + 1] = 255;
+            outData[dstIdx + 2] = 255;
+            outData[dstIdx + 3] = 255;
+          }
+          dstIdx += 4;
+        }
+      }
+
+      applyFilterToImageData(outImgData, app.filter);
+      oCtx.putImageData(outImgData, 0, 0);
+      return outCanvas;
+    }
+
+    function updateSideWarp(sideKey) {
+      app.sides[sideKey].cachedWarp = computeWarpCanvas(sideKey);
+    }
+
+    function applyFilterToImageData(imgData, filter) {
+      if (filter === 'original') return;
+      const d = imgData.data;
+      const len = d.length;
+
+      for (let i = 0; i < len; i += 4) {
+        const r = d[i];
+        const g = d[i + 1];
+        const b = d[i + 2];
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+        if (filter === 'bw') {
+          const threshold = 145;
+          const val = gray > threshold ? 255 : (gray * 0.35);
+          d[i] = d[i + 1] = d[i + 2] = val;
+        } else if (filter === 'magic') {
+          if (gray > 160) {
+            d[i] = Math.min(255, r * 1.15);
+            d[i + 1] = Math.min(255, g * 1.15);
+            d[i + 2] = Math.min(255, b * 1.15);
+          } else {
+            d[i] = Math.max(0, r * 0.95);
+            d[i + 1] = Math.max(0, g * 0.95);
+            d[i + 2] = Math.max(0, b * 0.95);
+          }
+        } else if (filter === 'grayscale') {
+          d[i] = d[i + 1] = d[i + 2] = gray;
+        }
+      }
+    }
+
+    // A4 preview composer
+    function renderA4Layout() {
+      const a4Width = 800;
+      const a4Height = Math.round(a4Width * 1.4142);
+
+      a4PreviewCanvas.width = a4Width;
+      a4PreviewCanvas.height = a4Height;
+
+      a4Ctx.fillStyle = '#ffffff';
+      a4Ctx.fillRect(0, 0, a4Width, a4Height);
+
+      const frontWarp = app.sides.front.cachedWarp;
+      const backWarp = app.sides.back.cachedWarp;
+
+      if (!frontWarp && !backWarp) {
+        a4Ctx.fillStyle = '#94a3b8';
+        a4Ctx.font = '500 14px Plus Jakarta Sans, sans-serif';
+        a4Ctx.textAlign = 'center';
+        a4Ctx.fillText('Document upload karke crop set karein', a4Width / 2, a4Height / 2);
+        return;
+      }
+
+      const pxPerMm = a4Width / 210;
+      const spacingPx = app.spacingMm * pxPerMm;
+      const scaleMultiplier = app.scalePercent / 100;
+
+      // Exact Standard PVC dimensions (85.60 mm x 53.98 mm) on A4 sheet
+      const cardW = PVC_WIDTH_MM * pxPerMm * scaleMultiplier;
+      const cardH = PVC_HEIGHT_MM * pxPerMm * scaleMultiplier;
+
+      let startY = (app.layoutMode === 'id-top') ? (20 * pxPerMm) : ((a4Height - (cardH * 2 + spacingPx)) / 2);
+      const cardX = (a4Width - cardW) / 2;
+
+      if (frontWarp) {
+        drawCardOnA4(frontWarp, cardX, startY, cardW, cardH, 'FRONT (PVC: 85.6 × 54 mm)');
+      } else {
+        drawEmptyCardSlot(cardX, startY, cardW, cardH, 'FRONT (Empty)');
+      }
+
+      const backY = startY + cardH + spacingPx;
+      if (backWarp) {
+        drawCardOnA4(backWarp, cardX, backY, cardW, cardH, 'BACK (PVC: 85.6 × 54 mm)');
+      } else {
+        drawEmptyCardSlot(cardX, backY, cardW, cardH, 'BACK (Empty)');
+      }
+    }
+
+    function drawCardOnA4(canvasElem, x, y, w, h, label) {
+      a4Ctx.save();
+      a4Ctx.drawImage(canvasElem, x, y, w, h);
+
+      if (app.showCardBorder) {
+        a4Ctx.strokeStyle = '#94a3b8';
+        a4Ctx.lineWidth = 1;
+        a4Ctx.strokeRect(x, y, w, h);
+      }
+
+      a4Ctx.font = '600 9px Plus Jakarta Sans, sans-serif';
+      a4Ctx.fillStyle = '#64748b';
+      a4Ctx.textAlign = 'left';
+      a4Ctx.fillText(label, x, y - 4);
+      a4Ctx.restore();
+    }
+
+    function drawEmptyCardSlot(x, y, w, h, placeholder) {
+      a4Ctx.save();
+      a4Ctx.strokeStyle = '#cbd5e1';
+      a4Ctx.lineWidth = 1.5;
+      a4Ctx.setLineDash([4, 4]);
+      a4Ctx.strokeRect(x, y, w, h);
+      a4Ctx.fillStyle = '#f8fafc';
+      a4Ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+
+      a4Ctx.font = '600 12px Plus Jakarta Sans, sans-serif';
+      a4Ctx.fillStyle = '#94a3b8';
+      a4Ctx.textAlign = 'center';
+      a4Ctx.fillText(placeholder, x + w / 2, y + h / 2);
+      a4Ctx.restore();
+    }
+
+    // UI Listeners
+    document.querySelectorAll('.layout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.layout-btn').forEach(b => {
+          b.classList.remove('active', 'border-blue-500', 'bg-blue-600/20', 'text-blue-300');
+          b.classList.add('border-slate-800', 'bg-slate-800/60', 'text-slate-300');
+        });
+        btn.classList.add('active', 'border-blue-500', 'bg-blue-600/20', 'text-blue-300');
+        btn.classList.remove('border-slate-800', 'bg-slate-800/60', 'text-slate-300');
+
+        app.layoutMode = btn.dataset.layout;
+        renderA4Layout();
+      });
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('active', 'border-blue-500', 'bg-blue-600/20', 'text-blue-300');
+          b.classList.add('border-slate-800', 'bg-slate-800/60', 'text-slate-300');
+        });
+        btn.classList.add('active', 'border-blue-500', 'bg-blue-600/20', 'text-blue-300');
+        btn.classList.remove('border-slate-800', 'bg-slate-800/60', 'text-slate-300');
+
+        app.filter = btn.dataset.filter;
+        updateSideWarp('front');
+        updateSideWarp('back');
+        renderA4Layout();
+      });
+    });
+
+    scaleInput.addEventListener('input', (e) => {
+      app.scalePercent = parseInt(e.target.value, 10);
+      scaleValText.innerText = `${app.scalePercent}%`;
+      renderA4Layout();
+    });
+
+    spacingInput.addEventListener('input', (e) => {
+      app.spacingMm = parseInt(e.target.value, 10);
+      spacingValText.innerText = `${app.spacingMm}mm`;
+      renderA4Layout();
+    });
+
+    cardBorderCheckbox.addEventListener('change', (e) => {
+      app.showCardBorder = e.target.checked;
+      renderA4Layout();
+    });
+
+    // 300 DPI Export Master
+    function generateHighResA4Canvas() {
+      const fullCanvas = document.createElement('canvas');
+      fullCanvas.width = A4_DPI300_WIDTH;
+      fullCanvas.height = A4_DPI300_HEIGHT;
+      const fCtx = fullCanvas.getContext('2d');
+
+      fCtx.fillStyle = '#ffffff';
+      fCtx.fillRect(0, 0, A4_DPI300_WIDTH, A4_DPI300_HEIGHT);
+
+      const pxPerMm = A4_DPI300_WIDTH / 210;
+      const spacingPx = app.spacingMm * pxPerMm;
+      const scaleMultiplier = app.scalePercent / 100;
+
+      const cardW = PVC_WIDTH_MM * pxPerMm * scaleMultiplier;
+      const cardH = PVC_HEIGHT_MM * pxPerMm * scaleMultiplier;
+
+      const frontWarp = computeWarpCanvas('front', Math.round(cardW), Math.round(cardH));
+      const backWarp = computeWarpCanvas('back', Math.round(cardW), Math.round(cardH));
+
+      const startY = (app.layoutMode === 'id-top') ? (20 * pxPerMm) : ((A4_DPI300_HEIGHT - (cardH * 2 + spacingPx)) / 2);
+      const cardX = (A4_DPI300_WIDTH - cardW) / 2;
+
+      if (frontWarp) {
+        fCtx.drawImage(frontWarp, cardX, startY, cardW, cardH);
+        if (app.showCardBorder) {
+          fCtx.strokeStyle = 'rgba(100, 116, 139, 0.45)';
+          fCtx.lineWidth = 2;
+          fCtx.strokeRect(cardX, startY, cardW, cardH);
+        }
+      }
+
+      const backY = startY + cardH + spacingPx;
+      if (backWarp) {
+        fCtx.drawImage(backWarp, cardX, backY, cardW, cardH);
+        if (app.showCardBorder) {
+          fCtx.strokeStyle = 'rgba(100, 116, 139, 0.45)';
+          fCtx.lineWidth = 2;
+          fCtx.strokeRect(cardX, backY, cardW, cardH);
+        }
+      }
+
+      return fullCanvas;
+    }
+
+    downloadPdfBtn.addEventListener('click', () => {
+      showToast('300 DPI A4 PDF generate ho raha hai...');
+      setTimeout(() => {
+        try {
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+          });
+
+          const fullCanvas = generateHighResA4Canvas();
+          const imgData = fullCanvas.toDataURL('image/jpeg', 0.95);
+          pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+          pdf.save(`Doc_to_PVC_A4_${Date.now()}.pdf`);
+          showToast('A4 PDF Download ready!');
+        } catch (err) {
+          console.error(err);
+          showToast('PDF export me error aaya');
+        }
+      }, 50);
+    });
+
+    downloadJpgBtn.addEventListener('click', () => {
+      showToast('High-Res JPG ban raha hai...');
+      setTimeout(() => {
+        const fullCanvas = generateHighResA4Canvas();
+        const link = document.createElement('a');
+        link.download = `Doc_to_PVC_A4_${Date.now()}.jpg`;
+        link.href = fullCanvas.toDataURL('image/jpeg', 0.95);
+        link.click();
+        showToast('JPG Downloaded!');
+      }, 50);
+    });
+
+    downloadPngBtn.addEventListener('click', () => {
+      showToast('High-Res PNG ban raha hai...');
+      setTimeout(() => {
+        const fullCanvas = generateHighResA4Canvas();
+        const link = document.createElement('a');
+        link.download = `Doc_to_PVC_A4_${Date.now()}.png`;
+        link.href = fullCanvas.toDataURL('image/png');
+        link.click();
+        showToast('PNG Downloaded!');
+      }, 50);
+    });
+
+    directPrintBtn.addEventListener('click', () => {
+      const fullCanvas = generateHighResA4Canvas();
+      printImage.src = fullCanvas.toDataURL('image/jpeg', 0.95);
+      printArea.classList.remove('hidden');
+      setTimeout(() => {
+        window.print();
+        printArea.classList.add('hidden');
+      }, 200);
+    });
+
+    // Sample A4 Document Loader (Exact Vertical Aspect Ratio)
+    loadSampleBtn.addEventListener('click', () => {
+      const fCanvas = document.createElement('canvas');
+      fCanvas.width = 1200; fCanvas.height = 1700; // Exact A4 Ratio
+      const fc = fCanvas.getContext('2d');
+
+      // White paper page
+      fc.fillStyle = '#f8fafc';
+      fc.fillRect(0, 0, 1200, 1700);
+
+      // Header border line
+      fc.fillStyle = '#0284c7';
+      fc.fillRect(60, 60, 1080, 10);
+
+      // Dummy Document Content
+      fc.fillStyle = '#0f172a';
+      fc.font = 'bold 36px Plus Jakarta Sans';
+      fc.fillText('GOVERNMENT OF INDIA / OFFICIAL DOCUMENT', 140, 160);
+
+      // Card region in page
+      fc.fillStyle = '#e2e8f0';
+      fc.roundRect(140, 400, 920, 580, 20);
+      fc.fill();
+      fc.strokeStyle = '#0284c7';
+      fc.lineWidth = 4;
+      fc.stroke();
+
+      fc.fillStyle = '#0369a1';
+      fc.fillRect(140, 400, 920, 90);
+      fc.fillStyle = '#ffffff';
+      fc.font = 'bold 30px Plus Jakarta Sans';
+      fc.fillText('SAMPLE IDENTITY CARD AREA', 220, 460);
+
+      const fImg = new Image();
+      fImg.onload = () => {
+        setupSideImage('front', fImg);
+        emptyOnboarding.classList.add('hidden');
+        mainWorkspace.classList.remove('hidden');
+        switchActiveSide('front');
+        renderA4Layout();
+        showToast('A4 full-page document sample loaded!');
+      };
+      fImg.src = fCanvas.toDataURL();
+    });
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-20');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

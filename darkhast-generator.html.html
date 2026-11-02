@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>সহজ বাংলা ও ইংরেজি দরখাস্ত প্রস্তুতকারক (Darkhast Generator Pro)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-main: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Hind Siliguri', 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      max-width: 1420px;
+      margin: 0 auto 16px auto;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 14px 22px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    .header-title h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .header-title p {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-switcher {
+      display: flex;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 30px;
+      padding: 3px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      padding: 5px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .app-layout {
+      max-width: 1420px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 1060px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      position: sticky;
+      top: 15px;
+    }
+
+    .section-head {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 14px 0 8px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-head:first-of-type {
+      margin-top: 0;
+    }
+
+    .step-badge {
+      background: #dbeafe;
+      color: #1d4ed8;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 11px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .enclosure-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 6px;
+    }
+
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .toggle-wrap input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .enclosure-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 150px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 10px;
+    }
+
+    .enclosure-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #334155;
+      cursor: pointer;
+      line-height: 1.4;
+    }
+
+    .enclosure-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      margin-top: 2px;
+      accent-color: var(--primary);
+    }
+
+    .add-enclosure-form {
+      display: flex;
+      gap: 6px;
+    }
+
+    .add-enclosure-form input {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+    }
+
+    .btn-add-item {
+      background: #e2e8f0;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .preview-panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .action-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 9px 18px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #334155;
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    /* Screen display of the A4 canvas */
+    .paper-wrapper {
+      background: #64748b;
+      padding: 22px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    .paper-canvas {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      padding: 22mm 22mm 20mm 22mm;
+      box-shadow: var(--shadow-lg);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      outline: none;
+      font-size: 1.15rem; /* Clean, bold, legible standard text */
+      line-height: 1.95;
+      color: #000000;
+    }
+
+    .doc-to-header {
+      font-weight: 800;
+      font-size: 1.3rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      margin-bottom: 2px;
+      color: #000000;
+    }
+
+    .doc-recipient {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      color: #000000;
+    }
+
+    .doc-subject-wrapper {
+      text-align: center;
+      margin: 14px 0 16px 0;
+    }
+
+    .doc-subject-text {
+      font-weight: 800;
+      font-size: 1.2rem;
+      display: inline-block;
+      text-decoration: underline;
+      text-underline-offset: 5px;
+      color: #000000;
+    }
+
+    .doc-salutation {
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #000000;
+    }
+
+    .doc-body {
+      text-align: justify;
+      text-indent: 40px;
+      margin-bottom: 18px;
+      font-size: 1.15rem;
+      line-height: 1.95;
+      font-weight: 500;
+      color: #000000;
+    }
+
+    .doc-enclosures {
+      margin-top: 14px;
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: #000000;
+    }
+
+    .doc-enclosures ul {
+      margin-left: 24px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .doc-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 30px;
+      padding-top: 12px;
+    }
+
+    .bottom-left-details {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      max-width: 58%;
+      color: #000000;
+    }
+
+    .bottom-left-details .app-tag {
+      font-weight: 800;
+      text-decoration: underline;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+
+    .bottom-left-datebox {
+      margin-top: 10px;
+      border-top: 1.5px solid #000000;
+      padding-top: 6px;
+    }
+
+    .bottom-right-sign {
+      text-align: center;
+      min-width: 210px;
+      font-size: 1.08rem;
+      color: #000000;
+    }
+
+    .sign-space {
+      height: 52px;
+    }
+
+    .sign-line {
+      display: block;
+      width: 185px;
+      margin: 0 auto 6px auto;
+      border-top: 1.5px dashed #000000;
+    }
+
+    /* PERFECT SINGLE-PAGE A4 PRINT CALIBRATION */
+    @media print {
+      html, body {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        overflow: hidden !important;
+      }
+
+      .app-header, .form-panel, .action-toolbar {
+        display: none !important;
+      }
+
+      .app-layout, .preview-panel, .paper-wrapper {
+        display: block !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      .paper-canvas {
+        box-shadow: none !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        max-height: 297mm !important;
+        padding: 20mm 20mm 18mm 20mm !important;
+        box-sizing: border-box !important;
+        font-size: 13.5pt !important; /* Bold, clear, perfectly sized text */
+        line-height: 1.85 !important;
+        color: #000000 !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .doc-to-header {
+        font-size: 15.5pt !important;
+        font-weight: 800 !important;
+      }
+
+      .doc-recipient {
+        font-size: 13.5pt !important;
+        line-height: 1.5 !important;
+      }
+
+      .doc-subject-text {
+        font-size: 14pt !important;
+        font-weight: 800 !important;
+      }
+
+      .doc-salutation {
+        font-size: 13.5pt !important;
+      }
+
+      .doc-body {
+        font-size: 13pt !important;
+        line-height: 1.85 !important;
+        font-weight: 500 !important;
+      }
+
+      .doc-enclosures {
+        font-size: 12pt !important;
+        line-height: 1.55 !important;
+      }
+
+      .bottom-left-details, .bottom-right-sign {
+        font-size: 12.5pt !important;
+        line-height: 1.55 !important;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-icon">✍️</div>
+      <div class="header-title">
+        <h1 id="appHeaderTitle">সহজ বাংলা ও ইংরেজি দরখাস্ত প্রস্তুতকারক</h1>
+        <p id="appHeaderSub">A4 মাপের নিখুঁত প্রিন্ট: ব্যাংক KYC, অনিচ্ছাকৃত বীমা বন্ধ ও জন্ম-মৃত্যু শংসাপত্র সংশোধন</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn active" id="btnLangBN" onclick="setLanguage('bn')">বাংলা (BN)</button>
+        <button type="button" class="lang-btn" id="btnLangEN" onclick="setLanguage('en')">English (EN)</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Work Area -->
+  <div class="app-layout">
+    
+    <!-- Left Input Controls -->
+    <aside class="form-panel">
+      <div class="section-head">
+        <span class="step-badge">১</span>
+        <span id="txtStep1">দরখাস্তের বিষয় নির্বাচন করুন</span>
+      </div>
+
+      <div class="form-group">
+        <label for="templateSelect" id="lblSelectTopic">বিষয় ক্যাটাগরি</label>
+        <select id="templateSelect" onchange="switchTemplate()">
+          <!-- Populated by JavaScript according to language -->
+        </select>
+      </div>
+
+      <div class="section-head">
+        <span class="step-badge">২</span>
+        <span id="txtStep2">প্রাপকের তথ্য (To The Official)</span>
+      </div>
+
+      <div class="form-group">
+        <label for="recipientTitle" id="lblRecipientTitle">কাকে লিখছেন (পদবী)</label>
+        <input type="text" id="recipientTitle">
+      </div>
+
+      <div class="form-group">
+        <label for="officeName" id="lblOfficeName">দপ্তর / ব্যাংক / প্রতিষ্ঠানের নাম</label>
+        <input type="text" id="officeName">
+      </div>
+
+      <div class="form-group">
+        <label for="officeAddress" id="lblOfficeAddress">শাখা / অফিসের ঠিকানা</label>
+        <input type="text" id="officeAddress">
+      </div>
+
+      <div class="section-head">
+        <span class="step-badge">৩</span>
+        <span id="txtStep3">দরখাস্তের বিষয় ও নির্দিষ্ট তথ্য</span>
+      </div>
+
+      <div class="form-group">
+        <label for="letterSubject" id="lblLetterSubject">বিষয় (Subject)</label>
+        <input type="text" id="letterSubject">
+      </div>
+
+      <div id="dynamicContainer"></div>
+
+      <!-- Attached Documents Special Feature Box -->
+      <div class="section-head">
+        <span class="step-badge">৪</span>
+        <span id="txtStep4">সংযুক্ত নথিপত্র (Documents Attached)</span>
+      </div>
+
+      <div class="enclosure-box">
+        <label class="toggle-wrap">
+          <input type="checkbox" id="includeEnclosures" checked onchange="toggleEnclosures()">
+          <span id="lblIncludeEnc">দরখাস্তে সংযুক্তি (Documents Attached) সেকশন রাখবেন?</span>
+        </label>
+
+        <div id="enclosureControls">
+          <label style="margin-bottom: 6px;" id="lblCheckEnc">যে যে নথিপত্র জমা দিচ্ছেন তা টিক (✓) করুন:</label>
+          <div id="enclosureChecklist" class="enclosure-checklist"></div>
+
+          <div class="add-enclosure-form">
+            <input type="text" id="customEnclosureInput">
+            <button type="button" class="btn-add-item" onclick="addCustomEnclosure()" id="btnAddEnc">+ যোগ করুন</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <span class="step-badge">৫</span>
+        <span id="txtStep5">আবেদনকারীর বিবরণ (নিচে বামে থাকবে)</span>
+      </div>
+
+      <div class="form-group">
+        <label for="applicantName" id="lblAppName">আবেদনকারীর পুরো নাম</label>
+        <input type="text" id="applicantName">
+      </div>
+
+      <div class="form-group">
+        <label for="fatherName" id="lblFatherName">পিতা / স্বামীর নাম</label>
+        <input type="text" id="fatherName">
+      </div>
+
+      <div class="form-group">
+        <label for="applicantAddress" id="lblAppAddress">সম্পূর্ণ ঠিকানা</label>
+        <textarea id="applicantAddress" rows="2"></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="applicantMobile" id="lblAppMobile">মোবাইল নম্বর</label>
+          <input type="tel" id="applicantMobile">
+        </div>
+        <div class="form-group">
+          <label for="letterDate" id="lblDate">তারিখ (ইংরেজি DD/MM/YYYY)</label>
+          <input type="date" id="letterDate">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="letterPlace" id="lblPlace">স্থান (Place)</label>
+        <input type="text" id="letterPlace">
+      </div>
+
+      <button type="button" class="btn btn-outline" style="width: 100%; justify-content: center; margin-top: 6px;" onclick="resetAllFields()" id="btnReset">
+        🔄 ফর্ম খালি করুন
+      </button>
+    </aside>
+
+    <!-- Right Live Preview & Print Panel -->
+    <main class="preview-panel">
+      <div class="action-toolbar">
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="window.print()" id="btnPrint">
+            🖨️ সরাসরি A4 প্রিন্ট করুন (Print A4)
+          </button>
+          <button class="btn btn-outline" onclick="copyDocumentText()" id="btnCopy">
+            📋 লেখা কপি করুন (Copy Text)
+          </button>
+        </div>
+        <span style="font-size: 0.85rem; color: #475569; font-weight: 600;" id="txtEditHint">
+          ✍️ কাগজে যেকোনো লেখার উপর ক্লিক করে সরাসরি টাইপ ও এডিট করতে পারবেন
+        </span>
+      </div>
+
+      <!-- A4 Sheet Paper Container -->
+      <div class="paper-wrapper">
+        <div id="printableDoc" class="paper-canvas" contenteditable="true" spellcheck="false">
+          
+          <div>
+            <!-- Recipient Block Starting with TO -->
+            <div class="doc-to-header">To,</div>
+            <div class="doc-recipient">
+              <p id="viewRecipientTitle"></p>
+              <p id="viewOfficeName"></p>
+              <p id="viewOfficeAddress"></p>
+            </div>
+
+            <!-- Subject Line (Centered & Underlined) -->
+            <div class="doc-subject-wrapper">
+              <span class="doc-subject-text" id="viewSubject"></span>
+            </div>
+
+            <div class="doc-salutation" id="viewSalutation">মহাশয়,</div>
+
+            <!-- Main Body Text -->
+            <div class="doc-body" id="viewBody"></div>
+
+            <!-- Documents Attached / Enclosures -->
+            <div class="doc-enclosures" id="viewEnclosuresContainer">
+              <p style="font-weight: 700;" id="viewEncTitle">সংযুক্তি (Documents Attached):</p>
+              <ul id="viewEnclosures"></ul>
+            </div>
+          </div>
+
+          <!-- Bottom Section: Left has Applicant Details & Date; Right has Signature -->
+          <div class="doc-bottom">
+            <div class="bottom-left-details">
+              <span class="app-tag" id="viewTagApp">আবেদনকারীর বিবরণ:</span>
+              <p><strong id="viewLblName">নাম:</strong> <span id="viewSignName"></span></p>
+              <p><strong id="viewLblFather">পিতা/স্বামী:</strong> <span id="viewSignFather"></span></p>
+              <p><strong id="viewLblAddress">ঠিকানা:</strong> <span id="viewSignAddress"></span></p>
+              <p><strong id="viewLblMobile">মোবাইল নং:</strong> <span id="viewSignMobile"></span></p>
+
+              <div class="bottom-left-datebox">
+                <p><strong><span id="viewLblPlace">স্থান</span> (Place):</strong> <span id="viewPlace"></span></p>
+                <p><strong><span id="viewLblDate">তারিখ</span> (Date):</strong> <span id="viewDateEnglish"></span></p>
+              </div>
+            </div>
+
+            <div class="bottom-right-sign">
+              <p style="margin-bottom: 4px;" id="viewSignYours">বিনীত,</p>
+              <div class="sign-space"></div>
+              <span class="sign-line"></span>
+              <p style="font-weight: 700;" id="viewSignTag">(আবেদনকারীর স্বাক্ষর)</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    let currentLang = 'bn'; // 'bn' or 'en'
+
+    const UI_TEXTS = {
+      bn: {
+        appHeaderTitle: "সহজ বাংলা ও ইংরেজি দরখাস্ত প্রস্তুতকারক",
+        appHeaderSub: "A4 মাপের নিখুঁত প্রিন্ট: ব্যাংক KYC, অনিচ্ছাকৃত বীমা বন্ধ ও জন্ম-মৃত্যু শংসাপত্র সংশোধন",
+        step1: "দরখাস্তের বিষয় নির্বাচন করুন",
+        selectTopic: "বিষয় ক্যাটাগরি",
+        step2: "প্রাপকের তথ্য (To The Official)",
+        lblRecipientTitle: "কাকে লিখছেন (পদবী)",
+        lblOfficeName: "দপ্তর / ব্যাংক / প্রতিষ্ঠানের নাম",
+        lblOfficeAddress: "শাখা / অফিসের ঠিকানা",
+        step3: "দরখাস্তের বিষয় ও নির্দিষ্ট তথ্য",
+        lblLetterSubject: "বিষয় (Subject)",
+        step4: "সংযুক্ত নথিপত্র (Documents Attached)",
+        lblIncludeEnc: "দরখাস্তে সংযুক্তি (Documents Attached) সেকশন রাখবেন?",
+        lblCheckEnc: "যে যে নথিপত্র জমা দিচ্ছেন তা টিক (✓) করুন:",
+        addEncPlaceholder: "অন্য কোনো নথি থাকলে লিখুন...",
+        btnAddEnc: "+ যোগ করুন",
+        step5: "আবেদনকারীর বিবরণ (নিচে বামে থাকবে)",
+        lblAppName: "আবেদনকারীর পুরো নাম",
+        appNamePlaceholder: "আবেদনকারীর পুরো নাম লিখুন",
+        lblFatherName: "পিতা / স্বামীর নাম",
+        fatherNamePlaceholder: "পিতা অথবা স্বামীর নাম",
+        lblAppAddress: "সম্পূর্ণ ঠিকানা",
+        appAddressPlaceholder: "গ্রাম/পাড়া: ..., ডাকঘর: ..., থানা: ..., জেলা: ..., পিন: ...",
+        lblAppMobile: "মোবাইল নম্বর",
+        appMobilePlaceholder: "১০ সংখ্যার মোবাইল নম্বর",
+        lblDate: "তারিখ (ইংরেজি DD/MM/YYYY)",
+        lblPlace: "স্থান (Place)",
+        placePlaceholder: "উদাঃ মানিকচক, মালদা",
+        btnReset: "🔄 ফর্ম খালি করুন",
+        btnPrint: "🖨️ সরাসরি A4 প্রিন্ট করুন (Print A4)",
+        btnCopy: "📋 লেখা কপি করুন (Copy Text)",
+        txtEditHint: "✍️ কাগজে যেকোনো লেখার উপর ক্লিক করে সরাসরি টাইপ ও এডিট করতে পারবেন",
+        salutation: "মহাশয়,",
+        encTitle: "সংযুক্তি (Documents Attached):",
+        tagApp: "আবেদনকারীর বিবরণ:",
+        lblName: "নাম:",
+        lblFather: "পিতা/স্বামী:",
+        lblAddress: "ঠিকানা:",
+        lblMobile: "মোবাইল নং:",
+        lblPlaceBottom: "স্থান",
+        lblDateBottom: "তারিখ",
+        signYours: "বিনীত,",
+        signTag: "(আবেদনকারীর স্বাক্ষর)",
+        noneEnc: "(কোনো নথি সংযুক্ত করা হয়নি)",
+        copySuccess: "দরখাস্তটি সফলভাবে কপি হয়েছে!"
+      },
+      en: {
+        appHeaderTitle: "Official Application Letter Generator (Bengali & English)",
+        appHeaderSub: "Perfect Single-Page A4 Print: Bank KYC, Stop Insurance, Birth/Death Corrections & Police GD",
+        step1: "Select Application Category",
+        selectTopic: "Subject Category",
+        step2: "Recipient Details (To The Official)",
+        lblRecipientTitle: "Recipient Designation",
+        lblOfficeName: "Office / Bank / Authority Name",
+        lblOfficeAddress: "Branch / Office Address",
+        step3: "Application Subject & Specific Details",
+        lblLetterSubject: "Subject",
+        step4: "Enclosures (Documents Attached)",
+        lblIncludeEnc: "Include 'Documents Attached' section in letter?",
+        lblCheckEnc: "Tick (✓) the documents you are attaching:",
+        addEncPlaceholder: "Type any additional document...",
+        btnAddEnc: "+ Add Item",
+        step5: "Applicant Details (Bottom Left)",
+        lblAppName: "Applicant's Full Name",
+        appNamePlaceholder: "Enter applicant's full name",
+        lblFatherName: "Father's / Husband's Name",
+        fatherNamePlaceholder: "Enter father's or husband's name",
+        lblAppAddress: "Full Address",
+        appAddressPlaceholder: "Village/Street, Post Office, PS, District, PIN",
+        lblAppMobile: "Mobile Number",
+        appMobilePlaceholder: "10-digit mobile number",
+        lblDate: "Date (DD/MM/YYYY)",
+        lblPlace: "Place",
+        placePlaceholder: "e.g., Manikchak, Malda",
+        btnReset: "🔄 Clear Form",
+        btnPrint: "🖨️ Print Single A4 Page (Print A4)",
+        btnCopy: "📋 Copy Letter Text",
+        txtEditHint: "✍️ You can click and directly edit any text on the sheet",
+        salutation: "Respected Sir/Madam,",
+        encTitle: "Documents Attached / Enclosures:",
+        tagApp: "Applicant's Details:",
+        lblName: "Name:",
+        lblFather: "Father/Husband:",
+        lblAddress: "Address:",
+        lblMobile: "Mobile No.:",
+        lblPlaceBottom: "Place",
+        lblDateBottom: "Date",
+        signYours: "Yours faithfully,",
+        signTag: "(Applicant's Signature)",
+        noneEnc: "(No documents attached)",
+        copySuccess: "Application text copied successfully!"
+      }
+    };
+
+    // Bilingual Templates Data
+    const templatesData = {
+      bn: {
+        cert_name: {
+          name: "১. সার্টিফিকেটে নিজের নাম সংশোধন (Name Correction)",
+          group: "📜 জন্ম ও মৃত্যু শংসাপত্র (Birth & Death Certificate)",
+          recipientTitle: "মাননীয় রেজিস্ট্রার (জন্ম ও মৃত্যু নিবন্ধন) মহাশয় সমীপেষু,",
+          office: "পৌরসভা / ব্লক স্বাস্থ্য দপ্তর / জন্ম-মৃত্যু তথ্য সেল",
+          address: "দপ্তরের ঠিকানা ও জেলা",
+          subject: "জন্ম / মৃত্যু শংসাপত্রে নিজের নামের বানান সংশোধন করার আবেদন।",
+          dynamicInputs: [
+            { id: "certType", label: "শংসাপত্রের ধরন (জন্ম / মৃত্যু)", placeholder: "উদাঃ জন্ম শংসাপত্র", default: "জন্ম শংসাপত্র" },
+            { id: "regNo", label: "রেজিস্ট্রেশন বা সার্টিফিকেট নম্বর", placeholder: "সার্টিফিকেটে থাকা নম্বর", default: "" },
+            { id: "wrongName", label: "বর্তমানে থাকা ভুল নাম", placeholder: "যে ভুল নামটি ছাপা আছে", default: "" },
+            { id: "correctName", label: "সঠিক নাম (দালিলিক প্রমাণ অনুযায়ী)", placeholder: "যে সঠিক নাম করতে চান", default: "" }
+          ],
+          enclosures: [
+            "ফার্স্ট ক্লাস জুডিশিয়াল ম্যাজিস্ট্রেট বা নোটারি পাবলিক দ্বারা প্রদত্ত মূল এফিডেভিট (Affidavit)।",
+            "বর্তমান ভুল জন্ম / মৃত্যু শংসাপত্রের মূল কপি ও ফটোকপি।",
+            "সঠিক নামের প্রমাণপত্র (আধার কার্ড / ভোটার কার্ড / স্কুল নথিপত্র)-এর স্ব-প্রত্যয়িত জেরক্স কপি।",
+            "আবেদনকারীর নিজস্ব পরিচয়পত্রের জেরক্স কপি।"
+          ],
+          generateBody: (d) => `বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, পিতা/স্বামী: ${d.father || ".........."}, গ্রাম: ${d.address || ".........."}।
+
+আমার / আমার পরিবারের সদস্যের একটি ${d.certType || "জন্ম শংসাপত্র"} রয়েছে, যার রেজিস্ট্রেশন নম্বর: ${d.regNo || ".........."}। উক্ত শংসাপত্রে নিজের নাম অনিচ্ছাকৃত ভুলবশত "${d.wrongName || "ভুল নাম"}" হিসেবে নথিভুক্ত হয়ে গেছে। কিন্তু সরকারি পরিচয়পত্র ও অন্যান্য প্রমাণ অনুযায়ী সঠিক নাম হবে "${d.correctName || "সঠিক নাম"}"।
+
+এই নাম সংশোধনের সমর্থনে ফার্স্ট ক্লাস এফিডেভিট (Affidavit) ও যাবতীয় সরকারি নথিপত্র অত্র আবেদনের সাথে জমা দিলাম।
+
+অতএব, মহাশয়ের নিকট বিনীত প্রার্থনা— উপরোক্ত তথ্যাদি ও এফিডেভিট যাচাই করে উক্ত শংসাপত্রে ভুল নাম সংশোধন করে সঠিক নামে একটি সংশোধিত ডিজিটাল শংসাপত্র প্রদান করে বাধিত করবেন।`
+        },
+
+        cert_parents: {
+          name: "২. সার্টিফিকেটে পিতা / মাতার নাম সংশোধন",
+          group: "📜 জন্ম ও মৃত্যু শংসাপত্র (Birth & Death Certificate)",
+          recipientTitle: "মাননীয় রেজিস্ট্রার (জন্ম ও মৃত্যু শাখা) মহাশয় সমীপেষু,",
+          office: "পৌরসভা কার্যালয় / ব্লক স্বাস্থ্য আধিকারিক দপ্তর",
+          address: "অফিসের ঠিকানা ও জেলা",
+          subject: "জন্ম শংসাপত্রে পিতা / মাতার নামের ভুল সংশোধন করার আবেদন।",
+          dynamicInputs: [
+            { id: "regNo", label: "সার্টিফিকেট বা রেজিস্ট্রেশন নম্বর", placeholder: "সার্টিফিকেট নম্বর", default: "" },
+            { id: "childName", label: "সন্তানের নাম", placeholder: "যার শংসাপত্র", default: "" },
+            { id: "wrongParent", label: "সার্টিফিকেটে থাকা ভুল পিতা/মাতার নাম", placeholder: "ভুল নাম", default: "" },
+            { id: "correctParent", label: "সঠিক পিতা/মাতার নাম", placeholder: "সঠিক নাম", default: "" }
+          ],
+          enclosures: [
+            "প্রথম শ্রেণীর ম্যাজিস্ট্রেট বা নোটারি পাবলিক কৃত নামের সত্যতা সংক্রান্ত মূল এফিডেভিট (Affidavit)।",
+            "পূর্বের মূল জন্ম শংসাপত্র ও তার জেরক্স কপি।",
+            "পিতা ও মাতার সঠিক পরিচয়পত্র (আধার কার্ড, ভোটার কার্ড ও প্যান কার্ড)-এর জেরক্স কপি।",
+            "হাসপাতাল / নার্সিংহোমের ডিসচার্জ সার্টিফিকেট।"
+          ],
+          generateBody: (d) => `বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, পিতা/স্বামী: ${d.father || ".........."}, ঠিকানা: ${d.address || ".........."}।
+
+আমার সন্তান ${d.childName || ".........."}-এর জন্ম শংসাপত্রটিতে (রেজিস্ট্রেশন নম্বর: ${d.regNo || ".........."}) ভুলবশত পিতা/মাতার নাম "${d.wrongParent || "ভুল নাম"}" লিপিবদ্ধ হয়েছে। অথচ সকল বৈধ প্রমাণপত্র অনুযায়ী প্রকৃত সঠিক নাম হলো "${d.correctParent || "সঠিক নাম"}"।
+
+উক্ত নাম সংশোধনের সমর্থনে আদালতের নোটারি এফিডেভিট ও পিতা-মাতার নথিপত্র অত্র দরখাস্তের সাথে যুক্ত করা হলো।
+
+অতএব, মহাশয়ের নিকট বিনীত অনুরোধ— জমা দেওয়া এফিডেভিট ও প্রমাণপত্র পর্যালোচনা করে সন্তানের জন্ম শংসাপত্রে পিতা/মাতার নাম সংশোধন করে নতুন সার্টিফিকেট প্রদানের ব্যবস্থা করবেন।`
+        },
+
+        cert_address: {
+          name: "৩. সার্টিফিকেটে ঠিকানা সংশোধন (Address Correction)",
+          group: "📜 জন্ম ও মৃত্যু শংসাপত্র (Birth & Death Certificate)",
+          recipientTitle: "মাননীয় আধিকারিক (জন্ম ও মৃত্যু নিবন্ধন শাখা) সমীপেষু,",
+          office: "পৌরসভা / ব্লক ডেভেলপমেন্ট অফিস",
+          address: "ঠিকানা ও জেলা",
+          subject: "জন্ম / মৃত্যু শংসাপত্রে থাকা ভুল ঠিকানা সংশোধন করার আবেদন।",
+          dynamicInputs: [
+            { id: "certType", label: "শংসাপত্রের ধরন", placeholder: "জন্ম শংসাপত্র / মৃত্যু শংসাপত্র", default: "জন্ম শংসাপত্র" },
+            { id: "regNo", label: "রেজিস্ট্রেশন নম্বর", placeholder: "সার্টিফিকেট নম্বর", default: "" },
+            { id: "wrongAddr", label: "বর্তমানে থাকা ভুল ঠিকানা", placeholder: "সার্টিফিকেটে লেখা ভুল ঠিকানা", default: "" },
+            { id: "correctAddr", label: "প্রকৃত ও সঠিক ঠিকানা", placeholder: "সঠিক সম্পূর্ণ ঠিকানা", default: "" }
+          ],
+          enclosures: [
+            "ঠিকানা সংশোধনের সমর্থনে নোটারি এফিডেভিট (Affidavit)।",
+            "বর্তমান শংসাপত্রের মূল কপি ও জেরক্স।",
+            "সঠিক স্থায়ী ঠিকানার প্রমাণপত্র (আধার কার্ড, ভোটার কার্ড ও জমির দলিল বা ট্যাক্স রসিদ)।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, ঠিকানা: ${d.address || ".........."}।
+
+আমার / আমার পরিবারের সদস্যের ${d.certType || "জন্ম শংসাপত্র"}টিতে (রেজিস্ট্রেশন নং: ${d.regNo || ".........."}) স্থায়ী ঠিকানার স্থানে ভুলবশত "${d.wrongAddr || "ভুল ঠিকানা"}" লেখা রয়েছে। কিন্তু সঠিক স্থায়ী ঠিকানা হলো "${d.correctAddr || "সঠিক ঠিকানা"}"।
+
+উক্ত ঠিকানা সংশোধনের সপক্ষে নোটারি এফিডেভিট ও সঠিক ঠিকানার নথি সংযুক্ত করলাম।
+
+অতএব, মহাশয়ের নিকট বিনীত প্রার্থনা— নথিপত্র খতিয়ে দেখে শংসাপত্রটিতে সঠিক স্থায়ী ঠিকানা অন্তর্ভুক্ত করে সংশোধিত শংসাপত্র প্রদানে বাধিত করবেন।`
+        },
+
+        cert_mobile: {
+          name: "৪. সার্টিফিকেটে মোবাইল নম্বর পরিবর্তন / যুক্ত",
+          group: "📜 জন্ম ও মৃত্যু শংসাপত্র (Birth & Death Certificate)",
+          recipientTitle: "মাননীয় রেজিস্ট্রার (জন্ম-মৃত্যু পোর্টাল সেল) সমীপেষু,",
+          office: "স্বাস্থ্য দপ্তর / ব্লক বা পৌর কার্যালয়",
+          address: "অফিসের ঠিকানা",
+          subject: "জন্ম / মৃত্যু শংসাপত্রের পোর্টালে নতুন মোবাইল নম্বর যুক্ত বা পরিবর্তনের আবেদন।",
+          dynamicInputs: [
+            { id: "regNo", label: "রেজিস্ট্রেশন নম্বর", placeholder: "শংসাপত্রের নম্বর", default: "" },
+            { id: "holderName", label: "যার শংসাপত্র তার নাম", placeholder: "শংসাপত্রধারীর নাম", default: "" },
+            { id: "oldMob", label: "পূর্বের মোবাইল নম্বর", placeholder: "পুরোনো নম্বর", default: "পূর্বে নম্বর যুক্ত ছিল না বা বন্ধ হয়ে গেছে" },
+            { id: "newMob", label: "নতুন সচল মোবাইল নম্বর", placeholder: "যে নম্বরটি লিঙ্ক করতে চান", default: "" }
+          ],
+          enclosures: [
+            "মোবাইল নম্বর পরিবর্তনের আবেদন সংক্রান্ত নোটারি এফিডেভিট / স্ব-ঘোষণাপত্র (Affidavit)।",
+            "সংশ্লিষ্ট জন্ম/মৃত্যু শংসাপত্রের কপি।",
+            "নতুন মোবাইল নম্বরের সিমের মালিকানার প্রমাণ বা আধার কার্ডের ফটোকপি।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, স্থায়ী ঠিকানা: ${d.address || ".........."}।
+
+${d.holderName || "আমার পরিবারের সদস্যের"} জন্ম/মৃত্যু শংসাপত্রের (নম্বর: ${d.regNo || ".........."}) অনলাইন পোর্টালে পূর্বের মোবাইল নম্বরটি (${d.oldMob || "পুরোনো নম্বর"}) বর্তমানে বন্ধ থাকায় প্রয়োজনীয় ওটিপি পাওয়া সম্ভব হচ্ছে না। তাই নতুন সচল মোবাইল নম্বরটি (${d.newMob || d.mobile || "নতুন মোবাইল নম্বর"}) উক্ত সার্টিফিকেটে আপডেট করা জরুরি।
+
+অতএব, মহাশয়ের নিকট বিনীত নিবেদন— পোর্টালে উল্লেখিত নতুন মোবাইল নম্বরটি যুক্ত করার ব্যবস্থা গ্রহণে বাধিত করবেন।`
+        },
+
+        cert_digital: {
+          name: "৫. পুরোনো ম্যানুয়াল সনদ ডিজিটাল শংসাপত্রে রূপান্তর",
+          group: "📜 জন্ম ও মৃত্যু শংসাপত্র (Birth & Death Certificate)",
+          recipientTitle: "মাননীয় রেজিস্ট্রার (জন্ম ও মৃত্যু নিবন্ধন) সমীপেষু,",
+          office: "পৌরসভা / ব্লক ডেভেলপমেন্ট অফিস",
+          address: "অফিসের ঠিকানা ও জেলা",
+          subject: "পূর্বের ম্যানুয়াল জন্ম / মৃত্যু শংসাপত্র অনলাইনে ডিজিটাল করার আবেদন।",
+          dynamicInputs: [
+            { id: "manualRegNo", label: "ম্যানুয়াল সনদের রেজিস্ট্রেশন নম্বর", placeholder: "হাতে লেখা সনদের নম্বর", default: "" },
+            { id: "issueDate", label: "সনদ ইস্যুর পুরোনো তারিখ", placeholder: "উদাঃ ১৫/০২/২০০৫", default: "" },
+            { id: "personName", label: "যার শংসাপত্র তার নাম", placeholder: "সনদে থাকা নাম", default: "" }
+          ],
+          enclosures: [
+            "পূর্বের মূল ম্যানুয়াল (হাতে লেখা) শংসাপত্র ও তার ফটোকপি।",
+            "তথ্য সত্যতার নোটারি এফিডেভিট (Affidavit)।",
+            "ব্যক্তির আধার কার্ড ও পিতা-মাতার পরিচয়পত্রের জেরক্স কপি।",
+            "বিদ্যালয়ের অ্যাডমিট কার্ড বা প্রথম ভর্তির প্রমাণপত্র।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, ঠিকানা: ${d.address || ".........."}।
+
+আমার / আমার পরিবারের সদস্য (${d.personName || "ব্যক্তির নাম"})-এর পূর্বে ইস্যুকৃত একটি হাতে লেখা ম্যানুয়াল শংসাপত্র রয়েছে, যার রেজিস্ট্রেশন নম্বর: ${d.manualRegNo || ".........."} এবং ইস্যুর তারিখ: ${d.issueDate || ".........."}। বর্তমানে সমস্ত সরকারি কাজে নতুন ডিজিটাল সার্টিফিকেট বাধ্যতামূলক করা হয়েছে।
+
+অতএব, আমার পুরোনো নথিপত্র ও এফিডেভিট যাচাই করে উক্ত শংসাপত্রটি সরকারের অনলাইন পোর্টালে অন্তর্ভুক্ত করে একটি নতুন ডিজিটাল শংসাপত্র প্রদানের বিহিত ব্যবস্থা করবেন।`
+        },
+
+        bank_kyc: {
+          name: "১. ব্যাংক KYC আপডেট / অ্যাকাউন্ট আনফ্রিজ (KYC Update / Unfreeze)",
+          group: "🏦 ব্যাংক সংক্রান্ত (Bank Applications)",
+          recipientTitle: "মাননীয় শাখা প্রবন্ধক (Branch Manager) মহাশয় সমীপেষু,",
+          office: "স্টেট ব্যাংক অফ ইন্ডিয়া",
+          address: "শাখার নাম ও জেলা",
+          subject: "ব্যাংক অ্যাকাউন্টে কেওয়াইসি (KYC) জমা দিয়ে ফ্রিজ থাকা অ্যাকাউন্ট চালু করার আবেদন।",
+          dynamicInputs: [
+            { id: "accNo", label: "ব্যাংক অ্যাকাউন্ট নম্বর (A/C No)", placeholder: "অ্যাকাউন্ট নম্বর লিখুন", default: "" },
+            { id: "cifNo", label: "CIF নম্বর (যদি থাকে)", placeholder: "CIF নম্বর", default: "" },
+            { id: "kycReason", label: "কেওয়াইসি সংক্রান্ত কারণ", placeholder: "উদাঃ সময়মতো KYC জমা না হওয়া", default: "সময়মতো কেওয়াইসি (KYC) নথি আপডেট না থাকা ও সাময়িক লেনদেন বন্ধ থাকার কারণে" }
+          ],
+          enclosures: [
+            "পূরণকৃত ও স্বাক্ষরিত হালনাগাদ কেওয়াইসি (KYC) ফর্ম।",
+            "আধার কার্ড ও প্যান কার্ডের স্ব-প্রত্যয়িত জেরক্স কপি।",
+            "ব্যাংক পাসবইয়ের প্রথম পাতার স্পষ্ট ফটোকপি।",
+            "সাম্প্রতিক ২ কপি পাসপোর্ট সাইজ রঙিন ছবি।"
+          ],
+          generateBody: (d) => `বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, পিতা/স্বামী: ${d.father || ".........."}, গ্রাম: ${d.address || ".........."}। আমি আপনার ব্যাংকের একজন নিয়মিত গ্রাহক। আপনার শাখায় পরিচালিত আমার একটি সেভিংস ব্যাংক অ্যাকাউন্ট রয়েছে, যার নম্বর: ${d.accNo || ".........."} ${d.cifNo ? `(CIF নং: ${d.cifNo})` : ""}।
+
+${d.kycReason || "সময়মতো কেওয়াইসি জমা না থাকার কারণে"} আমার উক্ত অ্যাকাউন্টটিতে লেনদেন সাময়িকভাবে স্থগিত বা ফ্রিজ (Hold/Freeze) হয়ে আছে। যার ফলে আমি জরুরি আর্থিক কাজ পরিচালনা করতে নিদারুণ সমস্যার সম্মুখীন হচ্ছি। আমি অত্র আবেদনের সাথে আমার বৈধ আধার কার্ড, প্যান কার্ড ও যথাযথভাবে পূরণকৃত কেওয়াইসি (KYC) ফর্ম সংযুক্ত করলাম।
+
+অতএব, মহাশয়ের নিকট আমার বিনীত প্রার্থনা— আমার সমস্ত প্রয়োজনীয় নথিপত্রাদি যাচাইপূর্বক উক্ত ব্যাংক অ্যাকাউন্টটিতে পুনরায় কেওয়াইসি (KYC) আপডেট করে অবিলম্বে অ্যাকাউন্টটি সক্রিয় (Unfreeze) করে স্বাভাবিক লেনদেনের ব্যবস্থা করে বাধিত করবেন।`
+        },
+
+        bank_insurance: {
+          name: "২. অনিচ্ছাকৃত ব্যাংক বীমা (Insurance) বন্ধ ও টাকা ফেরতের আবেদন",
+          group: "🏦 ব্যাংক সংক্রান্ত (Bank Applications)",
+          recipientTitle: "মাননীয় শাখা প্রবন্ধক (Branch Manager) মহাশয় সমীপেষু,",
+          office: "স্টেট ব্যাংক অফ ইন্ডিয়া",
+          address: "শাখার নাম ও জেলা",
+          subject: "ব্যাংক অ্যাকাউন্ট থেকে অনিচ্ছাকৃত বীমা (Insurance/Auto-debit) বন্ধ এবং কাটা টাকা ফেরতের আবেদন।",
+          dynamicInputs: [
+            { id: "accNo", label: "ব্যাংক অ্যাকাউন্ট নম্বর", placeholder: "A/C নম্বর লিখুন", default: "" },
+            { id: "insuranceName", label: "বীমার নাম বা স্কিম (যদি জানা থাকে)", placeholder: "উদাঃ PMSBY / PMJJBY / অন্যান্য বীমা", default: "PMSBY / PMJJBY / সাধারণ বীমা" },
+            { id: "deductAmount", label: "কেটে নেওয়া টাকার পরিমাণ ও আনুমানিক সময়", placeholder: "উদাঃ বিগত মাসের ১২ তারিখে ৩৩৬/- টাকা কাটা হয়েছে", default: "গত কয়েক মাসে আমার সম্মতি ব্যতিরেকে টাকা কাটা হয়েছে" }
+          ],
+          enclosures: [
+            "ব্যাংক পাসবইয়ের টাকা কাটার লেনদেন (Transaction) পাতার ফটোকপি।",
+            "আধার কার্ড ও প্যান কার্ডের জেরক্স কপি।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, পিতা/স্বামী: ${d.father || ".........."}, গ্রাম: ${d.address || ".........."}। আপনার শাখায় আমার সঞ্চয়ী ব্যাংক অ্যাকাউন্ট রয়েছে, যার অ্যাকাউন্ট নম্বর: ${d.accNo || ".........."}।
+
+অত্যন্ত উদ্বেগের সাথে জানাচ্ছি যে, আমার কোনো প্রকার পূর্বানুমতি বা সম্মতি ব্যতিরেকেই আমার উক্ত অ্যাকাউন্ট থেকে স্বয়ংক্রিয়ভাবে (${d.insuranceName || "বীমা স্কিম"}-এর নামে) প্রিমিয়ামের টাকা কাটা হয়েছে (${d.deductAmount || "টাকা কাটা হয়েছে"})। আমি এই ধরনের কোনো বীমা পলিসি গ্রহণে ইচ্ছুক নই এবং এটি সম্পূর্ণ আমার অনিচ্ছাকৃতভাবে যুক্ত করা হয়েছে।
+
+অতএব, মহাশয়ের নিকট বিনীত প্রার্থনা— আমার অ্যাকাউন্ট থেকে উক্ত বীমা বা অটো-ডেবিট সার্ভিসটি অবিলম্বে স্থায়ীভাবে বন্ধ (Cancel / Stop) করার নির্দেশ দান করবেন এবং ইতিপূর্বে কেটে নেওয়া সমস্ত টাকা আমার অ্যাকাউন্টে ফেরত (Refund) দেওয়ার ব্যবস্থা গ্রহণে বাধিত করবেন।`
+        },
+
+        bank_atm: {
+          name: "৩. নতুন এটিএম (ATM) / ডেবিট কার্ডের আবেদন",
+          group: "🏦 ব্যাংক সংক্রান্ত (Bank Applications)",
+          recipientTitle: "মাননীয় শাখা প্রবন্ধক সমীপেষু,",
+          office: "ব্যাংকের নাম",
+          address: "শাখার নাম ও জেলা",
+          subject: "নতুন এটিএম (ATM) / ডেবিট কার্ড ইস্যু করার আবেদন।",
+          dynamicInputs: [
+            { id: "accNo", label: "অ্যাকাউন্ট নম্বর", placeholder: "A/C নম্বর", default: "" }
+          ],
+          enclosures: [
+            "আধার কার্ডের স্ব-প্রত্যয়িত জেরক্স কপি।",
+            "ব্যাংক পাসবইয়ের প্রথম পাতার কপি।"
+          ],
+          generateBody: (d) => `বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, আপনার শাখায় আমার সঞ্চয়ী অ্যাকাউন্ট রয়েছে, যার নম্বর: ${d.accNo || ".........."}।
+
+জরুরি আর্থিক প্রয়োজনে নগদ টাকা তোলার সুবিধার জন্য আমার উক্ত অ্যাকাউন্টে একটি সক্রিয় এটিএম/ডেবিট কার্ড একান্ত প্রয়োজন। বর্তমানে আমার কোনো চালু এটিএম কার্ড নেই।
+
+অতএব, মহাশয়ের নিকট বিনীত অনুরোধ— আমার অ্যাকাউন্টের বিপরীতে একটি নতুন এটিএম কার্ড ইস্যু করে বাধিত করবেন।`
+        },
+
+        bank_mobile: {
+          name: "৪. ব্যাংকে নতুন মোবাইল নম্বর যুক্ত / পরিবর্তন",
+          group: "🏦 ব্যাংক সংক্রান্ত (Bank Applications)",
+          recipientTitle: "মাননীয় শাখা প্রবন্ধক সমীপেষু,",
+          office: "ব্যাংকের নাম",
+          address: "শাখার নাম ও জেলা",
+          subject: "ব্যাংক অ্যাকাউন্টে নতুন মোবাইল নম্বর লিঙ্ক / পরিবর্তনের আবেদন।",
+          dynamicInputs: [
+            { id: "accNo", label: "অ্যাকাউন্ট নম্বর", placeholder: "A/C নম্বর", default: "" },
+            { id: "newMob", label: "নতুন সচল মোবাইল নম্বর", placeholder: "মোবাইল নম্বর", default: "" }
+          ],
+          enclosures: [
+            "আধার কার্ডের জেরক্স।",
+            "পাসবইয়ের প্রথম পাতার ফটোকপি।"
+          ],
+          generateBody: (d) => `বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, আপনার শাখায় পরিচালিত আমার সঞ্চয়ী অ্যাকাউন্ট নম্বর: ${d.accNo || ".........."}।
+
+ব্যাংকিং লেনদেনের ওটিপি ও মেসেজ পাওয়ার জন্য আমার অ্যাকাউন্টে বর্তমান ব্যবহৃত মোবাইল নম্বরটি (${d.newMob || d.mobile || "নতুন নম্বর"}) যুক্ত করা অতীব জরুরি।
+
+অতএব, মহাশয়ের নিকট প্রার্থনা— উক্ত নতুন মোবাইল নম্বরটি আমার অ্যাকাউন্টের সাথে রেজিস্টার করে ব্যাংকিং সেবা সচল রাখতে বাধিত করবেন।`
+        },
+
+        bank_passbook: {
+          name: "৫. হারিয়ে যাওয়া পাসবই পাওয়ার আবেদন",
+          group: "🏦 ব্যাংক সংক্রান্ত (Bank Applications)",
+          recipientTitle: "মাননীয় শাখা প্রবন্ধক সমীপেষু,",
+          office: "ব্যাংকের নাম",
+          address: "শাখার নাম",
+          subject: "হারিয়ে যাওয়া পাসবইয়ের পরিবর্তে ডুপ্লিকেট পাসবই পাওয়ার আবেদন।",
+          dynamicInputs: [
+            { id: "accNo", label: "অ্যাকাউন্ট নম্বর", placeholder: "A/C নম্বর", default: "" }
+          ],
+          enclosures: [
+            "আধার ও প্যান কার্ডের জেরক্স।",
+            "সাম্প্রতিক পাসপোর্ট সাইজ ছবি।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, আপনার শাখায় আমার অ্যাকাউন্ট নং: ${d.accNo || ".........."}।
+
+চলাচলের পথে অসাবধানতাবশত আমার মূল ব্যাংক পাসবইটি হারিয়ে গেছে। অনেক খোঁজাখুঁজি সত্ত্বেও তা উদ্ধার করা যায়নি। পাসবই না থাকার কারণে অ্যাকাউন্টের কাজ ব্যাহত হচ্ছে।
+
+অতএব, মহাশয়ের নিকট অনুরোধ— প্রয়োজনীয় নিয়ম মেনে আমাকে একটি নতুন ডুপ্লিকেট পাসবই প্রদান করে বাধিত করবেন।`
+        },
+
+        bank_close: {
+          name: "৬. ব্যাংক অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করার আবেদন",
+          group: "🏦 ব্যাংক সংক্রান্ত (Bank Applications)",
+          recipientTitle: "মাননীয় শাখা প্রবন্ধক সমীপেষু,",
+          office: "ব্যাংকের নাম",
+          address: "শাখার নাম",
+          subject: "সঞ্চয়ী ব্যাংক অ্যাকাউন্ট স্থায়ীভাবে বন্ধ করার আবেদন।",
+          dynamicInputs: [
+            { id: "accNo", label: "অ্যাকাউন্ট নম্বর", placeholder: "A/C নম্বর", default: "" }
+          ],
+          enclosures: [
+            "মূল পাসবই ও অব্যবহৃত চেক/এটিএম কার্ড।",
+            "পরিচয়পত্রের জেরক্স।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, আপনার শাখায় আমার সেভিংস অ্যাকাউন্ট নম্বর: ${d.accNo || ".........."}।
+
+ব্যক্তিগত কারণে আমি বর্তমানে এই অ্যাকাউন্টটি আর পরিচালনা করতে পারছি না। অ্যাকাউন্টে থাকা অবশিষ্ট টাকা আমাকে বুঝিয়ে দিয়ে অ্যাকাউন্টটি বন্ধ করার ব্যবস্থা করে বাধিত করবেন।`
+        },
+
+        police_mobile: {
+          name: "১. হারিয়ে যাওয়া মোবাইল ফোনের সাধারণ ডায়েরি (GD)",
+          group: "👮 পুলিশ স্টেশন জিডি (Police Station GD)",
+          recipientTitle: "মাননীয় ভারপ্রাপ্ত আধিকারিক (Officer-in-Charge) সমীপেষু,",
+          office: "থানার নাম (Police Station)",
+          address: "থানার এলাকা ও জেলা",
+          subject: "মোবাইল ফোন হারানোর জন্য সাধারণ ডায়েরি (G.D.) করার আবেদন।",
+          dynamicInputs: [
+            { id: "phoneName", label: "মোবাইল ব্র্যান্ড ও মডেল", placeholder: "উদাঃ Redmi / Samsung", default: "" },
+            { id: "imei", label: "IMEI নম্বর", placeholder: "IMEI 1 ও 2", default: "" },
+            { id: "simNo", label: "মোবাইলের সিম নম্বর", placeholder: "সিম নম্বর", default: "" },
+            { id: "placeLost", label: "হারানোর স্থান ও আনুমানিক তারিখ", placeholder: "উদাঃ গত পরশু বাজার থেকে", default: "রাস্তা দিয়ে চলাচলের সময়" }
+          ],
+          enclosures: [
+            "মোবাইল কেনার মূল বিল / রসিদ (Purchase Bill)।",
+            "আধার কার্ডের স্ব-প্রত্যয়িত জেরক্স কপি।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, পিতা/স্বামী: ${d.father || ".........."}, সাকিন: ${d.address || ".........."}। আমি আপনার থানার একজন স্থায়ী বাসিন্দা।
+
+আমি আপনাকে জানাচ্ছি যে, ${d.placeLost || "চলাচলের পথে"} আমার ব্যবহৃত স্মার্টফোনটি অসাবধানতাবশত হারিয়ে গেছে। 
+
+ফোনের বিবরণ:
+১. মডেল: ${d.phoneName || ".........."}
+২. সিম নম্বর: ${d.simNo || d.mobile || ".........."}
+৩. IMEI নম্বর: ${d.imei || ".........."}
+
+ভবিষ্যতে উক্ত ফোন বা সিম কার্ডের অপব্যবহার রোধে এবং নতুন সিম তোলার সুবিধার্থে থানায় একটি সাধারণ ডায়েরি (GD) নথিভুক্ত করার অনুরোধ করছি।
+
+অতএব, মহাশয়ের নিকট বিনীত প্রার্থনা— বিষয়টি জি.ডি. ভুক্ত করে একটি সিলমোহরযুক্ত কপি প্রদান করে বাধিত করবেন।`
+        },
+
+        police_document: {
+          name: "২. নথিপত্র (আধার/ভোটার/পাসবই) হারানোর সাধারণ ডায়েরি (GD)",
+          group: "👮 পুলিশ স্টেশন জিডি (Police Station GD)",
+          recipientTitle: "মাননীয় ভারপ্রাপ্ত আধিকারিক সমীপেষু,",
+          office: "থানার নাম",
+          address: "এলাকা ও জেলা",
+          subject: "গুরুত্বপূর্ণ নথিপত্র হারানোর বিষয়ে সাধারণ ডায়েরির (G.D.) আবেদন।",
+          dynamicInputs: [
+            { id: "docName", label: "কোন নথি হারিয়েছে", placeholder: "উদাঃ আধার কার্ড / ভোটার কার্ড / পাসবই", default: "মূল আধার ও ভোটার কার্ড" }
+          ],
+          enclosures: [
+            "নথির ফটোকপি (যদি থাকে)।",
+            "আবেদনকারীর পরিচয়পত্র।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, ঠিকানা: ${d.address || ".........."}।
+
+আমি আপনাকে জানাচ্ছি যে, চলাচলের পথে আমার অতি প্রয়োজনীয় নথিপত্র (${d.docName || "নথিপত্র"}) অসাবধানতাবশত হারিয়ে গেছে। অনেক খোঁজাখুঁজি সত্ত্বেও কোনো হদিস মেলেনি।
+
+অতএব, ভবিষ্যতে কোনো অপব্যবহার এড়াতে এবং নতুন ডুপ্লিকেট নথির আবেদনের সুবিধার্থে বিষয়টি সাধারণ ডায়েরি (G.D.) ভুক্ত করে একটি কপি প্রদান করে বাধিত করবেন।`
+        },
+
+        electric_meter: {
+          name: "১. নতুন ইলেকট্রিক মিটার সংযোগের আবেদন",
+          group: "⚡ বিদ্যুৎ দপ্তর (WBSEDCL)",
+          recipientTitle: "মাননীয় স্টেশন ম্যানেজার সমীপেষু,",
+          office: "WBSEDCL বিদ্যুৎ সরবরাহ কেন্দ্র",
+          address: "অফিসের এলাকা ও জেলা",
+          subject: "বাসাবাড়িতে নতুন বৈদ্যুতিক মিটার সংযোগের জন্য আবেদন।",
+          dynamicInputs: [
+            { id: "landInfo", label: "জমির মৌজা ও দাগ নম্বর", placeholder: "মৌজা: ..., দাগ: ...", default: "" }
+          ],
+          enclosures: [
+            "জমির দলিল বা পর্চার জেরক্স কপি।",
+            "আধার কার্ড ও পাসপোর্ট রঙিন ছবি।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, পিতা/স্বামী: ${d.father || ".........."}, গ্রাম: ${d.address || ".........."}।
+
+আমি উক্ত ঠিকানায় নতুন বাড়ি তৈরি করেছি এবং পরিবারের ব্যবহারের জন্য একটি নতুন ডোমেস্টিক মিটার সংযোগ নিতে ইচ্ছুক। জমির বিবরণ: ${d.landInfo || "নিজস্ব বাস্তু জমি"}। বিদ্যুৎ সংযোগের যাবতীয় সরকারি ফিস প্রদান করতে প্রস্তুত আছি।
+
+অতএব, স্থানটি পরিদর্শনপূর্বক দ্রুত নতুন বিদ্যুৎ মিটার সংযোগ প্রদানের ব্যবস্থা করবেন।`
+        },
+
+        electric_bill: {
+          name: "২. অস্বাভাবিক অতিরিক্ত বিদ্যুৎ বিল সংশোধনের আবেদন",
+          group: "⚡ বিদ্যুৎ দপ্তর (WBSEDCL)",
+          recipientTitle: "মাননীয় স্টেশন ম্যানেজার সমীপেষু,",
+          office: "WBSEDCL গ্রাহক সেবা কেন্দ্র",
+          address: "অফিসের এলাকা",
+          subject: "অতিরিক্ত ও অস্বাভাবিক বিদ্যুৎ বিল সংশোধনের আবেদন।",
+          dynamicInputs: [
+            { id: "conId", label: "কনজিউমার আইডি (Consumer ID)", placeholder: "৯ সংখ্যার আইডি", default: "" },
+            { id: "meterNo", label: "মিটার নম্বর", placeholder: "মিটারের নম্বর", default: "" }
+          ],
+          enclosures: [
+            "সাম্প্রতিক অস্বাভাবিক বিদ্যুৎ বিলের মূল কপি।",
+            "পূর্বের পরিশোধিত বিলের রসিদ।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি ${d.name || ".........."}, আমার কনজিউমার আইডি: ${d.conId || ".........."} এবং মিটার নং: ${d.meterNo || ".........."}।
+
+সাম্প্রতিক মাসের বিদ্যুৎ বিলে আগের তুলনায় অস্বাভাবিক ও মাত্রাতিরিক্ত বিল এসেছে। আমার বাড়ির সাধারণ ব্যবহারের তুলনায় এই বিলটি বাস্তবসম্মত নয়।
+
+অতএব, মহাশয়ের নিকট অনুরোধ— আমার মিটারের প্রকৃত রিডিং পুনঃপরীক্ষা করে অতিরিক্ত বিলটি সংশোধন করে সঠিক বিল প্রদানের ব্যবস্থা করবেন।`
+        },
+
+        school_leave: {
+          name: "১. শারীরিক অসুস্থতার জন্য ছুটির আবেদন",
+          group: "🏫 বিদ্যালয় (School)",
+          recipientTitle: "মাননীয় প্রধান শিক্ষক মহাশয় সমীপেষু,",
+          office: "বিদ্যালয়ের নাম",
+          address: "বিদ্যালয়ের ঠিকানা",
+          subject: "অসুস্থতার কারণে অনুপস্থিতির ছুটি মঞ্জুরের আবেদন।",
+          dynamicInputs: [
+            { id: "clsInfo", label: "শ্রেণি, বিভাগ ও রোল নম্বর", placeholder: "শ্রেণি: ..., রোল: ...", default: "" },
+            { id: "leaveDays", label: "ছুটির তারিখসমূহ", placeholder: "উদাঃ ১২/১০/২০২৬ থেকে ১৪/১০/২০২৬ পর্যন্ত", default: "" }
+          ],
+          enclosures: [
+            "চিকিৎসকের প্রেসক্রিপশন বা মেডিকেল শংসাপত্র।"
+          ],
+          generateBody: (d) => `মহাশয়,
+বিনীত নিবেদন এই যে, আমি আপনার বিদ্যালয়ের ${d.clsInfo || "নিয়মিত শিক্ষার্থী"}, নাম: ${d.name || ".........."}।
+
+তীব্র জ্বর ও শারীরিক অসুস্থতার কারণে আমি বিগত ${d.leaveDays || "উক্ত দিনগুলিতে"} বিদ্যালয়ের ক্লাসে উপস্থিত হতে পারিনি।
+
+অতএব, আমার অসুস্থতার কথা বিবেচনা করে উক্ত দিনগুলির অনুপস্থিতি মার্জনা করে ছুটি মঞ্জুর করতে বাধিত করবেন।`
+        }
+      },
+
+      en: {
+        cert_name: {
+          name: "1. Name Correction in Certificate",
+          group: "📜 Birth & Death Certificate",
+          recipientTitle: "The Registrar (Birth & Death Registration),",
+          office: "Municipality / Block Health Center / Registration Dept.",
+          address: "Office Address & District",
+          subject: "Application for Correction of Name in Birth / Death Certificate.",
+          dynamicInputs: [
+            { id: "certType", label: "Certificate Type", placeholder: "e.g., Birth Certificate", default: "Birth Certificate" },
+            { id: "regNo", label: "Registration / Certificate No.", placeholder: "Registration Number", default: "" },
+            { id: "wrongName", label: "Incorrect Name on Certificate", placeholder: "Name printed mistakenly", default: "" },
+            { id: "correctName", label: "Correct Name as per Documents", placeholder: "Correct spelling", default: "" }
+          ],
+          enclosures: [
+            "Original Affidavit sworn before a First Class Judicial Magistrate / Notary Public.",
+            "Original copy and photocopy of the existing Certificate.",
+            "Self-attested photocopies of identity proofs (Aadhaar / Voter ID / Educational Records).",
+            "Photocopy of identity proof of the applicant."
+          ],
+          generateBody: (d) => `With due respect, I, ${d.name || ".........."}, S/o or W/o: ${d.father || ".........."}, resident of: ${d.address || ".........."}.
+
+I / my family member possess a ${d.certType || "Birth Certificate"} bearing Registration No: ${d.regNo || ".........."}. Due to an inadvertent clerical error, the name has been recorded incorrectly as "${d.wrongName || "Incorrect Name"}". However, as per all valid government records, the true and correct name is "${d.correctName || "Correct Name"}".
+
+In support of this correction, I have enclosed the requisite First Class Judicial Affidavit along with all official documents.
+
+Therefore, I earnestly request you to kindly verify the attached documents and issue a corrected digital certificate with the correct name at the earliest.`
+        },
+
+        cert_parents: {
+          name: "2. Parents' Name Correction in Certificate",
+          group: "📜 Birth & Death Certificate",
+          recipientTitle: "The Registrar (Birth & Death Registration),",
+          office: "Office of the Registrar / Municipality",
+          address: "Office Address & District",
+          subject: "Application for Correction of Father's / Mother's Name in Birth Certificate.",
+          dynamicInputs: [
+            { id: "regNo", label: "Registration Number", placeholder: "Certificate No.", default: "" },
+            { id: "childName", label: "Child's Name", placeholder: "Child's Name", default: "" },
+            { id: "wrongParent", label: "Incorrect Parent's Name", placeholder: "Wrong Name in Certificate", default: "" },
+            { id: "correctParent", label: "Correct Parent's Name", placeholder: "Correct Name", default: "" }
+          ],
+          enclosures: [
+            "Original Affidavit sworn before a Notary Public / Judicial Magistrate.",
+            "Copy of the existing Birth Certificate.",
+            "Self-attested photocopies of Aadhaar / Voter ID / PAN of both parents.",
+            "Hospital discharge summary / birth slip."
+          ],
+          generateBody: (d) => `With due respect, I, ${d.name || ".........."}, S/o or W/o: ${d.father || ".........."}, residing at: ${d.address || ".........."}.
+
+In the Birth Certificate of my child, ${d.childName || ".........."} (Registration No: ${d.regNo || ".........."}), the name of the father/mother has been erroneously recorded as "${d.wrongParent || "Wrong Name"}". The actual and correct name according to government documents is "${d.correctParent || "Correct Name"}".
+
+I have enclosed the required Magistrate/Notary Affidavit and identity records in support of this correction.
+
+Therefore, I request your good office to kindly verify the records and amend the parent's name on the certificate accordingly.`
+        },
+
+        cert_address: {
+          name: "3. Address Correction in Certificate",
+          group: "📜 Birth & Death Certificate",
+          recipientTitle: "The Registrar / Competent Authority,",
+          office: "Birth & Death Registration Wing",
+          address: "Office Address",
+          subject: "Application for Rectification of Address in Birth / Death Certificate.",
+          dynamicInputs: [
+            { id: "certType", label: "Certificate Type", placeholder: "Birth / Death", default: "Birth Certificate" },
+            { id: "regNo", label: "Registration No.", placeholder: "Registration No.", default: "" },
+            { id: "wrongAddr", label: "Incorrect Address printed", placeholder: "Wrong Address", default: "" },
+            { id: "correctAddr", label: "Correct Permanent Address", placeholder: "Correct Address", default: "" }
+          ],
+          enclosures: [
+            "Notary Affidavit regarding proof of true address.",
+            "Copy of existing Certificate.",
+            "Valid residential proof (Aadhaar Card / Voter ID / Land Deed / Utility Bill)."
+          ],
+          generateBody: (d) => `Respectfully, I, ${d.name || ".........."}, resident of: ${d.address || ".........."}.
+
+In the ${d.certType || "Birth Certificate"} (Registration No: ${d.regNo || ".........."}), the permanent address has been mistakenly documented as "${d.wrongAddr || "Wrong Address"}". The accurate and permanent address is "${d.correctAddr || "Correct Address"}".
+
+I have attached a legal Affidavit and supporting residential documents.
+
+Therefore, I kindly request you to rectify the address in the records and issue an amended certificate.`
+        },
+
+        cert_mobile: {
+          name: "4. Update Mobile Number in Certificate Portal",
+          group: "📜 Birth & Death Certificate",
+          recipientTitle: "The Registrar / Portal Administrator,",
+          office: "Department of Health & Family Welfare / Municipality",
+          address: "Office Address",
+          subject: "Request to Update Registered Mobile Number in Birth/Death Certificate Portal.",
+          dynamicInputs: [
+            { id: "regNo", label: "Registration No.", placeholder: "Registration No.", default: "" },
+            { id: "holderName", label: "Certificate Holder's Name", placeholder: "Name", default: "" },
+            { id: "oldMob", label: "Old Registered Mobile No.", placeholder: "Old Number", default: "Discontinued / Inactive" },
+            { id: "newMob", label: "New Active Mobile Number", placeholder: "New Number", default: "" }
+          ],
+          enclosures: [
+            "Affidavit / Self-declaration regarding change of contact number.",
+            "Copy of Birth / Death Certificate.",
+            "Aadhaar card copy of applicant showing identity."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, residing at: ${d.address || ".........."}.
+
+Regarding the digital certificate of ${d.holderName || "my family member"} (Registration No: ${d.regNo || ".........."}), the previously recorded mobile number (${d.oldMob || "Old Number"}) is currently inactive. Consequently, I am unable to receive essential OTPs for online downloading. Kindly update the mobile number to my current active number: ${d.newMob || d.mobile || "New Number"}.
+
+Therefore, I request you to update the new mobile number in the official portal.`
+        },
+
+        cert_digital: {
+          name: "5. Convert Old Manual Certificate to Digital",
+          group: "📜 Birth & Death Certificate",
+          recipientTitle: "The Registrar (Birth & Death Registration),",
+          office: "Municipal Corporation / Block Development Office",
+          address: "Office Address",
+          subject: "Application for Digital Conversion of Old Manual Birth / Death Certificate.",
+          dynamicInputs: [
+            { id: "manualRegNo", label: "Manual Certificate Reg. No.", placeholder: "Manual Reg. No.", default: "" },
+            { id: "issueDate", label: "Original Date of Issue", placeholder: "e.g., 15/02/2005", default: "" },
+            { id: "personName", label: "Person's Name", placeholder: "Name on Certificate", default: "" }
+          ],
+          enclosures: [
+            "Original manual handwritten certificate along with photocopy.",
+            "Notary Affidavit verifying the authenticity of facts.",
+            "Aadhaar card copy of candidate and parents.",
+            "School admission record / Board admit card."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, residing at: ${d.address || ".........."}.
+
+I / my family member (${d.personName || "Person Name"}) hold a manual handwritten certificate issued under Registration No: ${d.manualRegNo || ".........."} dated ${d.issueDate || ".........."}. As computerized digital certificates with QR codes are mandatory for all official purposes, I request the entry of this record into the online portal.
+
+Therefore, kindly verify my original documents and affidavit and issue an official digital certificate.`
+        },
+
+        bank_kyc: {
+          name: "1. Bank KYC Update / Account Unfreeze",
+          group: "🏦 Bank Applications",
+          recipientTitle: "The Branch Manager,",
+          office: "State Bank of India / Bank Name",
+          address: "Branch Name & Address",
+          subject: "Application for KYC Updation and Unfreezing of Savings Bank Account.",
+          dynamicInputs: [
+            { id: "accNo", label: "Bank Account Number (A/C No)", placeholder: "Enter A/C Number", default: "" },
+            { id: "cifNo", label: "CIF Number (if available)", placeholder: "CIF Number", default: "" },
+            { id: "kycReason", label: "Reason for Freeze", placeholder: "e.g., Non-updation of KYC", default: "due to periodic KYC pending and temporary dormancy" }
+          ],
+          enclosures: [
+            "Duly filled and signed standard KYC updation form.",
+            "Self-attested photocopies of Aadhaar Card and PAN Card.",
+            "Photocopy of the first page of Bank Passbook.",
+            "Recent passport-size color photographs."
+          ],
+          generateBody: (d) => `With due respect, I, ${d.name || ".........."}, S/o or W/o: ${d.father || ".........."}, resident of: ${d.address || ".........."}. I maintain a Savings Bank Account in your esteemed branch under Account No: ${d.accNo || ".........."} ${d.cifNo ? `(CIF No: ${d.cifNo})` : ""}.
+
+Owing to ${d.kycReason || "KYC non-updation in due time"}, the transactions in my aforementioned account have been temporarily kept on hold / frozen. As a result, I am facing severe inconvenience in carrying out essential day-to-day transactions. I have attached my valid KYC documents and form herewith.
+
+Therefore, I earnestly request you to kindly accept my submitted KYC documents and unfreeze / reactivate my account for normal banking operations at the earliest.`
+        },
+
+        bank_insurance: {
+          name: "2. Stop Unauthorized Bank Insurance & Refund Deduction",
+          group: "🏦 Bank Applications",
+          recipientTitle: "The Branch Manager,",
+          office: "State Bank of India / Bank Name",
+          address: "Branch Name & Address",
+          subject: "Request to Stop Unauthorized Insurance / Auto-debit and Refund Deducted Amount.",
+          dynamicInputs: [
+            { id: "accNo", label: "Bank Account Number", placeholder: "Account Number", default: "" },
+            { id: "insuranceName", label: "Scheme / Policy Name", placeholder: "e.g., PMSBY / PMJJBY / General Insurance", default: "PMSBY / PMJJBY / Insurance Scheme" },
+            { id: "deductAmount", label: "Deducted Amount & Date", placeholder: "e.g., Rs. 336/- deducted on last month", default: "amount debited without prior consent" }
+          ],
+          enclosures: [
+            "Photocopy of Passbook transaction statement showing the deduction.",
+            "Self-attested photocopies of Aadhaar and PAN Card."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, S/o or W/o: ${d.father || ".........."}, resident of: ${d.address || ".........."}, hold a Savings Bank Account at your branch bearing Account No: ${d.accNo || ".........."}.
+
+I regret to bring to your kind notice that without my prior consent or instruction, insurance premium charges (${d.deductAmount || "money debited"}) have been automatically debited from my account under ${d.insuranceName || "Insurance Scheme"}. I have not opted for this scheme and do not wish to continue it.
+
+Therefore, I request you to kindly cancel and deactivate this insurance auto-debit facility from my account immediately and arrange to refund the deducted amount back to my account.`
+        },
+
+        bank_atm: {
+          name: "3. Application for New ATM / Debit Card",
+          group: "🏦 Bank Applications",
+          recipientTitle: "The Branch Manager,",
+          office: "Bank Name",
+          address: "Branch Name & Location",
+          subject: "Application for Issuance of a New ATM / Debit Card.",
+          dynamicInputs: [
+            { id: "accNo", label: "Account Number", placeholder: "A/C Number", default: "" }
+          ],
+          enclosures: [
+            "Self-attested photocopy of Aadhaar Card.",
+            "Photocopy of the first page of Bank Passbook."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, hold a Savings Bank Account in your branch with Account Number: ${d.accNo || ".........."}.
+
+For ease of monetary transactions and cash withdrawals, I require an active ATM/Debit Card linked to my account. Currently, I do not possess any active card.
+
+Therefore, I kindly request you to issue a new ATM/Debit Card for my account at your earliest convenience.`
+        },
+
+        bank_mobile: {
+          name: "4. Link / Change Mobile Number in Bank",
+          group: "🏦 Bank Applications",
+          recipientTitle: "The Branch Manager,",
+          office: "Bank Name",
+          address: "Branch Name",
+          subject: "Application for Updating Registered Mobile Number in Bank Account.",
+          dynamicInputs: [
+            { id: "accNo", label: "Account Number", placeholder: "A/C Number", default: "" },
+            { id: "newMob", label: "New Mobile Number", placeholder: "New Mobile Number", default: "" }
+          ],
+          enclosures: [
+            "Photocopy of Aadhaar Card.",
+            "Photocopy of Passbook."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, operate Savings Account Number: ${d.accNo || ".........."} at your branch.
+
+In order to receive SMS alerts and transaction OTPs, I wish to register my currently active mobile number (${d.newMob || d.mobile || "New Mobile Number"}) with the aforementioned account.
+
+Therefore, I request you to kindly update this mobile number in your banking system.`
+        },
+
+        bank_passbook: {
+          name: "5. Application for Duplicate Passbook",
+          group: "🏦 Bank Applications",
+          recipientTitle: "The Branch Manager,",
+          office: "Bank Name",
+          address: "Branch Name",
+          subject: "Application for Issuing a Duplicate Bank Passbook.",
+          dynamicInputs: [
+            { id: "accNo", label: "Account Number", placeholder: "A/C Number", default: "" }
+          ],
+          enclosures: [
+            "Photocopies of Aadhaar Card and PAN Card.",
+            "Recent passport-size photograph."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, hold Account Number: ${d.accNo || ".........."} at your branch.
+
+My original bank passbook has unfortunately been lost in transit and cannot be traced despite extensive searching. Consequently, I am facing difficulties in tracking transactions.
+
+Therefore, I request you to issue a duplicate passbook as per banking norms.`
+        },
+
+        bank_close: {
+          name: "6. Application for Account Closure",
+          group: "🏦 Bank Applications",
+          recipientTitle: "The Branch Manager,",
+          office: "Bank Name",
+          address: "Branch Name",
+          subject: "Application for Permanent Closure of Savings Bank Account.",
+          dynamicInputs: [
+            { id: "accNo", label: "Account Number", placeholder: "A/C Number", default: "" }
+          ],
+          enclosures: [
+            "Original Passbook and unutilized Cheque/Debit cards.",
+            "Photocopy of identity proof."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, hold Savings Account No: ${d.accNo || ".........."} at your branch.
+
+Due to personal reasons, I am unable to maintain this account any further. Kindly close the account and disburse the remaining balance either in cash or transfer it to my other bank account.
+
+Therefore, I request you to process the closure of this account.`
+        },
+
+        police_mobile: {
+          name: "1. Police GD for Lost Mobile Phone",
+          group: "👮 Police Station GD",
+          recipientTitle: "The Officer-in-Charge,",
+          office: "Police Station Name",
+          address: "Police Station Area & District",
+          subject: "Application for Lodging a General Diary (G.D.) for Lost Mobile Phone.",
+          dynamicInputs: [
+            { id: "phoneName", label: "Mobile Brand & Model", placeholder: "e.g., Redmi / Samsung", default: "" },
+            { id: "imei", label: "IMEI Numbers (1 & 2)", placeholder: "IMEI 1 & 2", default: "" },
+            { id: "simNo", label: "Inserted SIM Number", placeholder: "SIM Number", default: "" },
+            { id: "placeLost", label: "Place & Date of Loss", placeholder: "e.g., Near Main Market yesterday", default: "while travelling on the road" }
+          ],
+          enclosures: [
+            "Original purchase invoice / cash memo of the handset.",
+            "Self-attested photocopy of Aadhaar Card."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, S/o or W/o: ${d.father || ".........."}, resident of: ${d.address || ".........."}, under your jurisdiction.
+
+I regret to report that ${d.placeLost || "while travelling"}, my smartphone was inadvertently lost. Despite best efforts, the device could not be traced.
+
+Particulars of the lost handset:
+1. Make & Model: ${d.phoneName || ".........."}
+2. Mobile / SIM No: ${d.simNo || d.mobile || ".........."}
+3. IMEI Number(s): ${d.imei || ".........."}
+
+To prevent potential misuse of the SIM/device and to obtain a duplicate SIM, I request you to kindly register a General Diary (G.D.) entry and provide me with a stamped copy.`
+        },
+
+        police_document: {
+          name: "2. Police GD for Lost Official Documents",
+          group: "👮 Police Station GD",
+          recipientTitle: "The Officer-in-Charge,",
+          office: "Police Station Name",
+          address: "Area & District",
+          subject: "Application for Lodging a General Diary (G.D.) for Lost Documents.",
+          dynamicInputs: [
+            { id: "docName", label: "Lost Documents Detail", placeholder: "e.g., Original Aadhaar Card / Voter Card", default: "Original Aadhaar Card and Voter ID" }
+          ],
+          enclosures: [
+            "Photocopy of lost documents (if retained).",
+            "Identity proof of the applicant."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, resident of: ${d.address || ".........."}.
+
+I wish to inform you that while in transit, my vital documents (${d.docName || "Documents"}) were misplaced and could not be recovered.
+
+To safeguard against future misuse and to facilitate issuance of duplicates, I request you to lodge a General Diary entry and furnish an acknowledged copy.`
+        },
+
+        electric_meter: {
+          name: "1. Application for New Electric Meter Connection",
+          group: "⚡ Electricity Board (WBSEDCL)",
+          recipientTitle: "The Station Manager / Assistant Engineer,",
+          office: "Customer Care Center, WBSEDCL",
+          address: "Station Address & District",
+          subject: "Application for New Domestic Electric Meter Connection.",
+          dynamicInputs: [
+            { id: "landInfo", label: "Plot & Khatian Details", placeholder: "Mouza: ..., Dag No: ...", default: "" }
+          ],
+          enclosures: [
+            "Photocopies of Land Deed / ROR (Porcha).",
+            "Aadhaar Card copy and passport photos."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, resident of: ${d.address || ".........."}.
+
+I have newly constructed a residential house at the above address and require a new single-phase domestic meter connection for household use. Premises Details: ${d.landInfo || "Personal Residential Land"}. I am prepared to comply with all safety norms and fees.
+
+Therefore, I request an inspection of my premises and early provisioning of the electric meter.`
+        },
+
+        electric_bill: {
+          name: "2. Application for Rectification of Abnormal Bill",
+          group: "⚡ Electricity Board (WBSEDCL)",
+          recipientTitle: "The Station Manager,",
+          office: "WBSEDCL Customer Care Center",
+          address: "Office Address",
+          subject: "Application for Rectification of Erroneous / Exorbitant Electricity Bill.",
+          dynamicInputs: [
+            { id: "conId", label: "Consumer ID", placeholder: "9-digit Consumer ID", default: "" },
+            { id: "meterNo", label: "Meter Number", placeholder: "Meter Number", default: "" }
+          ],
+          enclosures: [
+            "Copy of the disputed electricity bill.",
+            "Receipts of previously paid regular bills."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, am a consumer under your service area with Consumer ID: ${d.conId || ".........."} and Meter No: ${d.meterNo || ".........."}.
+
+The electricity bill generated for the recent cycle reflects an unusually exorbitant and disproportionate sum, which does not correspond to my normal electrical consumption. It appears to stem from a meter recording error or faulty assessment.
+
+Therefore, I request a verification of the actual meter reading and issuance of a revised correct bill.`
+        },
+
+        school_leave: {
+          name: "1. Leave of Absence Application due to Sickness",
+          group: "🏫 School",
+          recipientTitle: "The Headmaster / Principal,",
+          office: "School / Institution Name",
+          address: "School Address",
+          subject: "Application for Leave of Absence due to Sickness.",
+          dynamicInputs: [
+            { id: "clsInfo", label: "Class, Section & Roll No.", placeholder: "Class: ..., Roll: ...", default: "" },
+            { id: "leaveDays", label: "Dates of Absence", placeholder: "e.g., 12/10/2026 to 14/10/2026", default: "" }
+          ],
+          enclosures: [
+            "Medical prescription / doctor's certificate."
+          ],
+          generateBody: (d) => `Sir,
+I, ${d.name || ".........."}, a regular student of your institution (${d.clsInfo || "Class & Roll"}).
+
+Due to sudden viral fever and acute physical illness, I was unable to attend classes from ${d.leaveDays || "the specified dates"}.
+
+Therefore, I request you to kindly condone my absence and grant me leave for those days.`
+        }
+      }
+    };
+
+    let activeEnclosures = [];
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('btnLangBN').classList.toggle('active', lang === 'bn');
+      document.getElementById('btnLangEN').classList.toggle('active', lang === 'en');
+      
+      const t = UI_TEXTS[lang];
+      document.getElementById('appHeaderTitle').innerText = t.appHeaderTitle;
+      document.getElementById('appHeaderSub').innerText = t.appHeaderSub;
+      document.getElementById('txtStep1').innerText = t.step1;
+      document.getElementById('lblSelectTopic').innerText = t.selectTopic;
+      document.getElementById('txtStep2').innerText = t.step2;
+      document.getElementById('lblRecipientTitle').innerText = t.lblRecipientTitle;
+      document.getElementById('lblOfficeName').innerText = t.lblOfficeName;
+      document.getElementById('lblOfficeAddress').innerText = t.lblOfficeAddress;
+      document.getElementById('txtStep3').innerText = t.step3;
+      document.getElementById('lblLetterSubject').innerText = t.lblLetterSubject;
+      document.getElementById('txtStep4').innerText = t.step4;
+      document.getElementById('lblIncludeEnc').innerText = t.lblIncludeEnc;
+      document.getElementById('lblCheckEnc').innerText = t.lblCheckEnc;
+      document.getElementById('customEnclosureInput').placeholder = t.addEncPlaceholder;
+      document.getElementById('btnAddEnc').innerText = t.btnAddEnc;
+      document.getElementById('txtStep5').innerText = t.step5;
+      document.getElementById('lblAppName').innerText = t.lblAppName;
+      document.getElementById('applicantName').placeholder = t.appNamePlaceholder;
+      document.getElementById('lblFatherName').innerText = t.lblFatherName;
+      document.getElementById('fatherName').placeholder = t.fatherNamePlaceholder;
+      document.getElementById('lblAppAddress').innerText = t.lblAppAddress;
+      document.getElementById('applicantAddress').placeholder = t.appAddressPlaceholder;
+      document.getElementById('lblAppMobile').innerText = t.lblAppMobile;
+      document.getElementById('applicantMobile').placeholder = t.appMobilePlaceholder;
+      document.getElementById('lblDate').innerText = t.lblDate;
+      document.getElementById('lblPlace').innerText = t.lblPlace;
+      document.getElementById('letterPlace').placeholder = t.placePlaceholder;
+      document.getElementById('btnReset').innerText = t.btnReset;
+      document.getElementById('btnPrint').innerText = t.btnPrint;
+      document.getElementById('btnCopy').innerText = t.btnCopy;
+      document.getElementById('txtEditHint').innerText = t.txtEditHint;
+
+      // Update paper static elements
+      document.getElementById('viewSalutation').innerText = t.salutation;
+      document.getElementById('viewEncTitle').innerText = t.encTitle;
+      document.getElementById('viewTagApp').innerText = t.tagApp;
+      document.getElementById('viewLblName').innerText = t.lblName;
+      document.getElementById('viewLblFather').innerText = t.lblFather;
+      document.getElementById('viewLblAddress').innerText = t.lblAddress;
+      document.getElementById('viewLblMobile').innerText = t.lblMobile;
+      document.getElementById('viewLblPlace').innerText = t.lblPlaceBottom;
+      document.getElementById('viewLblDate').innerText = t.lblDateBottom;
+      document.getElementById('viewSignYours').innerText = t.signYours;
+      document.getElementById('viewSignTag').innerText = t.signTag;
+
+      populateTemplateDropdown();
+      switchTemplate();
+    }
+
+    function populateTemplateDropdown() {
+      const select = document.getElementById('templateSelect');
+      const prevVal = select.value || 'cert_name';
+      select.innerHTML = '';
+      
+      const templates = templatesData[currentLang];
+      const groups = {};
+
+      Object.keys(templates).forEach(key => {
+        const item = templates[key];
+        if (!groups[item.group]) groups[item.group] = [];
+        groups[item.group].push({ key, name: item.name });
+      });
+
+      Object.keys(groups).forEach(grpName => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = grpName;
+        groups[grpName].forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt.key;
+          option.innerText = opt.name;
+          optGroup.appendChild(option);
+        });
+        select.appendChild(optGroup);
+      });
+
+      if (templates[prevVal]) {
+        select.value = prevVal;
+      } else {
+        select.value = Object.keys(templates)[0];
+      }
+    }
+
+    function getEnglishFormattedDate(dateVal) {
+      if (!dateVal) {
+        const d = new Date();
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        return `${dd}/${mm}/${d.getFullYear()}`;
+      }
+      const parts = dateVal.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateVal;
+    }
+
+    function renderDynamicFields(templateKey) {
+      const cfg = templatesData[currentLang][templateKey];
+      const container = document.getElementById('dynamicContainer');
+      container.innerHTML = "";
+
+      if (!cfg.dynamicInputs) return;
+
+      cfg.dynamicInputs.forEach(f => {
+        const div = document.createElement('div');
+        div.className = "form-group";
+
+        const lbl = document.createElement('label');
+        lbl.innerText = f.label;
+        lbl.setAttribute('for', f.id);
+
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.id = f.id;
+        inp.placeholder = f.placeholder;
+        inp.value = f.default || "";
+        inp.addEventListener('input', updatePreview);
+
+        div.appendChild(lbl);
+        div.appendChild(inp);
+        container.appendChild(div);
+      });
+    }
+
+    function renderEnclosureChecklist(templateKey) {
+      const cfg = templatesData[currentLang][templateKey];
+      const listContainer = document.getElementById('enclosureChecklist');
+      listContainer.innerHTML = "";
+
+      activeEnclosures = (cfg.enclosures || []).map(text => ({
+        text: text,
+        checked: true
+      }));
+
+      activeEnclosures.forEach((item, index) => {
+        const label = document.createElement('label');
+        label.className = "enclosure-item";
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = item.checked;
+        chk.onchange = (e) => {
+          activeEnclosures[index].checked = e.target.checked;
+          updatePreview();
+        };
+
+        const span = document.createElement('span');
+        span.innerText = item.text;
+
+        label.appendChild(chk);
+        label.appendChild(span);
+        listContainer.appendChild(label);
+      });
+    }
+
+    function toggleEnclosures() {
+      const isChecked = document.getElementById('includeEnclosures').checked;
+      const controls = document.getElementById('enclosureControls');
+      const containerInDoc = document.getElementById('viewEnclosuresContainer');
+
+      if (isChecked) {
+        controls.style.display = "block";
+        containerInDoc.style.display = "block";
+      } else {
+        controls.style.display = "none";
+        containerInDoc.style.display = "none";
+      }
+      updatePreview();
+    }
+
+    function addCustomEnclosure() {
+      const input = document.getElementById('customEnclosureInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      activeEnclosures.push({ text: text, checked: true });
+      input.value = "";
+
+      const listContainer = document.getElementById('enclosureChecklist');
+      const label = document.createElement('label');
+      label.className = "enclosure-item";
+
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.checked = true;
+      const idx = activeEnclosures.length - 1;
+      chk.onchange = (e) => {
+        activeEnclosures[idx].checked = e.target.checked;
+        updatePreview();
+      };
+
+      const span = document.createElement('span');
+      span.innerText = text;
+
+      label.appendChild(chk);
+      label.appendChild(span);
+      listContainer.appendChild(label);
+
+      updatePreview();
+    }
+
+    function switchTemplate() {
+      const key = document.getElementById('templateSelect').value;
+      const cfg = templatesData[currentLang][key];
+
+      document.getElementById('recipientTitle').value = cfg.recipientTitle || "";
+      document.getElementById('officeName').value = cfg.office || "";
+      document.getElementById('officeAddress').value = cfg.address || "";
+      document.getElementById('letterSubject').value = cfg.subject || "";
+
+      renderDynamicFields(key);
+      renderEnclosureChecklist(key);
+      toggleEnclosures();
+      updatePreview();
+    }
+
+    function toBengaliNumerals(n) {
+      if (currentLang === 'en') return String(n);
+      const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      return String(n).split('').map(d => bnDigits[d] || d).join('');
+    }
+
+    function updatePreview() {
+      const key = document.getElementById('templateSelect').value;
+      const cfg = templatesData[currentLang][key];
+
+      const rTitle = document.getElementById('recipientTitle').value.trim() || (currentLang === 'bn' ? "মাননীয় কর্তৃপক্ষ মহাশয় সমীপেষু," : "The Competent Authority,");
+      const oName = document.getElementById('officeName').value.trim() || (currentLang === 'bn' ? "[দপ্তর / প্রতিষ্ঠানের নাম]" : "[Office / Authority Name]");
+      const oAddr = document.getElementById('officeAddress').value.trim() || (currentLang === 'bn' ? "[শাখা বা অফিসের ঠিকানা]" : "[Branch / Office Address]");
+      const subj = document.getElementById('letterSubject').value.trim() || (currentLang === 'bn' ? "[দরখাস্তের বিষয়]" : "[Subject of Application]");
+
+      const aName = document.getElementById('applicantName').value.trim() || (currentLang === 'bn' ? "[আবেদনকারীর নাম]" : "[Applicant Name]");
+      const fName = document.getElementById('fatherName').value.trim() || (currentLang === 'bn' ? "[পিতা/স্বামীর নাম]" : "[Father/Husband Name]");
+      const aAddr = document.getElementById('applicantAddress').value.trim() || (currentLang === 'bn' ? "[সম্পূর্ণ ঠিকানা]" : "[Complete Address]");
+      const aMob = document.getElementById('applicantMobile').value.trim() || (currentLang === 'bn' ? "[মোবাইল নম্বর]" : "[Mobile Number]");
+      const dVal = document.getElementById('letterDate').value;
+      const lPlace = document.getElementById('letterPlace').value.trim() || (currentLang === 'bn' ? "[স্থান]" : "[Place]");
+
+      const englishDate = getEnglishFormattedDate(dVal);
+
+      const dynamicData = {
+        name: aName,
+        father: fName,
+        address: aAddr,
+        mobile: aMob
+      };
+
+      if (cfg.dynamicInputs) {
+        cfg.dynamicInputs.forEach(f => {
+          const el = document.getElementById(f.id);
+          if (el) dynamicData[f.id] = el.value.trim();
+        });
+      }
+
+      document.getElementById('viewRecipientTitle').innerText = rTitle;
+      document.getElementById('viewOfficeName').innerText = oName;
+      document.getElementById('viewOfficeAddress').innerText = oAddr;
+
+      const prefixSubj = currentLang === 'bn' ? "বিষয়:" : "Subject:";
+      document.getElementById('viewSubject').innerText = subj.startsWith(prefixSubj) ? subj : `${prefixSubj} ${subj}`;
+
+      const bodyHtml = cfg.generateBody(dynamicData).replace(/\n/g, '<br>');
+      document.getElementById('viewBody').innerHTML = bodyHtml;
+
+      const includeEnc = document.getElementById('includeEnclosures').checked;
+      const encContainer = document.getElementById('viewEnclosuresContainer');
+      const encUl = document.getElementById('viewEnclosures');
+      encUl.innerHTML = "";
+
+      if (includeEnc) {
+        encContainer.style.display = "block";
+        const selected = activeEnclosures.filter(item => item.checked);
+        if (selected.length === 0) {
+          const li = document.createElement('li');
+          li.innerText = UI_TEXTS[currentLang].noneEnc;
+          encUl.appendChild(li);
+        } else {
+          selected.forEach((item, i) => {
+            const li = document.createElement('li');
+            li.innerText = `${toBengaliNumerals(i + 1)}. ${item.text}`;
+            encUl.appendChild(li);
+          });
+        }
+      } else {
+        encContainer.style.display = "none";
+      }
+
+      document.getElementById('viewSignName').innerText = aName;
+      document.getElementById('viewSignFather').innerText = fName;
+      document.getElementById('viewSignAddress').innerText = aAddr;
+      document.getElementById('viewSignMobile').innerText = aMob;
+      document.getElementById('viewPlace').innerText = lPlace;
+      document.getElementById('viewDateEnglish').innerText = englishDate;
+    }
+
+    ['recipientTitle', 'officeName', 'officeAddress', 'letterSubject', 'applicantName', 'fatherName', 'applicantAddress', 'applicantMobile', 'letterDate', 'letterPlace'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
+    function copyDocumentText() {
+      const text = document.getElementById('printableDoc').innerText;
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = text;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        alert(UI_TEXTS[currentLang].copySuccess);
+      } catch (err) {
+        // Fallback
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    function resetAllFields() {
+      document.querySelectorAll('input:not([type="date"]):not([type="checkbox"]), textarea').forEach(i => i.value = "");
+      switchTemplate();
+    }
+
+    // Set today's date initially
+    document.getElementById('letterDate').value = new Date().toISOString().split('T')[0];
+
+    // Initialize in Bengali
+    setLanguage('bn');
+  </script>
+</body>
+</html>
